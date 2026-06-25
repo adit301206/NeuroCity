@@ -1,0 +1,138 @@
+================================================================================
+PROJECT FOLDER STRUCTURE AND FILE DETAILS
+================================================================================
+Root Directory: C:\NeuroCity
+Generated at: 2026-06-25 17:30:20
+================================================================================
+
+1. FOLDER TREE
+--------------------------------------------------------------------------------
+├── backend-django/
+│   ├── backend_env/ [Backend Env - Contents Omitted]
+│   ├── media/
+│   │   └── traffic_predictions/
+│   │       ├── pred_10eaa9dd.jpg
+│   │       ├── pred_1a6a1b00.jpg
+│   │       ├── pred_66d3d458.jpg
+│   │       └── pred_caa80805.jpg
+│   ├── ml_artifacts/
+│   │   └── fine_tuned_traffic_eye/
+│   │       ├── config.json
+│   │       ├── model.safetensors
+│   │       ├── preprocessor_config.json
+│   │       └── training_args.bin
+│   ├── neurocity_project/
+│   │   ├── __pycache__/ [  Pycache   - Contents Omitted]
+│   │   ├── __init__.py
+│   │   ├── asgi.py
+│   │   ├── settings.py
+│   │   ├── urls.py
+│   │   └── wsgi.py
+│   ├── test_outputs/
+│   │   └── latest_api_prediction.jpg
+│   ├── traffic_eye_api/
+│   │   ├── __pycache__/ [  Pycache   - Contents Omitted]
+│   │   ├── assets/
+│   │   │   ├── 1.jpg
+│   │   │   ├── 2.jpg
+│   │   │   ├── 3.jpg
+│   │   │   ├── 4.jpg
+│   │   │   ├── 5.jpg
+│   │   │   ├── 6.jpg
+│   │   │   ├── 7.jpg
+│   │   │   ├── 8.jpg
+│   │   │   ├── a1.jpg
+│   │   │   ├── a2.jpg
+│   │   │   ├── a3.jpg
+│   │   │   ├── a4.jpg
+│   │   │   ├── d1.jpg
+│   │   │   ├── d2.jpg
+│   │   │   ├── d3.jpg
+│   │   │   ├── d4.jpg
+│   │   │   ├── d5.webp
+│   │   │   ├── f1.jpeg
+│   │   │   ├── f2.jpeg
+│   │   │   ├── f3.jpeg
+│   │   │   ├── f4.jpeg
+│   │   │   ├── f5.jpeg
+│   │   │   └── test.jpg
+│   │   ├── migrations/
+│   │   │   ├── __pycache__/ [  Pycache   - Contents Omitted]
+│   │   │   └── __init__.py
+│   │   ├── services/
+│   │   │   ├── __pycache__/ [  Pycache   - Contents Omitted]
+│   │   │   └── hf_transformer_engine.py
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── models.py
+│   │   ├── tests.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── db.sqlite3
+│   ├── local_api_test.py
+│   ├── manage.py
+│   ├── requirements.txt
+│   └── yolov8s.pt
+├── backend-node/
+└── frontend/
+
+2. DETAILED FILE LIST
+--------------------------------------------------------------------------------
+Relative Path                                                | Size         | Last Modified       
+--------------------------------------------------------------------------------
+backend-django\db.sqlite3                                    | 0 B          | 2026-06-22 19:16:15 
+backend-django\local_api_test.py                             | 501.00 B     | 2026-06-25 17:26:09 
+backend-django\manage.py                                     | 695.00 B     | 2026-06-22 18:58:10 
+backend-django\requirements.txt                              | 460.00 B     | 2026-06-23 10:18:28 
+backend-django\yolov8s.pt                                    | 21.54 MB     | 2026-06-23 10:23:00 
+backend-django\media\traffic_predictions\pred_10eaa9dd.jpg   | 362.89 KB    | 2026-06-23 15:02:56 
+backend-django\media\traffic_predictions\pred_1a6a1b00.jpg   | 362.89 KB    | 2026-06-23 15:03:01 
+backend-django\media\traffic_predictions\pred_66d3d458.jpg   | 362.89 KB    | 2026-06-23 15:04:45 
+backend-django\media\traffic_predictions\pred_caa80805.jpg   | 261.53 KB    | 2026-06-23 15:05:36 
+backend-django\ml_artifacts\fine_tuned_traffic_eye\config.json | 1.82 KB      | 2026-06-22 18:53:40 
+backend-django\ml_artifacts\fine_tuned_traffic_eye\model.safetensors | 158.79 MB    | 2026-06-22 18:53:40 
+backend-django\ml_artifacts\fine_tuned_traffic_eye\preprocessor_config.json | 460.00 B     | 2026-06-22 18:53:40 
+backend-django\ml_artifacts\fine_tuned_traffic_eye\training_args.bin | 5.08 KB      | 2026-06-22 18:53:40 
+backend-django\neurocity_project\__init__.py                 | 0 B          | 2026-06-22 18:58:10 
+backend-django\neurocity_project\asgi.py                     | 427.00 B     | 2026-06-22 18:58:10 
+backend-django\neurocity_project\settings.py                 | 3.64 KB      | 2026-06-22 19:02:44 
+backend-django\neurocity_project\urls.py                     | 869.00 B     | 2026-06-22 19:14:59 
+backend-django\neurocity_project\wsgi.py                     | 427.00 B     | 2026-06-22 18:58:10 
+backend-django\test_outputs\latest_api_prediction.jpg        | 26.16 KB     | 2026-06-25 17:26:51 
+backend-django\traffic_eye_api\__init__.py                   | 0 B          | 2026-06-22 18:59:11 
+backend-django\traffic_eye_api\admin.py                      | 66.00 B      | 2026-06-22 18:59:11 
+backend-django\traffic_eye_api\apps.py                       | 108.00 B     | 2026-06-22 18:59:11 
+backend-django\traffic_eye_api\models.py                     | 60.00 B      | 2026-06-22 18:59:11 
+backend-django\traffic_eye_api\tests.py                      | 63.00 B      | 2026-06-22 18:59:11 
+backend-django\traffic_eye_api\urls.py                       | 171.00 B     | 2026-06-22 19:13:47 
+backend-django\traffic_eye_api\views.py                      | 2.30 KB      | 2026-06-23 10:33:27 
+backend-django\traffic_eye_api\assets\1.jpg                  | 33.31 KB     | 2016-12-02 22:00:48 
+backend-django\traffic_eye_api\assets\2.jpg                  | 13.48 KB     | 2016-12-02 22:00:46 
+backend-django\traffic_eye_api\assets\3.jpg                  | 40.58 KB     | 2016-12-02 22:00:46 
+backend-django\traffic_eye_api\assets\4.jpg                  | 27.26 KB     | 2016-12-02 22:00:46 
+backend-django\traffic_eye_api\assets\5.jpg                  | 24.81 KB     | 2016-12-02 22:00:46 
+backend-django\traffic_eye_api\assets\6.jpg                  | 25.22 KB     | 2016-12-02 22:00:46 
+backend-django\traffic_eye_api\assets\7.jpg                  | 9.92 KB      | 2016-12-02 22:00:46 
+backend-django\traffic_eye_api\assets\8.jpg                  | 471.81 KB    | 2019-02-23 09:49:12 
+backend-django\traffic_eye_api\assets\a1.jpg                 | 9.85 KB      | 2026-06-23 13:58:28 
+backend-django\traffic_eye_api\assets\a2.jpg                 | 7.30 KB      | 2026-06-23 13:58:36 
+backend-django\traffic_eye_api\assets\a3.jpg                 | 8.95 KB      | 2026-06-23 13:58:44 
+backend-django\traffic_eye_api\assets\a4.jpg                 | 10.96 KB     | 2026-06-23 13:58:52 
+backend-django\traffic_eye_api\assets\d1.jpg                 | 215.79 KB    | 2026-06-23 11:25:37 
+backend-django\traffic_eye_api\assets\d2.jpg                 | 64.41 KB     | 2026-06-23 11:29:32 
+backend-django\traffic_eye_api\assets\d3.jpg                 | 39.85 KB     | 2026-06-23 11:30:02 
+backend-django\traffic_eye_api\assets\d4.jpg                 | 25.41 KB     | 2026-06-23 11:30:14 
+backend-django\traffic_eye_api\assets\d5.webp                | 43.96 KB     | 2026-06-23 11:31:39 
+backend-django\traffic_eye_api\assets\f1.jpeg                | 174.18 KB    | 2026-06-22 19:57:52 
+backend-django\traffic_eye_api\assets\f2.jpeg                | 131.70 KB    | 2026-06-22 19:57:52 
+backend-django\traffic_eye_api\assets\f3.jpeg                | 115.74 KB    | 2026-06-22 19:57:52 
+backend-django\traffic_eye_api\assets\f4.jpeg                | 141.44 KB    | 2026-06-22 19:57:52 
+backend-django\traffic_eye_api\assets\f5.jpeg                | 141.47 KB    | 2026-06-22 19:57:52 
+backend-django\traffic_eye_api\assets\test.jpg               | 453.36 KB    | 2019-02-23 09:48:55 
+backend-django\traffic_eye_api\migrations\__init__.py        | 0 B          | 2026-06-22 18:59:11 
+backend-django\traffic_eye_api\services\hf_transformer_engine.py | 2.50 KB      | 2026-06-25 17:23:24 
+
+================================================================================
+End of Report
+================================================================================

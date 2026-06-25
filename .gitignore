@@ -1,0 +1,17 @@
+# Python virtual environments
+backend_django/backend_env/
+**/backend_env/
+__pycache__/
+*.pyc
+
+# Heavy ML Weights & Fine-Tuning Tensors
+*.pt
+*.safetensors
+*.bin
+backend_django/ml_artifacts/
+backend_django/media/traffic_predictions/
+
+# Local configuration and system files
+.env
+.DS_Store
+Thumbs.db
