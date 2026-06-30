@@ -10,6 +10,7 @@ __pycache__/
 *.bin
 backend_django/ml_artifacts/
 backend_django/media/traffic_predictions/
+backend_django/traffic_eye_api/assets
 
 # Local configuration and system files
 .env
