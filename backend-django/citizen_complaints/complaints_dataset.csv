@@ -1,0 +1,551 @@
+complaint_text,base_severity,category
+"No water supply in our locality, Sector 14, for the past 3 days. We are facing immense difficulties. Please intervene.",5,Water_Sanitation
+"The tap water in Indira Nagar, near the Kali Mandir, is coming out yellowish and smells foul. Worried about health.",4,Water_Sanitation
+"Drain choked outside my house, Gali No. 7, Ramnagar. Stagnant water and mosquitoes everywhere.",3,Water_Sanitation
+"Huge sewage overflow on MG Road, near the metro station exit. The entire street is flooded with wastewater, causing a terrible stench and making it impossible to pass.",5,Water_Sanitation
+"Water pressure is extremely low in our society, Krishna Apartments. Can barely fill a bucket in an hour.",2,Water_Sanitation
+Public tap near the community park in Rajouri Garden has been leaking continuously for over a week. So much precious water wastage.,2,Water_Sanitation
+"Illegal water connection visible near the slum area behind the railway station. Many people are drawing water directly from the main line, affecting our supply.",3,Water_Sanitation
+"The drainage system in Indraprastha Colony is completely non-existent, leading to severe waterlogging even after light rains. Roads are unusable and it's a mosquito breeding ground.",4,Water_Sanitation
+"Our street's sewer line is constantly overflowing, especially after the recent monsoon showers. The sewage mixes with rainwater, creating a filthy mess outside shops on Linking Road.",4,Water_Sanitation
+"The hand pump in our village, Rampur, has stopped working. We rely on it for all our drinking water needs.",4,Water_Sanitation
+"Water supply timings are very erratic. Sometimes only for 30 minutes in the morning, sometimes not at all, disrupting daily chores.",3,Water_Sanitation
+"There's a strong, unbearable smell coming from the Nallah (drainage canal) behind our residential complex in Dwarka. It's getting worse day by day.",3,Water_Sanitation
+Our borewell has run dry for the first time in years. Need immediate assistance from the municipality for alternative water sources.,4,Water_Sanitation
+"Dirty, brown water coming from the taps in our building. Unable to use for cooking, bathing, or even washing utensils.",4,Water_Sanitation
+"Sewage water seeping into the ground in front of our building, A-Wing, Akash Ganga Apartments. It's a breeding ground for diseases and smells terrible.",4,Water_Sanitation
+"The public toilet near the bus stand is in a deplorable state; no water, broken flushes, and extremely unhygienic. Needs immediate maintenance and cleaning.",3,Water_Sanitation
+"A main water pipe burst near the Sector 18 roundabout last night. Water is gushing onto the road, causing traffic issues and immense wastage. Urgent repair needed.",5,Water_Sanitation
+"My water bill is inexplicably high, but the supply is terrible and irregular. Please investigate this discrepancy.",2,Water_Sanitation
+The water filter at the community RO plant in our area is not working properly. The water tastes bad and we doubt its purity.,3,Water_Sanitation
+Garbage thrown into the open drain behind the marketplace is causing blockages and foul smells. Request regular cleaning and proper waste management.,2,Water_Sanitation
+"Children are playing near an open manhole on GT Road, near the reliance fresh store. It's a serious accident waiting to happen.",4,Water_Sanitation
+The overhead water tank on our building's terrace hasn't been cleaned in ages. The water feels slimy and is a health concern.,3,Water_Sanitation
+"During power cuts, we have no water supply at all because the pumps don't work. Is there no alternative arrangement or backup power for water supply?",2,Water_Sanitation
+Heavy waterlogging in the underpass during every rain. The drainage system here is inadequate and needs an overhaul.,4,Water_Sanitation
+"The new housing society next door has illegally diverted a public water line for their exclusive use, significantly affecting our colony's supply.",4,Water_Sanitation
+"No proper drainage system in our slum area. Water stands everywhere after rain, attracting mosquitoes, flies, and causing illness.",4,Water_Sanitation
+"Frequent pipe bursts in our street, near the old temple. Seems like old infrastructure. Need complete replacement of the water lines.",3,Water_Sanitation
+The municipal water supply has a very distinct metallic taste lately. Worried about contamination and its long-term health effects.,3,Water_Sanitation
+"The sewage treatment plant (STP) in our locality emits a terrible, unbearable odor, especially in the evenings. It's severely affecting our quality of life.",2,Water_Sanitation
+The water meter outside my home in Krishna Nagar has been tampered with. It's showing incorrect readings and I suspect foul play.,1,Water_Sanitation
+"No public taps available in our slum pocket. Women have to walk miles to fetch water daily, which is a huge burden.",4,Water_Sanitation
+"Our colony's main drain is overflowing onto the streets whenever there's heavy rain, bringing all kinds of filth and creating a breeding ground for diseases.",4,Water_Sanitation
+"The water supply is inconsistent, sometimes it's very strong, other times just a trickle. Makes it hard to plan daily chores and fill tanks.",2,Water_Sanitation
+Open defecation is still prevalent near the railway tracks behind our colony due to lack of public facilities. It's unhygienic and disrespectful.,3,Water_Sanitation
+"Illegal construction blocking access to the drainage channel, leading to water accumulation and potential flooding in nearby areas.",3,Water_Sanitation
+Water supply completely shut off without any prior notice in Gulmohar Park. This lack of communication is unacceptable and causes great inconvenience.,3,Water_Sanitation
+"The common borewell pump in our village needs urgent repair. It's making strange noises and might break down completely soon, leaving us without water.",3,Water_Sanitation
+Water pressure drops significantly during peak hours (morning 7-9 AM). Impossible to bathe or fill overhead tanks adequately during these crucial hours.,2,Water_Sanitation
+"The underground water tank in our society has a leak, causing persistent dampness in the basement. Urgent inspection and repair needed to prevent structural damage.",3,Water_Sanitation
+"During monsoon, our streets become like rivers due to choked drains. This happens every year without fail, causing immense disruption and damage.",4,Water_Sanitation
+"Foul smell from the kitchen tap water. It's not a drain issue, seems to be from the supply itself, indicating potential contamination.",3,Water_Sanitation
+"No proper waste disposal near the open drains, so people just dump garbage, exacerbating blockages and making the area unhygienic.",2,Water_Sanitation
+The local 'pani puri' vendor near the market is reportedly using unhygienic water. Please inspect their setup to ensure public health and safety.,3,Water_Sanitation
+"My neighbor is continuously washing their car and wasting excessive amounts of water from the main line, despite water scarcity in our region.",1,Water_Sanitation
+"The road outside our building, opposite the post office, has a constant puddle of dirty water from a leaky pipe. It's been there for days, attracting insects.",2,Water_Sanitation
+There's a visible layer of scum and dirt in our overhead water tank. Needs urgent cleaning to maintain hygiene and prevent waterborne diseases.,3,Water_Sanitation
+"Our street has no storm drains, so every heavy rain causes flash flooding, damaging property, blocking roads, and creating a dangerous situation.",4,Water_Sanitation
+"The water supply for industrial units seems prioritized over residential areas, causing severe shortages for us, especially during summer months.",2,Water_Sanitation
+"The municipal sewage line behind our home frequently backflows into our toilets and bathrooms. It's disgusting, a major health risk, and needs immediate attention.",5,Water_Sanitation
+"Illegal dumping of construction debris into the nallah is narrowing its flow and causing severe blockages downstream, leading to floods in low-lying areas.",4,Water_Sanitation
+"Potholes near the Sector 14 market are getting worse, especially after the recent rain. Bikes are struggling.",3,Road_Repair
+The entire stretch of road outside St. Mary's School is riddled with craters. It's a huge hazard for children and vehicles.,4,Road_Repair
+Small cracks appearing on the main road leading to the Industrial Area. Needs fixing before monsoon.,2,Road_Repair
+"Large section of NH-48 near the toll plaza has collapsed, causing severe traffic jams and is dangerous.",5,Road_Repair
+"Speed breakers on Residency Road are completely broken, sharp edges exposed. Tyre damage risk.",3,Road_Repair
+Minor uneven patch on the footpath near Subhash Chowk. Not urgent but trip hazard.,1,Road_Repair
+Waterlogging on the road outside the new metro station due to a huge depression. It's almost always flooded.,4,Road_Repair
+The road connecting MG Road to the outer ring road is very patchy and has multiple small potholes.,3,Road_Repair
+Manhole cover missing on the busy road opposite Apollo Hospital. Extremely dangerous at night.,5,Road_Repair
+Surface erosion near the bus stop in Janakpuri. Dust pollution is increasing.,2,Road_Repair
+"Roads inside Phase 3 residential colony are completely worn out, feel like a village road. Requires full resurfacing.",4,Road_Repair
+Multiple potholes in front of the local police station. Embarrassing and inconvenient.,3,Road_Repair
+"Minor road damage near the local temple, causing slight bumps for devotees.",2,Road_Repair
+A large sinkhole has opened up on the road near the sewage treatment plant. Immediate closure needed.,5,Road_Repair
+"The road leading to the dump yard is totally broken, causing heavy vehicles to sway dangerously.",4,Road_Repair
+"Uneven road surface on the flyover entrance near D-Mart, causing sudden jerks.",3,Road_Repair
+Small divot in the asphalt on Park Street. Barely noticeable but worth a mention.,1,Road_Repair
+"After monsoon, the road in our locality has become a kachcha road. Impossible to drive without fear of damage.",4,Road_Repair
+Pathetic road condition near the railway underpass. Always flooded and full of potholes.,3,Road_Repair
+Minor cracks on the service lane next to the expressway.,2,Road_Repair
+Road washed away completely near the river bridge due to recent floods. No access.,5,Road_Repair
+"Very deep potholes on the road leading to the government hospital, ambulances struggle.",4,Road_Repair
+Several small but sharp potholes on the main road of Defence Colony. Damages suspension.,3,Road_Repair
+Loose gravel on the road shoulder near the park entrance.,2,Road_Repair
+The stretch outside DPS School has become a nightmare with multiple large potholes. Accidents waiting to happen.,4,Road_Repair
+The road leading to the industrial area has several broken patches causing heavy dust pollution.,3,Road_Repair
+Critical infrastructure: The approach road to the main bridge has significant cracks and appears unstable. Urgent inspection required.,5,Road_Repair
+Minor road settlement near the water pipeline work site.,2,Road_Repair
+"The entire lane leading to the wholesale market is extremely uneven, vehicles frequently get stuck.",4,Road_Repair
+"Speed breakers are worn out and virtually invisible on GT Road, leading to speeding and accidents.",3,Road_Repair
+Small unlevelled patch on the cycle track near City Centre.,1,Road_Repair
+"Road near the local gurudwara has significant depressions, causing waterlogging during light rain.",4,Road_Repair
+Continuous patches of broken tarmac on the road through the green belt area.,3,Road_Repair
+Bridge approach road has wide cracks and visible rebar. Looks like it might collapse.,5,Road_Repair
+Surface peeling off on the road connecting the residential area to the main highway.,2,Road_Repair
+Potholes on the road outside the university campus are causing students on bikes to fall.,4,Road_Repair
+Unrepaired digging pits from fiber optic work have made the road extremely bumpy.,3,Road_Repair
+Uneven joint where two road sections meet near the petrol pump. Minor bump.,1,Road_Repair
+Roads inside the slum area are completely unpaved and turn into mud pools during monsoon.,4,Road_Repair
+Cracks and loose stones on the winding road leading up to the hill temple. Skidding risk.,3,Road_Repair
+Major road collapse near the construction site of the new skyscraper. Road completely blocked.,5,Road_Repair
+Minor undulations on the road surface near the local bakery.,2,Road_Repair
+"The road in front of the municipal office is in a deplorable state, full of deep potholes. Fix it!",4,Road_Repair
+"Several potholes hidden by water accumulation near the flyover pillar, causing sudden impacts.",3,Road_Repair
+Small chip in the road surface on the footpath near the school gate.,1,Road_Repair
+"The service road parallel to NH-8 is completely dilapidated, large chunks of asphalt missing.",4,Road_Repair
+"Uneven and broken patches on the road through the market area, making it difficult for pedestrians and rickshaws.",3,Road_Repair
+"A large portion of the road near the river embankment has eroded away, threatening the entire structure.",5,Road_Repair
+Minor surface wear and tear on the road leading to the local park.,2,Road_Repair
+"Post-monsoon road conditions are terrible in almost all by-lanes of Old Delhi, specifically near Chandni Chowk. Needs attention.",4,Road_Repair
+"Streetlights near the main market are not working, making it very dark and unsafe after 8 PM. It's a prime spot for snatching.",4,Public_Safety
+"Too many stray dogs near the children's park in Sector 7. They are aggressive, especially at night, and have bitten a couple of kids. Urgent action needed.",5,Public_Safety
+"The footpath outside the old post office has a huge open drain. It's a serious hazard, especially with the monsoon rains approaching. Someone will fall in and get severely injured.",5,Public_Safety
+"Potholes on the road leading to the corporate park are terrible. Cars swerve, and bikes skid regularly. It's an accident waiting to happen daily during peak traffic.",4,Public_Safety
+"Drunken men loiter near the liquor store every evening, harassing passersby. My daughter feels unsafe walking past this area after sunset.",4,Public_Safety
+There's no CCTV coverage at the bus stop opposite Sai Mandir. Chain snatching incidents have increased alarmingly there in the last month.,4,Public_Safety
+"The traffic signal at the Ambience Mall junction is often out of order, leading to absolute chaos and near-misses during peak hours.",3,Public_Safety
+"Construction debris is dumped illegally on the pavement near my building, blocking pedestrian movement and attracting rats. It's a constant trip hazard.",2,Public_Safety
+"Exposed electrical wires are hanging low from a pole near the community hall. It's incredibly dangerous, especially during waterlogging and monsoon season.",5,Public_Safety
+"Auto-rickshaws often overcharge and refuse short-distance rides near the metro station. While not a direct safety threat, it leads to disputes and inconvenience, especially for women at night.",2,Public_Safety
+The park swing set is broken. A metal bar is sticking out. Kids could get seriously hurt while playing.,3,Public_Safety
+"Beggars near the railway station are very persistent and sometimes aggressive, making commuters uncomfortable and feeling unsafe, especially single women.",3,Public_Safety
+Noise from late-night pujas and loudspeakers in the temple compound is disruptive and prevents restful sleep. This affects overall well-being and peace.,1,Public_Safety
+"The public toilet near the vegetable market is filthy and often occupied by suspicious individuals, making it unsafe for women to use.",3,Public_Safety
+"Cars are parked illegally on the main road outside Apollo Hospital, blocking one lane and making it difficult for ambulances to pass quickly. This could be life-threatening.",4,Public_Safety
+"Waste is being burned daily in the vacant plot behind our society. The smoke is toxic, and it's a huge fire hazard for nearby residential buildings.",4,Public_Safety
+"Lack of proper street lighting on the bypass road after sunset. It's a stretch known for speeding vehicles and is pitch dark, increasing accident and crime risk.",4,Public_Safety
+"Stray cattle frequently block traffic on the NH-48 service road, causing sudden braking and potential accidents, especially with heavy vehicles.",3,Public_Safety
+Drug peddling activities are suspected in the desolate park area near the riverfront after dusk. It's becoming a den for illicit activities.,5,Public_Safety
+Women are being harassed by a group of young men outside the college gate every afternoon. They pass lewd comments and make students uncomfortable.,5,Public_Safety
+"During heavy monsoon, the underpass near City Centre floods completely, making it impassable and trapping vehicles. People risk electrocution from submerged wires.",5,Public_Safety
+"Street vendors have encroached heavily on the footpath near Lajpat Nagar market, leaving no space for pedestrians and forcing them onto the busy road.",3,Public_Safety
+The boundary wall of the abandoned factory near the school is crumbling. It's a danger to children playing nearby and could collapse anytime.,4,Public_Safety
+The security guard at our society gate often sleeps during his night duty. This leaves the gate vulnerable to intruders and thefts.,3,Public_Safety
+"Frequent power cuts without prior notice are causing panic, especially in multi-storey buildings with no proper backup. Elevators get stuck with people inside.",3,Public_Safety
+"There's a big, deep crack in the road near the flyover entry point. Vehicles bounce dangerously when hitting it, leading to loss of control.",3,Public_Safety
+"Unregulated garbage dumping at the corner of Gandhi Road is attracting pests and creating an unhygienic environment. Kids often play there, risking diseases.",2,Public_Safety
+"Lack of proper railings along the canal path makes it dangerous, especially for children and the elderly who could easily fall in.",4,Public_Safety
+"Some residents are bursting illegal firecrackers late at night, causing immense air pollution and fire risk to adjacent buildings and parked vehicles.",4,Public_Safety
+"Public transportation buses are often overcrowded, especially during office hours, making travel uncomfortable and potentially unsafe during sudden stops or braking.",3,Public_Safety
+"The siren of the local police station is not working, which could delay emergency response and alert during critical incidents.",2,Public_Safety
+There's a group of youngsters often racing bikes recklessly on the main boulevard every weekend evening. It's very dangerous for pedestrians and other vehicles.,5,Public_Safety
+An old banyan tree near the school boundary wall has huge branches hanging precariously low. It needs trimming before monsoon as it could fall on children.,4,Public_Safety
+"The pedestrian crossing markings near the market are completely faded. Drivers don't stop, making it extremely dangerous for people to cross the busy road.",3,Public_Safety
+"Open sewerage pipes are leaking onto the street near the slum area, posing severe health risks like cholera and making the area slippery.",4,Public_Safety
+"The watchman at the community park gate is rarely present, leaving the park unguarded. People are worried about security, especially after dark and for children.",3,Public_Safety
+"Unauthorized hawkers are setting up stalls right at the entrance of the metro station, causing severe congestion and creating a fire hazard with their cooking equipment.",4,Public_Safety
+"There are too many rats in the drainage system near the residential blocks. They are visible even during the day and carry diseases, posing a health risk.",2,Public_Safety
+"People are often seen urinating in public spaces, especially near the flyover pillars, which is unhygienic, disrespectful, and creates a foul smell.",1,Public_Safety
+A local 'goon' (local tough) is extorting money from small shopkeepers in the area. Shopkeepers are scared to complain due to threats and intimidation.,5,Public_Safety
+The fire extinguishers in our apartment building's common areas haven't been serviced in years. They are probably useless in case of an emergency.,4,Public_Safety
+Lack of proper signage for emergency exits in the new shopping mall is concerning. What if there's a stampede or fire and people can't find their way out?,3,Public_Safety
+"During festive seasons, firecrackers are thrown indiscriminately from balconies, posing a risk to people below and nearby properties, causing minor injuries.",4,Public_Safety
+"The playground equipment, specifically the merry-go-round, has rusted bolts and sharp edges. It's very unsafe for children who could get cuts or fall.",3,Public_Safety
+"Stray dogs are being fed raw meat by some residents on the street, which makes them territorial and aggressive. This is an ongoing issue near the school, making children fear.",4,Public_Safety
+"The main water pipeline burst near the market, causing severe waterlogging and a huge trench in the middle of the road. It's been days, posing a traffic hazard.",4,Public_Safety
+"Uncovered electrical junction boxes are present on multiple street corners. During rain, these are electrocution risks for anyone, including children playing nearby.",5,Public_Safety
+"There are no speed breakers on the road leading to the hospital. Vehicles often speed, making it dangerous for patients and visitors crossing the road, especially in emergency.",3,Public_Safety
+"The public library has very poor lighting inside, especially in the stairwells. It's difficult to see and poses a trip hazard for elderly visitors.",2,Public_Safety
+"Groups of young men gather at the vacant plot near the community temple every night, drinking and creating a nuisance. Sometimes arguments break out, making it unsafe to pass by for families.",4,Public_Safety
+"Garbage not picked up for 3 days near Gali No. 7, Shastri Nagar. Bins are overflowing badly, dogs tearing bags open.",4,Waste_Management
+The public dustbin outside Patel Market is broken and has no lid. Waste is spilling onto the pavement daily.,3,Waste_Management
+"Foul smell emanating from the overflowing community bin near Hanuman Mandir. It's unbearable, especially in the heat.",5,Waste_Management
+Illegal dumping of construction debris on the vacant plot behind the new Reliance Trends store. This is a recurring issue.,3,Waste_Management
+"Sewage drain near my house (H.No. 23, Sector 15) is completely choked with plastic waste and garbage. Waterlogging starts with slightest rain.",4,Waste_Management
+"Waste collection vehicle comes at odd hours, sometimes skipping our street entirely. We need a fixed schedule for Ganesh Vihar.",2,Waste_Management
+Someone is burning garbage in the open ground opposite Surya Hospital every evening. The smoke is affecting everyone with breathing issues.,5,Waste_Management
+No dustbins available in the entire stretch of Linking Road near the mall. People are forced to litter.,2,Waste_Management
+"My street (Block C, Green Park) has not been swept for a week. Leaves and litter everywhere.",2,Waste_Management
+"Overflowing garbage dump near the railway tracks in Old Delhi. Rats and flies are everywhere, a major health concern.",4,Waste_Management
+"Residents are not segregating waste. All dry and wet waste is mixed in the bins, defeating the purpose of the segregation initiative.",3,Waste_Management
+"Stray cattle are constantly rummaging through the garbage bins outside our society gate, spreading waste everywhere.",3,Waste_Management
+Illegal dumping of animal carcasses near the Yamuna river bank. Extremely unhygienic and disrespectful to the environment.,5,Waste_Management
+The waste collection staff demands extra money to pick up large items like old furniture. This is unacceptable and unethical.,2,Waste_Management
+"Dustbins are too small for the population density in our area, leading to constant overflow near the market square.",3,Waste_Management
+"During Diwali, firecracker waste was not cleared for days, especially near the community grounds, posing a fire risk.",3,Waste_Management
+Waterlogging near the metro station entrance due to choked drains filled with plastic bags and general waste. Commuter inconvenience.,4,Waste_Management
+"The municipality workers are dumping collected waste on an empty plot instead of taking it to the designated site, creating an illegal dump.",4,Waste_Management
+"No separate collection for e-waste or hazardous household waste (batteries, paints). Where should we dispose of these safely?",2,Waste_Management
+The road leading to the main landfill is completely covered in spilled garbage from trucks. A major hazard for commuters and local residents.,4,Waste_Management
+"Open defecation near the uncollected garbage piles, especially in the slum areas adjacent to the railway line. Health crisis waiting to happen.",5,Waste_Management
+Street vendors near the temple throw their waste directly onto the road. Need more bins or stricter enforcement of regulations.,3,Waste_Management
+"The 'Swachh Bharat' bins installed in our park are already broken and not emptied regularly, defeating their purpose.",3,Waste_Management
+"Potholes on our street (near the police station) are full of stagnant water and floating plastic waste, breeding mosquitoes.",3,Waste_Management
+"The evening market waste (vegetable peels, fruit waste) is left on the streets overnight, attracting pests and creating a mess.",4,Waste_Management
+"My colony (Sarojini Nagar) hasn't had its community bins cleaned in weeks. They are slimy, infested, and emitting a terrible smell.",4,Waste_Management
+"The waste collection bell often doesn't ring, or they pass by too quickly. Many households miss the collection service.",2,Waste_Management
+"Construction workers are dumping cement bags and debris into the common waste bins, making it difficult for municipal collection.",3,Waste_Management
+"The municipal sweepers sweep the waste into the drains instead of collecting it, causing blockages later and monsoon woes.",4,Waste_Management
+"A large pile of garden waste (pruned branches, leaves) has been sitting on the roadside near the petrol pump for days, creating an eyesore.",2,Waste_Management
+We need more awareness campaigns on waste segregation. Most residents are still confused or unbothered about separating waste.,1,Waste_Management
+"The waste collection vehicle frequently leaks garbage water onto the streets, leaving a trail of stench and filth.",4,Waste_Management
+"No proper disposal mechanism for temple waste (flowers, garlands, prasad leftovers). It often ends up in the river, polluting it.",3,Waste_Management
+"The waste transfer station near our society is operating inefficiently, leading to long queues of trucks and spillage onto the main road.",3,Waste_Management
+Dustbins in the local park are constantly vandalized or stolen. Need more robust and securely fixed bins to prevent this.,2,Waste_Management
+"The open drain behind HDFC Bank is completely filled with plastics and household waste, causing a terrible smell and breeding mosquitoes.",4,Waste_Management
+"During monsoon, waste from choked drains floats onto the streets, making it impossible to walk near Sector 17 market.",4,Waste_Management
+"Illegal burning of crop stubble and agricultural waste on the outskirts of the city, contributing heavily to air pollution.",5,Waste_Management
+The waste collection staff often leave behind scattered garbage on the ground after emptying the bins. This defeats the purpose of cleaning.,3,Waste_Management
+"The frequency of waste collection needs to be increased for commercial areas, especially near Connaught Place, due to high footfall.",2,Waste_Management
+"There's a massive pile of discarded clothes and textiles near the clothes market, attracting vermin and creating an unhygienic spot.",3,Waste_Management
+No proper system for collecting dry leaves and garden waste from public parks. They are just left to rot or accumulate.,2,Waste_Management
+"The waste collection vehicle is too noisy, disturbing residents early in the morning, especially around 6 AM.",1,Waste_Management
+The local 'kabadiwala' (scrap dealer) is creating a huge mess with his collection outside our building. It's an eyesore and unhygienic.,3,Waste_Management
+"Bio-medical waste (syringes, bandages) found mixed with general waste near the government dispensary. Major health hazard for rag pickers.",5,Waste_Management
+"Street sweeping irregular on MG Road. Dust and litter accumulate daily, especially near the bus stop, affecting air quality.",2,Waste_Management
+Plastic waste clogs up the drains every monsoon season near Nehru Park. Need a permanent solution like mesh covers or stricter fines.,4,Waste_Management
+"The compactor machine at the local collection point is often out of order, leading to huge piles of waste that remain uncompacted.",4,Waste_Management
+"Rag pickers are scattering garbage from bins daily near DPS School. Please provide better, animal-proof bins to prevent this.",3,Waste_Management
+The waste processing plant near Ambattur Industrial Estate is emitting a terrible stench. It's worse than usual these days and affecting nearby residents.,5,Waste_Management
+"Vendors near the Lajpat Nagar Market have completely blocked the footpath, making it impossible for pedestrians to walk safely. We have to use the main road.",3,Traffic_Encroachment
+"Illegal parking on MG Road, especially near the Bank of India branch, is a daily occurrence, causing significant traffic jams during peak hours.",4,Traffic_Encroachment
+"Construction debris has been dumped on the service lane adjacent to the Hitech City flyover for weeks. It's very dangerous, especially at night.",4,Traffic_Encroachment
+"Shops outside Sector 18 market have extended their displays onto the public footpath, leaving no space for pedestrians. This is a recurring issue.",3,Traffic_Encroachment
+"The auto-rickshaw stand near Dadar station completely blocks one lane of traffic during peak hours, creating massive bottlenecks.",4,Traffic_Encroachment
+"Stray cattle frequently roam on the main road near Vaishali Nagar, causing traffic disruption and a high risk of accidents, especially after dusk.",3,Traffic_Encroachment
+"A permanent food stall has been set up on the pavement outside St. Ann's School, making it unsafe for children walking to and from school.",3,Traffic_Encroachment
+Vendors near the Delhi Gate metro station have completely taken over the pedestrian walkway. We need action now.,3,Traffic_Encroachment
+"Delivery vans constantly double-park on Link Road, especially during afternoon hours, bringing traffic to a standstill.",3,Traffic_Encroachment
+"Construction materials are piled up on the road near my society gate, Sector 7, blocking access for residents and emergency vehicles.",4,Traffic_Encroachment
+The footpath opposite the Forum Mall is completely encroached by street hawkers selling clothes. There's literally no space to walk.,3,Traffic_Encroachment
+"Illegal hoardings have been put up at the junction of P.K. Road and R.K. Marg, obstructing driver's view and causing congestion.",3,Traffic_Encroachment
+"Shopkeepers near the Hanuman Temple are openly using the public footpath to display their goods, reducing walking space.",2,Traffic_Encroachment
+"Unauthorized speed breakers have been built on the road leading to Nirvana Country, causing damage to vehicles and posing a severe hazard.",4,Traffic_Encroachment
+"The entire lane near Nehru Place market is choked with haphazardly parked cars and hawkers, especially on weekends. It's a mess.",4,Traffic_Encroachment
+"A temporary religious structure has been erected on the main road in Kanti Nagar, causing a permanent bottleneck for traffic flow.",4,Traffic_Encroachment
+"During monsoon rains, waterlogging combined with street vendors completely blocks the road near the Sarojini Nagar market, leading to gridlock.",5,Traffic_Encroachment
+"Goods from wholesale shops spill onto the road in Chandni Chowk, making it impossible for pedestrians and creating daily traffic chaos.",4,Traffic_Encroachment
+"The bus stop near Bandra Reclamation is encroached by hawkers, forcing passengers to wait for buses directly on the busy road.",3,Traffic_Encroachment
+"Residents of Green Park have extended their gardens onto the public land along the main road, illegally encroaching on public space.",2,Traffic_Encroachment
+"A tea stall near the local bus stand in Coimbatore has set up seating on the footpath. It's a small issue but constant, making the path narrow.",2,Traffic_Encroachment
+Vehicles parked haphazardly on the service lane of Outer Ring Road are causing major slowdowns during all peak hours.,4,Traffic_Encroachment
+"Construction waste is consistently left unattended on the road near the new flyover construction site, posing a hazard to drivers and pedestrians.",3,Traffic_Encroachment
+Shops in Khan Market are using public space for their signboard and outdoor displays. This needs to be regulated immediately.,3,Traffic_Encroachment
+"The auto stand outside Borivali Station East completely occupies the road, making it a nightmare for commuters trying to pass through.",4,Traffic_Encroachment
+"Street vendors selling fruits and vegetables have encroached heavily on the footpath near my society in Kondhwa, Pune. No space to walk.",3,Traffic_Encroachment
+"Bikes are routinely parked on the footpath near City Center Mall, preventing pedestrian movement and forcing them onto the road.",2,Traffic_Encroachment
+Illegal extensions by restaurants onto the footpath in Indiranagar are causing congestion and significant safety issues for pedestrians.,3,Traffic_Encroachment
+"The road leading to the industrial area is constantly blocked by trucks unloading goods, often double-parking for extended periods.",4,Traffic_Encroachment
+"Stray dogs resting in the middle of the road near the school often cause drivers to swerve dangerously, especially during busy hours.",2,Traffic_Encroachment
+A large temporary structure for a local festival has completely blocked the bypass road near Chembur. This is an annual nuisance and needs to stop.,5,Traffic_Encroachment
+"Vendors near the local temple have encroached on the entire street, making it impossible to pass, especially on festive days. Total chaos.",4,Traffic_Encroachment
+"Parked vehicles belonging to residents of Ganga Apartments block half the road on a daily basis, causing severe inconvenience.",3,Traffic_Encroachment
+"The construction site near Cyber Hub has left equipment and materials on the road shoulder, significantly reducing road width and creating hazards.",3,Traffic_Encroachment
+The footpath outside GVK One Mall is completely taken over by food stalls. Pedestrians have no option but to walk on the busy road.,3,Traffic_Encroachment
+"Auto drivers near the local market park anywhere they want, completely disregarding traffic flow and causing continuous jams.",3,Traffic_Encroachment
+"Illegal garbage dumping near the DDA park gate has narrowed the road significantly, making it difficult for two-way traffic.",2,Traffic_Encroachment
+"Shops in the main market of Dwarka Sector 6 have put up huge advertising boards on the footpath, blocking pedestrian movement.",2,Traffic_Encroachment
+"Stray cows on GT Road near Ambala Cantt are a constant menace, causing accidents and major traffic jams on a daily basis.",4,Traffic_Encroachment
+"Private vehicles regularly park on the dedicated bus lane near the Secretariat, causing significant delays for public transport buses.",4,Traffic_Encroachment
+"Hawkers near the Charminar area have expanded their stalls onto the road, making it impassable for both vehicles and pedestrians.",4,Traffic_Encroachment
+"The entire footpath stretch outside the railway station in Surat is occupied by vendors, forcing people onto the busy road, which is very dangerous.",4,Traffic_Encroachment
+"Building materials for the new apartment complex are consistently left on the road, creating hazards and congestion for passing vehicles.",3,Traffic_Encroachment
+"Shops near the local school entrance have encroached upon the footpath, making it extremely difficult and unsafe for children to walk.",3,Traffic_Encroachment
+"Street vendors selling chaat have set up permanent structures on the main road in Janakpuri, causing severe traffic jams during evenings.",4,Traffic_Encroachment
+"A local Ganesha pandal has completely blocked a residential street for almost a week now, severely disrupting local access.",5,Traffic_Encroachment
+"Drivers regularly park their cars on the yellow line near the hospital entrance, frequently blocking emergency vehicle access. This is unacceptable.",5,Traffic_Encroachment
+"The main road leading to the new IT park is always encroached by illegally parked cabs and private vehicles waiting for passengers, leading to huge delays.",4,Traffic_Encroachment
+"Small kiosks have sprouted up all along the pedestrian bridge leading to the metro station, making it very difficult to navigate the narrow passage.",3,Traffic_Encroachment
+"During festive seasons, shops in the market extend their displays significantly, choking the entire area and making movement impossible.",4,Traffic_Encroachment
+"Live wire snapped and fallen on the main road near Shastri Nagar metro station. Very dangerous, especially with children around during peak hours.",5,Electrical_Hazard
+"Transformer sparking heavily outside my house in Sector 15-A, near the park. Smells like burning, huge risk of fire, particularly with dry leaves around.",5,Electrical_Hazard
+"Open junction box near the public tap in Rajiv Colony, waterlogging is severe due to monsoon rains. People are reporting getting electric shocks when touching the tap.",5,Electrical_Hazard
+"Low-hanging live cables over the footpath on MG Road, near the SBI branch. A delivery truck almost snagged them this morning. Someone will die if not fixed.",4,Electrical_Hazard
+Exposed wires in the children's park playground equipment near Adarsh Nagar school. Very unsafe for kids playing there after school hours.,4,Electrical_Hazard
+Traffic signal short-circuiting at the busy crossroads near the main bus stand. Causing major traffic chaos and potential accidents due to intermittent signals.,4,Electrical_Hazard
+"Streetlight pole completely broken and leaning precariously over the pavement near City Centre, opposite Reliance Fresh. Live wires visible and dangling.",5,Electrical_Hazard
+Frequent power surges and blackouts in Pratap Vihar. My appliances are getting damaged. Worried about the house wiring catching fire.,4,Electrical_Hazard
+"Open fuse box cover at the market entrance, near the vegetable vendor. People are touching it unknowingly. High shock hazard, especially with morning dew.",4,Electrical_Hazard
+Someone received a minor shock from the metal railing near the XYZ school gate. It looks like an electrical leakage from an underground cable.,4,Electrical_Hazard
+"One streetlight flickering constantly on the bypass road, barely illuminates the area. Feels unsafe at night for pedestrians and drivers.",3,Electrical_Hazard
+Wires are loosely hanging from a pole near the community hall in Gandhi Nagar. Looks untidy and could be a hazard during high winds.,3,Electrical_Hazard
+"Streetlight pole rusted badly at its base near the Hanuman temple in B Block. Looks like it might fall soon, posing a risk to devotees.",3,Electrical_Hazard
+"Dim streetlights on the entire stretch of Lane 3, Subhash Nagar. Makes walking difficult and unsafe for women returning home late.",3,Electrical_Hazard
+"Exposed electrical wiring near a construction site fence, opposite Plot No. 27. Not properly secured and accessible to children.",3,Electrical_Hazard
+"A few streetlights are not working at all in the local park near the water tank. It gets very dark after sunset, attracting miscreants.",3,Electrical_Hazard
+Some wires are tied haphazardly to a tree near the Ganesh temple. Looks like an illegal connection and a fire risk.,3,Electrical_Hazard
+"The pole near the community library has a constant humming sound, sounds like a fault within the wiring or transformer.",3,Electrical_Hazard
+"Electrical distribution box cover is missing in our lane (S-Block, Gurugram), exposing components to rain and dust, causing potential short circuits.",3,Electrical_Hazard
+"Overhead cables are very low in front of my shop (Shop No. 5, Main Market). Delivery trucks often brush against them.",3,Electrical_Hazard
+"One streetlight not working in front of H-Block, Sector 7. The entire area is dark.",2,Electrical_Hazard
+"The light outside my building (Apartment 4B, Ganga Enclave) is fused and needs replacement.",2,Electrical_Hazard
+A pole lamp is slightly tilted near the local grocery store. Not an immediate danger but should be fixed before it worsens.,2,Electrical_Hazard
+Some decorative lights for the festival are still up and frayed on the pole near the market. Should be removed to prevent fire.,1,Electrical_Hazard
+"A minor spark was observed from a pole-mounted junction box during heavy rain, but it stopped. Just a heads-up for maintenance.",2,Electrical_Hazard
+"Flickering streetlight outside A-101, Anand Vihar. It's annoying and affects visibility.",1,Electrical_Hazard
+Streetlight in the park near the swing set is out. Makes it dark and scary for evening walkers.,2,Electrical_Hazard
+"One of the advertising hoardings has a loose wire showing near the bus stop. Not sparking, but looks unsafe.",1,Electrical_Hazard
+"The transformer near the main gate of our society makes a weird buzzing sound sometimes. Not constant, but unusual.",2,Electrical_Hazard
+"A small puddle of water gathers near a streetlight pole after rain, concerned about leakage from the pole's base.",2,Electrical_Hazard
+Electrical wiring is exposed on a dilapidated wall in the slum area behind the railway station. High risk to residents.,5,Electrical_Hazard
+"A big tree branch has fallen on electricity lines near the government school, pulling them low. Risk of electrocution.",5,Electrical_Hazard
+"Streetlights on the entire stretch of NH-48 service lane are completely dead, making night driving extremely dangerous.",4,Electrical_Hazard
+"The local water pump at the community well has exposed wires, posing a shock hazard to people fetching water.",4,Electrical_Hazard
+Several broken streetlights along the pathway in the botanical gardens. It's pitch dark and unsafe for visitors after dusk.,3,Electrical_Hazard
+A cluster of illegal electricity connections from a main pole near the Mandir. Wires are haphazardly strung across the lane.,4,Electrical_Hazard
+"The distribution box outside Shop No. 12, Gali No. 4, lacks a proper lock, leaving internal wiring vulnerable to tampering or exposure.",3,Electrical_Hazard
+Smoking observed from the transformer near the police station in Kirti Nagar. This is a recurring issue and needs urgent attention.,5,Electrical_Hazard
+Cable wires are hanging very loosely and low over the entrance to the Gauri Shankar Temple. A clear hazard during festivals.,4,Electrical_Hazard
+"Exposed conductor in a public lamp post in D-Block, near the doctor's clinic. It's within reach of children.",4,Electrical_Hazard
+"The electric pole near the Old Post Office is leaning precariously. Looks like it might collapse at any moment, especially with wind.",4,Electrical_Hazard
+"Repeated power fluctuations in our building, causing appliances to trip. We suspect faulty wiring in the main supply box outside.",3,Electrical_Hazard
+"A public light fixture near the metro station exit has cracked casing, exposing the internal bulb and wiring to elements.",3,Electrical_Hazard
+Rusting electric pole base near the community well in village Ramgarh. Needs inspection before it deteriorates further and falls.,2,Electrical_Hazard
+Streetlight at the intersection of A-Block and B-Block is out. Makes it hard to see pedestrians at night.,2,Electrical_Hazard
+Loose protective cover on a street light pole near the park entrance. It's just hanging there.,1,Electrical_Hazard
+Some wires are carelessly coiled on top of an electrical box near the Gurudwara. Untidy and potentially unsafe.,2,Electrical_Hazard
+The pedestrian signal near the university gate is not working. This is creating confusion and danger for students crossing.,3,Electrical_Hazard
+"Overloaded transformer near the wholesale market. It makes loud crackling noises, especially during peak hours.",4,Electrical_Hazard
+"A section of overhead wires over a busy narrow lane in the old city is touching tree branches, causing sparks during windy conditions.",4,Electrical_Hazard
+"No electricity for 3 hours now in Sector 12, Dwarka. It's extremely hot, and our inverter battery is almost dead.",3,Power_Outage
+"Frequent power cuts in Malviya Nagar, especially after 8 PM. It's disrupting our work-from-home schedule daily.",3,Power_Outage
+"Complete blackout in the entire Gandhi Nagar area since midnight. Streetlights are also off, making it very unsafe.",4,Power_Outage
+"Power has been fluctuating wildly in Rohini, Sector 24, causing damage to our appliances. Please investigate.",4,Power_Outage
+"Light gone, please fix fast. Lajpat Nagar. It's been over an hour.",2,Power_Outage
+"Our apartment building, Shivam Heights, Indirapuram, has had no power for 10 hours. My mother needs her nebulizer.",5,Power_Outage
+"The power is out in Lane 3, Karol Bagh, for 4 hours. Food in the fridge is spoiling, and it's too hot to sleep.",3,Power_Outage
+"Just a brief power flicker in Vasant Kunj, but it reset my Wi-Fi. Minor annoyance.",1,Power_Outage
+Electricity went off during an important online meeting. Very disruptive for professional work in HSR Layout.,3,Power_Outage
+"The streetlights near the railway crossing, Vaishali Nagar, are off due to a power cut. It's very dark and unsafe.",4,Power_Outage
+Repeated short power cuts (15-30 minutes each) multiple times a day in Model Town. Highly irritating.,3,Power_Outage
+"No power since 6 AM in Gomti Nagar, near the park. It's almost noon now, and we can't cook.",3,Power_Outage
+"Our area, Bapu Nagar, has experienced a complete blackout for 5 hours. My father is on oxygen support, inverter depleting. Urgent!",5,Power_Outage
+"Power outage in whole of Kothrud area, Pune. It's been 2 hours. What's the ETA?",3,Power_Outage
+"Since the monsoon rains started last night, power has been intermittent in Shastri Park. Currently completely out with waterlogging.",4,Power_Outage
+"Kids can't study for exams due to power cut since 7 PM in Preet Vihar, near the Metro Station. Inverters dead.",4,Power_Outage
+Power has been consistently failing every morning around 9 AM for an hour in Defence Colony. Please address this routine disruption.,3,Power_Outage
+"Complete power failure in Kalyanpur since midnight. No streetlights, feeling unsafe. Worried about elderly residents.",5,Power_Outage
+Power out again! Sector 7. This is the third time today.,2,Power_Outage
+"My electric vehicle charging stopped due to a sudden power cut in Mayur Vihar, Phase 1. Now I'm stuck.",3,Power_Outage
+"No power for over 6 hours in T Nagar, Chennai. The heat is unbearable without fans or AC.",4,Power_Outage
+"Frequent short power cuts during peak hours in Banjara Hills, Hyderabad. Affecting business operations.",3,Power_Outage
+"The power supply to our hospital staff quarters in Parel, Mumbai, is out. This is a critical service issue.",5,Power_Outage
+Power has been off since morning near the Old Fort Road area. All shops are closed due to no electricity.,3,Power_Outage
+"Intermittent power supply in Gurugram, Sector 44. My UPS keeps beeping, showing unstable current.",2,Power_Outage
+Blackout in the entire colony of Sarojini Nagar since 2 PM. No updates from the power company.,4,Power_Outage
+"Due to a power cut, the traffic signals at the MG Road junction are not working. Causing huge jams.",4,Power_Outage
+"Power outage in our apartment complex, Green Valley, Noida. The lifts are stuck. People are trapped.",5,Power_Outage
+The power goes out every time it drizzles in Borivali. This is unacceptable during monsoon season.,3,Power_Outage
+No electricity at home for the past 5 hours in Janakpuri. My child's online classes are suffering.,3,Power_Outage
+"Power cut near Connaught Place, behind the Hanuman Temple. It's impacting evening shoppers and businesses.",3,Power_Outage
+"My elderly parents in Chandigarh, Sector 17, are without power for 7 hours. They need their medical devices charged.",5,Power_Outage
+"Frequent power interruptions in Basavanagudi, Bangalore. Happens almost hourly for 5-10 minutes.",2,Power_Outage
+"Complete power failure in Jaipur's Pink City area. It's a tourist hub, bad impression.",4,Power_Outage
+Power is out since 11 PM last night in East of Kailash. Water supply is also affected as pumps require electricity.,4,Power_Outage
+"Short power cuts are damaging my refrigerator and AC in Chembur, Mumbai. Need stable supply.",3,Power_Outage
+"No power in the student hostel block near Delhi University, North Campus, since morning. Students can't study.",3,Power_Outage
+"Our entire street in Aliganj, Lucknow, is dark due to a power outage. There are no streetlights either.",3,Power_Outage
+"The power went off during a crucial exam preparation. Very frustrating in Gariahat, Kolkata.",3,Power_Outage
+"Power has been out for over 12 hours in Greater Noida, Sector Alpha 2. All backup systems have failed.",5,Power_Outage
+"Sporadic power cuts throughout the day in Viman Nagar, Pune. It's making working from home impossible.",3,Power_Outage
+Light gone again near the Akshardham Temple area. Happens every evening.,2,Power_Outage
+"Power outage in Ambattur, Chennai, for the past 8 hours. Elderly residents are struggling with the heat.",4,Power_Outage
+The power supply is unstable in Patiala House Court area. Machines keep restarting.,2,Power_Outage
+No power for more than 6 hours at our residence in Adarsh Nagar. It's affecting our daily chores.,3,Power_Outage
+"Complete power failure in the industrial area of Faridabad, Sector 11. Production has stopped.",4,Power_Outage
+"Our building's water pump relies on electricity, and with no power in Tilak Nagar for 5 hours, we have no water.",4,Power_Outage
+"Repeated power fluctuations in Dwarka, Sector 13. My new LED TV got damaged because of this.",4,Power_Outage
+Power cut since 1 AM near the IIT Delhi campus. It's affecting research work and lab equipment.,4,Power_Outage
+"No power in our entire block (Block A, Palam Vihar) for the past 9 hours. All inverter backups have run out, and it's extremely uncomfortable.",4,Power_Outage
+"Heavy black smoke billowing non-stop from the textile factory near Ashram Road. The air quality has been consistently poor, making it difficult to breathe.",5,Air_Pollution_Violation
+Someone is burning a massive pile of mixed garbage and plastic waste behind our apartment complex in Sector 12. The toxic fumes are unbearable and making residents sick.,5,Air_Pollution_Violation
+Ongoing metro construction near Lajpat Nagar is causing huge dust clouds daily. There are no proper dust screens or water sprinkling mechanisms in place.,4,Air_Pollution_Violation
+"Old, smoke-emitting commercial trucks are constantly plying on NH48 during peak hours, creating a thick haze and poor visibility.",4,Air_Pollution_Violation
+"The diesel generator at ABC departmental store runs all night, emitting black smoke directly into our windows. It's affecting sleep and health.",3,Air_Pollution_Violation
+The main road near Patel Nagar is perpetually dusty. Municipal sweeping often just moves the dust around instead of collecting it properly.,3,Air_Pollution_Violation
+"Illegal brick kilns operating seasonally near the village outskirts are making the air quality horrendous, especially in the mornings.",5,Air_Pollution_Violation
+"A street-side restaurant on MG Road uses coal tandoors, and the constant smoke fills the entire lane, making walking difficult and clothes smelly.",2,Air_Pollution_Violation
+Our building's gardener is regularly burning dry leaves and garden waste in the park early mornings. It triggers allergic reactions for many residents.,2,Air_Pollution_Violation
+"Buses are idling for extended periods outside the central bus stand near Connaught Place, pumping out noxious fumes. There's a children's school nearby.",3,Air_Pollution_Violation
+A small illegal manufacturing unit operating in our residential area constantly emits a chemical smell and smoke. Please investigate urgently.,5,Air_Pollution_Violation
+"The unpaved road leading to the new housing complex in Dwarka is a perpetual dust bowl, especially with all the construction vehicle movement.",3,Air_Pollution_Violation
+"We can smell the crop burning from nearby agricultural fields every evening. Our eyes burn, and throats feel irritated.",4,Air_Pollution_Violation
+Demolition of the old building near D.A.V. school is happening without any dust control measures. Kids in the vicinity are frequently falling sick.,4,Air_Pollution_Violation
+"Road repair work at night near Hanuman Mandir involves melting tar, which creates a very strong, pungent smoke bothering residents.",3,Air_Pollution_Violation
+"The local bakery's chimney constantly emits thick, greasy smoke that makes clothes hung on balconies smell awful.",2,Air_Pollution_Violation
+"Piles of sand and aggregate are left uncovered near the main market in Chandni Chowk, and the wind carries the dust everywhere.",3,Air_Pollution_Violation
+A welding shop operating in our residential lane frequently causes sparks and emits smoke. It's unsafe and pollutes the air.,3,Air_Pollution_Violation
+"The open garbage dump near the railway tracks is constantly smoldering, releasing extremely toxic fumes into the air.",5,Air_Pollution_Violation
+"A broken-down truck on the bypass road has been spewing excessive black smoke for hours, creating a traffic hazard and polluting the air.",4,Air_Pollution_Violation
+"A restaurant is doing outdoor BBQ without proper ventilation, and the smoke is directly entering nearby apartments on the second floor.",2,Air_Pollution_Violation
+"Post-Diwali, the air quality is terrible due to firecracker residue and smoke. Strict enforcement against illegal firecrackers is needed.",4,Air_Pollution_Violation
+"A flour mill operating in a residential area of Old Delhi creates fine dust that settles everywhere, causing respiratory issues.",4,Air_Pollution_Violation
+"Trucks carrying construction material frequently pass uncovered, spilling dust and debris onto the roads near the university campus.",3,Air_Pollution_Violation
+"Workers are mixing cement directly on the road near the historic temple, creating huge dust clouds that affect pedestrians.",3,Air_Pollution_Violation
+"Municipal workers sometimes burn collected dry leaves on roadsides instead of composting them, contributing to localized air pollution.",3,Air_Pollution_Violation
+A local garage openly burns old tires and engine oil waste. This is an illegal and highly dangerous practice that needs immediate action.,5,Air_Pollution_Violation
+"The thermal power plant chimney on the city's outskirts emits white/grey smoke continuously, visible from kilometers away, especially in winter.",5,Air_Pollution_Violation
+"Reports of illegal stone crushing units operating in the forest buffer zone, causing massive dust and noise pollution.",5,Air_Pollution_Violation
+Excessive smoke from a public hawan at the community hall is affecting asthmatic residents living nearby. Can measures be taken to mitigate this?,3,Air_Pollution_Violation
+"A local furniture repair shop does spray painting outdoors, and the chemical fumes are very strong, reaching neighboring houses.",3,Air_Pollution_Violation
+"Ongoing building construction for the 'Smart City Towers' project is creating significant dust, with no proper screens or barricades installed.",4,Air_Pollution_Violation
+"Food stalls on the main market road use coal chulhas, and the collective smoke makes walking and shopping in the area difficult.",2,Air_Pollution_Violation
+Several DTC buses at the ISBT are clearly emitting excessive black smoke. They need proper fitness checks and maintenance.,4,Air_Pollution_Violation
+"A large parcel of land is being cleared near the residential colony, creating huge amounts of dust that settles on everything for days.",3,Air_Pollution_Violation
+Someone is routinely burning plastic waste in the open ground behind the school playground. The smell is noxious and harmful to children.,5,Air_Pollution_Violation
+"Excavation work for underground cabling near our society gate is generating a lot of fine dust, which gets carried by wind into homes.",3,Air_Pollution_Violation
+"The boiler chimney of the dairy plant on the city outskirts is constantly emitting steam mixed with some smoke, particularly noticeable in the mornings.",3,Air_Pollution_Violation
+"Open garbage bins near the fish market are frequently set on fire by unknown individuals, releasing terrible fumes into the crowded area.",4,Air_Pollution_Violation
+Debris from a demolished building dumped near the park is generating a lot of fine dust with every gust of wind.,3,Air_Pollution_Violation
+"During morning rush hour, the traffic jam near Dhaula Kuan is so severe that vehicle fumes cause burning eyes and throat for commuters.",4,Air_Pollution_Violation
+Heard reports of old tires being burned overnight near the Yamuna riverbed. This is highly toxic and needs urgent police intervention.,5,Air_Pollution_Violation
+A small unit for metal grinding/polishing in a residential lane is generating metallic dust and significant noise pollution.,4,Air_Pollution_Violation
+"People living in shanties near the railway line are burning wood and other materials for cooking and warmth, significantly contributing to winter smog.",3,Air_Pollution_Violation
+"The newly laid road near Sector 23 lacks proper compaction, leading to loose dust whenever vehicles pass, especially autos and bikes.",2,Air_Pollution_Violation
+"A restaurant kitchen exhaust fan on the first floor faces our balcony, constantly blowing greasy, smoky air into our apartment.",3,Air_Pollution_Violation
+"A large cement mixer at the construction site opposite our building is running uncovered, causing cement dust to fly everywhere and settle on cars and plants.",4,Air_Pollution_Violation
+"The air quality has been consistently poor for days, with a thick layer of smog covering everything. What effective measures are being taken by authorities?",5,Air_Pollution_Violation
+"A strong chemical smell, possibly from industrial solvents, comes from the industrial area near the highway, especially noticeable in the evenings.",4,Air_Pollution_Violation
+"An old autorickshaw stand near the local market has multiple vehicles running their engines while waiting, causing a constant stream of exhaust fumes.",3,Air_Pollution_Violation
+"Massive waterlogging on NH48 near Cyber Hub, traffic completely stalled. Fix this immediately!",4,Water_Logging
+"Every monsoon, the lane outside my house in Sector 23 becomes a mini-river. Can't even step out without getting drenched.",4,Water_Logging
+"Water accumulates near the local market entry in Karol Bagh, making it difficult for vendors and shoppers.",3,Water_Logging
+The underpass near Rajiv Chowk is completely submerged after last night's rain. Again! This is a perennial problem.,5,Water_Logging
+"Drains are overflowing near Ganesh Nagar temple, causing a foul smell and attracting mosquitoes.",4,Water_Logging
+"Potholes filled with stagnant water on MG Road, making two-wheeler travel extremely hazardous.",3,Water_Logging
+Kids can't use the park in Defence Colony; it's always waterlogged after even a light shower.,2,Water_Logging
+Our basement apartment is suffering from seepage due to persistent waterlogging outside building #14.,5,Water_Logging
+"Waterlogging near the main gate of our housing society, blocking access for cars and pedestrians.",3,Water_Logging
+"The street outside my shop in Chandni Chowk gets flooded during peak monsoon, affecting business badly.",4,Water_Logging
+Heavy water accumulation on the service road parallel to Dwarka Expressway. It's an accident waiting to happen.,4,Water_Logging
+"Just a small puddle near the community centre, but it makes the path slippery.",1,Water_Logging
+The entire stretch near the DLF Phase 3 metro station is waterlogged. Traffic is moving at a snail's pace.,4,Water_Logging
+"Water doesn't drain from the footpath near the school, forcing children to walk on the busy road.",3,Water_Logging
+Construction debris in the nullah near Ganga Apartment is causing severe waterlogging during rains.,4,Water_Logging
+My scooter broke down due to the deep waterlogged section near the flyover exit.,4,Water_Logging
+"Persistent waterlogging in the low-lying area of Old Delhi, causing health concerns from stagnant water.",5,Water_Logging
+"Waterlogging near the bus stop in Laxmi Nagar, difficult for commuters to board.",3,Water_Logging
+"The storm drains outside our colony gate are blocked, leading to water accumulation every time it rains heavily.",3,Water_Logging
+Waterlogging on the road leading to the hospital entrance. Emergency vehicles are struggling.,5,Water_Logging
+"Even a short spell of rain causes waterlogging in our lane, making it muddy and dirty.",2,Water_Logging
+The area outside Sector 18 market is completely waterlogged. Can't even park properly.,3,Water_Logging
+"Waterlogging on the main arterial road near India Gate, causing massive traffic jams across central Delhi.",5,Water_Logging
+Mosquitoes are breeding in the stagnant water accumulated near the children's park.,3,Water_Logging
+"The roadside ditch near my farm is overflowing, threatening to flood my fields.",4,Water_Logging
+Waterlogging is making the pavement unusable near the corporate park. People have to walk on the road.,3,Water_Logging
+"Small patches of waterlogging near the 'thela' (cart) market, but it's manageable.",1,Water_Logging
+"The entire street in front of my home in Vasant Kunj is submerged. This is a yearly problem, please provide a permanent solution.",4,Water_Logging
+"Water is pooling up near the transformer box, a serious electrocution hazard.",5,Water_Logging
+"Heavy waterlogging near the railway underpass, causing delays for local trains.",5,Water_Logging
+"Water accumulates outside the community hall, making it difficult for events to proceed.",2,Water_Logging
+The road in front of the police station is waterlogged. Shows negligence.,3,Water_Logging
+"Waterlogging near the public toilet complex, creating unhygienic conditions.",4,Water_Logging
+My car got stuck in the deep waterlogged area near the bypass. Need help!,4,Water_Logging
+"Water accumulating near the vendor stalls, damaging their goods.",3,Water_Logging
+"The footpath near the main commercial hub is waterlogged, forcing pedestrians onto the main road during peak hours.",3,Water_Logging
+"Small amounts of waterlogging near the flower shop, but it generally drains quickly.",1,Water_Logging
+"Continuous waterlogging in the low-income housing areas, affecting daily life and health.",5,Water_Logging
+Water has entered our ground floor shop due to severe waterlogging on the main street after the heavy rains.,5,Water_Logging
+"The drains seem blocked again near the local school, resulting in water pooling up on the road.",3,Water_Logging
+"Waterlogging near the historical monument site, potentially damaging its base.",4,Water_Logging
+Difficulty crossing the road near the university gate due to deep waterlogging.,3,Water_Logging
+"The slum areas are completely inundated after every heavy downpour, leading to disease outbreaks.",5,Water_Logging
+"Water collecting near the public taps, making the area muddy and slippery.",2,Water_Logging
+"Puddles persist for days on the back roads of Shahdara, even after the rain stops.",3,Water_Logging
+"Waterlogging near the construction site, making it dangerous for workers and passersby.",4,Water_Logging
+"The usual spot near the fruit market is waterlogged, as expected. Nothing new.",2,Water_Logging
+"Our entire street looks like a canal, bikes are getting stalled and it's unsafe for kids to even step out. This has been happening for three days now.",5,Water_Logging
+"Waterlogging outside the BSNL office, causing inconvenience to customers.",2,Water_Logging
+"The main road from Connaught Place towards Barakhamba Road is severely waterlogged, causing unprecedented delays. Public transport is heavily impacted.",5,Water_Logging
+Aggressive stray dogs near the Sector 10 market. They chased my child yesterday evening. Very concerned about safety.,5,Stray_Animal_Hazard
+"Too many stray cows on the main road, causing traffic jams near the Dwarka Mor metro station every morning.",4,Stray_Animal_Hazard
+Monkeys are snatching food items and attacking people on their balconies in Patel Nagar. Urgent intervention needed.,5,Stray_Animal_Hazard
+"Stray pigs are creating a huge mess near the community dustbins behind Ganga Apartment, spreading garbage everywhere.",3,Stray_Animal_Hazard
+"Constant dog barking late at night, making it impossible to sleep in this area near the new flyover. It's unbearable.",2,Stray_Animal_Hazard
+A child was bitten by a stray dog near the primary school gate today. This is a serious public health hazard.,5,Stray_Animal_Hazard
+Cattle dung all over the footpath outside my house in Shastri Nagar. Unhygienic and smelly.,2,Stray_Animal_Hazard
+"Dangerous to drive at night; stray dogs frequently run onto the NH-44 near the toll plaza, causing near misses.",4,Stray_Animal_Hazard
+The number of stray dogs has increased drastically after monsoon rains. Rabies risk is a major concern now.,4,Stray_Animal_Hazard
+Monkeys broke my window pane trying to enter the house in Green Park. Property damage is significant.,4,Stray_Animal_Hazard
+"Stray dogs frequently tear open garbage bags outside our society gate, making the area filthy by morning.",3,Stray_Animal_Hazard
+Elderly citizens are afraid to walk in the park due to groups of aggressive strays near the entrance.,4,Stray_Animal_Hazard
+"Stray cattle sleep in the middle of the road near the railway crossing, blocking access for commuters.",3,Stray_Animal_Hazard
+Unvaccinated stray dogs are a menace. Many instances of minor bites and scratches reported in Indira Nagar.,4,Stray_Animal_Hazard
+"Pigs foraging in the open drains near the slum area, exacerbating hygiene issues and disease vectors.",4,Stray_Animal_Hazard
+My vehicle got scratched by a stray cow while parked on the street. Who is responsible for the damage?,3,Stray_Animal_Hazard
+"Monkey menace near the temple complex, they snatch 'prasad' and food from devotees.",3,Stray_Animal_Hazard
+"Stray dogs bark incessantly at two-wheelers, causing riders to lose balance on the narrow lanes of Purani Basti.",4,Stray_Animal_Hazard
+"Cattle wandering into residential gardens, destroying plants and defecating everywhere. Total nuisance.",2,Stray_Animal_Hazard
+Multiple stray dogs gathered near the children's play area. Parents are too scared to let their kids out.,4,Stray_Animal_Hazard
+"After the morning market closes, stray animals rip apart discarded vegetables, making a massive mess.",2,Stray_Animal_Hazard
+A pack of stray dogs attacked and injured my pet dog last night. This is unacceptable.,5,Stray_Animal_Hazard
+Monkeys routinely steal clothes from drying lines and food items left unattended on balconies in Vasant Kunj.,3,Stray_Animal_Hazard
+"Stray pigs are digging up the newly laid footpath near the community center, causing damage.",3,Stray_Animal_Hazard
+"The stench from accumulated animal waste, especially from cattle, near the bus stand is unbearable.",3,Stray_Animal_Hazard
+An elderly person fell and broke their arm after being startled by an aggressive stray dog near the local dispensary.,5,Stray_Animal_Hazard
+Stray dogs blocking the main entrance to our building early in the morning. Difficult to leave for work.,2,Stray_Animal_Hazard
+The risk of rabies is very high in our colony due to the large number of unsterilized stray dogs. Please do something.,4,Stray_Animal_Hazard
+Stray cows often chew on electrical wires or damage street lights when left unattended. This is dangerous.,4,Stray_Animal_Hazard
+"Monkeys entering homes through open windows, causing fear and property disturbance.",4,Stray_Animal_Hazard
+Constant howling of stray dogs at night near the cremation ground. Disturbs peace and quiet.,1,Stray_Animal_Hazard
+"Pigs roaming freely near the open-air gym, creating unhygienic conditions for exercisers.",2,Stray_Animal_Hazard
+My bicycle got damaged when I swerved to avoid a stray dog darting onto the road near the university gate.,3,Stray_Animal_Hazard
+"Stray dogs are a health hazard, especially for children who play outdoors. We need sterilization drives.",4,Stray_Animal_Hazard
+"Cattle are regularly seen eating plastic from garbage dumps, posing a threat to their health and spreading waste.",3,Stray_Animal_Hazard
+"Monkeys have become very bold, entering shops and stealing goods in Chandni Chowk. Merchants are suffering losses.",4,Stray_Animal_Hazard
+The sheer number of stray animals on the streets is making it difficult for pedestrians to walk safely.,3,Stray_Animal_Hazard
+A stray dog tried to bite a delivery person near my apartment. This behavior is getting out of hand.,5,Stray_Animal_Hazard
+Cattle urine and dung accumulation near the community water tap is creating a highly unsanitary situation.,3,Stray_Animal_Hazard
+Noise pollution from barking dogs every night in Geeta Colony. Need a solution.,2,Stray_Animal_Hazard
+"Stray pigs in the drainages are causing blockages, leading to waterlogging during monsoon.",4,Stray_Animal_Hazard
+Monkeys damaged the wiring of my AC unit installed outside my window. Costly repair.,3,Stray_Animal_Hazard
+Driving at night is perilous due to cows suddenly appearing in the middle of the road without reflectors.,4,Stray_Animal_Hazard
+The entire area near the public park is covered in dog feces. It smells awful and is unhygienic.,2,Stray_Animal_Hazard
+"Stray dogs are territorial and aggressive towards anyone passing by their preferred spots, especially near the old fort wall.",4,Stray_Animal_Hazard
+I witnessed a road accident involving a two-wheeler and a stray dog yesterday. The rider was injured.,5,Stray_Animal_Hazard
+Monkeys often throw things from rooftops at passersby. This is dangerous and disturbing.,4,Stray_Animal_Hazard
+Stray pigs are rooting up newly planted saplings in the roadside green belt. Wasting efforts and resources.,2,Stray_Animal_Hazard
+"The sheer volume of stray animals defecating on open ground poses a serious public health risk, especially during epidemics.",4,Stray_Animal_Hazard
+An elderly neighbour's daily walk is hampered by a group of intimidating stray dogs near the Gurudwara. They need to be relocated.,4,Stray_Animal_Hazard
+"Major cracks in the pillars of the flyover near MG Road. It looks very unsafe, especially with heavy vehicles passing.",5,Structural_Damage_Risk
+The old overhead water tank in Sector 14 looks like it's about to collapse. The support beams are heavily rusted.,5,Structural_Damage_Risk
+"A large section of the main road near the market has completely sunk. There's a visible void underneath, extremely dangerous.",5,Structural_Damage_Risk
+My house wall has developed major structural cracks after the recent heavy monsoon rains. I fear for its stability.,4,Structural_Damage_Risk
+The footbridge connecting Shastri Nagar is shaking excessively when people walk on it. It feels very unstable.,4,Structural_Damage_Risk
+"Balcony of building no. 3, Janta Colony is visibly tilted and has cracks at its base. It's a fall risk.",4,Structural_Damage_Risk
+Pillar of the underpass near the railway station has severe concrete erosion and exposed rebar.,4,Structural_Damage_Risk
+The bus stand roof near DPS school is rusting heavily and looks unstable; parts are falling off.,3,Structural_Damage_Risk
+"A tree has fallen and damaged the boundary wall of the park, now the wall is leaning dangerously towards the footpath.",4,Structural_Damage_Risk
+The overhead electric pole near our society gate is leaning precariously. It could fall any time.,5,Structural_Damage_Risk
+"Cracks in the retaining wall along the riverbank near Kalwa bridge. Water is seeping through, causing concern.",3,Structural_Damage_Risk
+"The municipal school building in Ward 7 looks very dilapidated, especially the roof which has large holes and sagging sections.",4,Structural_Damage_Risk
+Heavy vehicle movement is causing vibrations and new cracks in houses along the Bypass Road. We fear for our foundations.,3,Structural_Damage_Risk
+"Part of the pavement near the metro station exit has collapsed, exposing utility lines and creating a large hole.",4,Structural_Damage_Risk
+The old heritage building near Charminar has crumbling plaster and visible structural cracks in its main walls.,3,Structural_Damage_Risk
+Scaffolding at the new construction site on Linking Road seems unstable and is swaying in the wind. It's a public hazard.,4,Structural_Damage_Risk
+Manhole cover missing and the surrounding road has caved in near the temple. Risk of vehicle collapse.,5,Structural_Damage_Risk
+The overhead water pipeline structure near the bus depot has visible rust and appears to be sagging significantly.,4,Structural_Damage_Risk
+The ceiling of the community hall is showing extensive water damage and significant cracks. Looks like it might give way.,4,Structural_Damage_Risk
+"A large section of the compound wall of the government hospital has collapsed, posing a risk to pedestrians.",3,Structural_Damage_Risk
+Deep potholes are causing the road foundation to weaken near the toll plaza. The road is visibly crumbling.,3,Structural_Damage_Risk
+The old bridge over the nullah in Laxmi Nagar has huge cracks and is not safe for use. Vehicles are still passing.,5,Structural_Damage_Risk
+"The facade of the old municipal office building is peeling off in large chunks, looks very dangerous for people below.",4,Structural_Damage_Risk
+A lamp post near Gandhi Chowk is leaning significantly and might fall on pedestrians or vehicles.,5,Structural_Damage_Risk
+The boundary wall of the park near our society has developed major cracks. Looks like it might fall soon.,3,Structural_Damage_Risk
+"The foundation of the electric transformer platform near the slum area has eroded significantly, posing a risk.",4,Structural_Damage_Risk
+The pedestrian overhead bridge at Dadar station has visible concrete spalling and exposed rebar. It needs immediate inspection.,4,Structural_Damage_Risk
+"Waterlogging has caused a section of the footpath near the market to completely collapse, creating a dangerous pit.",4,Structural_Damage_Risk
+"My neighbour's unoccupied old house looks like it's about to collapse, especially the roof and outer walls.",5,Structural_Damage_Risk
+"The drain cover outside Sector 3 gate is broken and the area around it is caving in, affecting road integrity.",3,Structural_Damage_Risk
+"Heavy monsoon rains have caused a landslide near the hill road, and the road itself is cracking badly.",5,Structural_Damage_Risk
+"The old temple dome has developed large cracks, feared to be structurally unsound and at risk of collapse.",4,Structural_Damage_Risk
+"The boundary wall of the playground near the school has collapsed in several places, creating an unsafe environment.",3,Structural_Damage_Risk
+"The sewage treatment plant wall has developed huge cracks and is leaking, may collapse and contaminate the area.",5,Structural_Damage_Risk
+"The support pillars of the overhead electricity lines are corroding badly near the industrial area, a major risk.",4,Structural_Damage_Risk
+"The platform at the local bus stop is crumbling at the edges, making it uneven and potentially unsafe.",2,Structural_Damage_Risk
+The bridge over the railway tracks near Kandivali has deep cracks in its pillars. Urgent structural review needed.,5,Structural_Damage_Risk
+The roof of the public toilet block near the railway station is severely damaged and might collapse any moment.,4,Structural_Damage_Risk
+A portion of the building facade near the commercial complex is loose and visibly swaying. It might fall on pedestrians.,4,Structural_Damage_Risk
+"The wall of the government school auditorium is showing severe dampness and large cracks, indicating structural weakness.",3,Structural_Damage_Risk
+"The pedestrian subway entrance near Nehru Place is showing signs of roof leakage and cracking, concerning for safety.",3,Structural_Damage_Risk
+The old water tower in Ram Nagar is visibly tilted and heavily rusted. It looks like it could topple.,5,Structural_Damage_Risk
+The flyover pillar near the express highway exit has extensive spalling concrete and exposed reinforcement bars.,4,Structural_Damage_Risk
+"The bus shelter roof near the hospital is completely rusted and has holes, looks very unstable.",3,Structural_Damage_Risk
+"The boundary wall of the cemetery near NH-8 has collapsed in several places, posing a security risk and erosion.",2,Structural_Damage_Risk
+"The market area has several old shops with visible structural damage, very risky for occupants and visitors.",4,Structural_Damage_Risk
+The overhead water pipe running above the street in Dharavi slum has several visible weak points and leaks.,3,Structural_Damage_Risk
+"The foundation of the newly built footpath has already started crumbling near the lake, raising quality concerns.",2,Structural_Damage_Risk
+"The old abandoned factory building in the industrial zone is a hazard, with collapsing walls and debris falling regularly.",5,Structural_Damage_Risk
+"The compound wall of the local police station has cracks and is leaning towards the road, posing a risk.",3,Structural_Damage_Risk
