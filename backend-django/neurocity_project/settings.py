@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'traffic_eye_api',
+    'citizen_complaints',
     'rest_framework',
     'corsheaders',
 ]
