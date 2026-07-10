@@ -16,3 +16,7 @@ backend_django/traffic_eye_api/assets
 .env
 .DS_Store
 Thumbs.db
+
+backend-django/energy_sentinel/Data_Gujarat/
+backend-django/energy_sentinel/Data_Maharashtra/
+backend-django/energy_sentinel/Data_UttarPradesh/
