@@ -5,6 +5,8 @@ require('dotenv').config();
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
 const complaintRoutes = require('./routes/complaints'); // Import new route module
+const healthRoutes = require('./routes/health'); // Import health route module
+const trafficRoutes = require('./routes/traffic'); // Import traffic route module
 
 connectDB();
 
@@ -16,6 +18,8 @@ app.use(express.json());
 // Mount Routing Paths
 app.use('/api/auth', authRoutes);
 app.use('/api/complaints', complaintRoutes); // Register complaints path here!
+app.use('/api/health', healthRoutes); // Register master health check route
+app.use('/api/traffic', trafficRoutes); // Register traffic pipeline route
 
 app.get('/', (req, res) => {
     res.json({ status: "online", service: "NeuroCity Core Gateway Router" });

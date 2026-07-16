@@ -1,4 +1,13 @@
 const mongoose = require('mongoose');
+const dns = require('dns');
+
+// Set fallback public DNS servers to resolve MongoDB SRV records correctly, 
+// as Node's default system resolver can fail in certain local/restricted network configurations.
+try {
+    dns.setServers(['8.8.8.8', '1.1.1.1']);
+} catch (error) {
+    console.warn(`[DNS Warning] Could not set custom DNS servers: ${error.message}`);
+}
 
 console.log("File started executing.")
 

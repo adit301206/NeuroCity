@@ -49,14 +49,32 @@ def triage_complaint(request):
         # 2. Convert text to features using the loaded TF-IDF Vectorizer
         text_features = vectorizer.transform([complaint_text])
         
-        # 3. Predict severity / priority class using the Random Forest Model
-        predicted_class = model.predict(text_features)[0]  # returns class integer or string
+        # 3. Predict category class using the trained model
+        predicted_class = model.predict(text_features)[0]  # returns class string (e.g. 'Public_Safety')
+        predicted_category = str(predicted_class)
+        
+        # Map category to priority levels: 1 (Low), 2 (Medium), 3 (High)
+        priority_map = {
+            'Electrical_Hazard': 3,
+            'Structural_Damage_Risk': 3,
+            'Public_Safety': 3,
+            'Water_Logging': 2,
+            'Road_Repair': 2,
+            'Power_Outage': 2,
+            'Water_Sanitation': 1,
+            'Air_Pollution_Violation': 1,
+            'Stray_Animal_Hazard': 1,
+            'Waste_Management': 1,
+            'Traffic_Encroachment': 1
+        }
+        predicted_priority = priority_map.get(predicted_category, 1)
         
         # 4. Return clean, structured JSON inference response
         return Response({
             "status": "success",
-            "predicted_priority": int(predicted_class),  # E.g., 1 (Low) to 3 (High)
-            "suggested_department": "Infrastructure" if "road" in complaint_text.lower() or "manhole" in complaint_text.lower() else "Sanitation"
+            "predicted_category": predicted_category,
+            "predicted_priority": predicted_priority,
+            "suggested_department": predicted_category.replace('_', ' ')
         }, status=status.HTTP_200_OK)
         
     except Exception as e:
@@ -64,3 +82,25 @@ def triage_complaint(request):
             {"error": f"Prediction failed: {str(e)}"},
             status=status.HTTP_400_BAD_REQUEST
         )
+
+@api_view(['GET'])
+def complaints_health(request):
+    """
+    Validates DRF server state and checks whether machine learning models
+    are successfully initialized in-memory.
+    """
+    model_loaded = model is not None
+    vectorizer_loaded = vectorizer is not None
+    
+    is_healthy = model_loaded and vectorizer_loaded
+    
+    response_data = {
+        "status": "online",
+        "ml_models": {
+            "triage_rf_model_loaded": model_loaded,
+            "tfidf_vectorizer_loaded": vectorizer_loaded
+        }
+    }
+    
+    status_code = status.HTTP_200_OK if is_healthy else status.HTTP_503_SERVICE_UNAVAILABLE
+    return Response(response_data, status=status_code)
