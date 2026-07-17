@@ -23,4 +23,5 @@ urlpatterns = [
     path('api/traffic/', include("traffic_eye_api.urls")),
     path('api/v1/complaints' , include("citizen_complaints.urls")),
     path('api/complaints/', include("citizen_complaints.urls")),
+    path('api/energy/', include("energy_sentinel.urls")),
 ]
