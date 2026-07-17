@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const multer = require('multer');
 const axios = require('axios');
 const FormData = require('form-data');
@@ -66,12 +67,24 @@ router.post('/analyze', protect, upload.single('traffic_image'), async (req, res
             mappedCongestion = 'MODERATE';
         }
 
+        if (!req.user || (!req.user.id && !req.user._id)) {
+            return res.status(401).json({ status: "fail", message: "User context not found on request" });
+        }
+        const userId = req.user.id || req.user._id;
+
+        let processedByObjectId;
+        try {
+            processedByObjectId = new mongoose.Types.ObjectId(userId);
+        } catch (castErr) {
+            return res.status(400).json({ status: "fail", message: "Invalid user ID format" });
+        }
+
         const trafficLog = new TrafficLog({
             cameraLocation: cameraLocation,
             vehicleCount: telemetry.total_vehicles_detected || 0,
             congestionIndex: mappedCongestion,
             emergencyOverrideTriggered: telemetry.emergency_override_triggered || false,
-            processedBy: req.user.id
+            processedBy: processedByObjectId
         });
 
         await trafficLog.save();
