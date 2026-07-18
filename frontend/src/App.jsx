@@ -11,8 +11,10 @@ import {
   FileImage,
   RefreshCw
 } from 'lucide-react';
+import Navbar from './components/Navbar';
 
 function App() {
+  const [activeTab, setActiveTab] = useState('traffic-eye');
   // Pre-seed some realistic historical logs
   const [logs, setLogs] = useState([
     {
@@ -161,7 +163,9 @@ function App() {
   };
 
   return (
-    <div className="dashboard-container">
+    <div className="min-h-screen bg-white">
+      <Navbar activeTab={activeTab} onNavigate={setActiveTab} />
+      <div className="dashboard-container">
       {/* Header Section */}
       <header className="header">
         <div className="header-title-container">
@@ -377,6 +381,7 @@ function App() {
         </div>
       </section>
     </div>
+  </div>
   );
 }
 
