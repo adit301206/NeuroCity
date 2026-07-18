@@ -12,6 +12,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import Navbar from './components/Navbar';
+import TrafficHero from './components/TrafficHero';
 
 function App() {
   const [activeTab, setActiveTab] = useState('traffic-eye');
@@ -165,6 +166,10 @@ function App() {
   return (
     <div className="min-h-screen bg-white">
       <Navbar activeTab={activeTab} onNavigate={setActiveTab} />
+      <TrafficHero 
+        onLaunchAnalyzer={() => console.log('Launch Analyzer')} 
+        onViewLogs={() => console.log('View Active Logs')} 
+      />
       <div className="dashboard-container">
       {/* Header Section */}
       <header className="header">
