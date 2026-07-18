@@ -14,46 +14,109 @@ export default function Navbar({ onNavigate, activeTab }) {
   return (
     <nav className="mx-6 mt-4 p-4 rounded-2xl bg-[#03045E]/95 backdrop-blur-md border border-[#48CAE4]/30 shadow-[0_10px_30px_rgba(3,4,94,0.3),0_0_25px_rgba(72,202,228,0.15)] flex items-center justify-between select-none relative z-50">
       
-      {/* Left Side - The NeuroCity Branding Concept */}
-      <div className="flex items-center gap-3 cursor-pointer" onClick={() => onNavigate && onNavigate('global-hub')}>
-        {/* Digital Twin Urban Nexus Core SVG Asset */}
-        <div className="relative flex items-center justify-center w-9 h-9 rounded-lg bg-[#023E8A]/50 border border-[#0096C7]/50 shadow-[0_0_10px_rgba(72,202,228,0.3)]">
-          <svg 
-            className="w-6 h-6 text-[#48CAE4] drop-shadow-[0_0_8px_rgba(72,202,228,0.7)]" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="1.5" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-          >
-            {/* Pipelines */}
-            <line x1="12" y1="4" x2="12" y2="8" />
-            <line x1="12" y1="16" x2="12" y2="20" />
-            <line x1="4" y1="12" x2="8" y2="12" />
-            <line x1="16" y1="12" x2="20" y2="12" />
+      {/* Left Side - The NeuroCity Integrated Artistic Signature */}
+      <div 
+        className="flex items-center cursor-pointer h-10" 
+        onClick={() => onNavigate && onNavigate('global-hub')}
+      >
+        <svg 
+          width="240" 
+          height="40" 
+          viewBox="0 0 240 40" 
+          fill="none" 
+          xmlns="http://www.w3.org/2000/svg"
+          className="overflow-visible"
+        >
+          <defs>
+            {/* Seamless Linear Gradient across typography footprint */}
+            <linearGradient id="brand-grad" x1="10" y1="0" x2="200" y2="0" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#FFFFFF" />
+              <stop offset="100%" stopColor="#48CAE4" />
+            </linearGradient>
             
-            {/* Satellite Vertices */}
-            <circle cx="12" cy="4" r="1.5" className="fill-[#48CAE4] animate-pulse" />
-            <circle cx="12" cy="20" r="1.5" className="fill-[#48CAE4] animate-pulse" />
-            <circle cx="4" cy="12" r="1.5" className="fill-[#48CAE4] animate-pulse" />
-            <circle cx="20" cy="12" r="1.5" className="fill-[#48CAE4] animate-pulse" />
-            
-            {/* Central Diamond Node */}
-            <polygon points="12,8 16,12 12,16 8,12" className="fill-[#48CAE4]/20 stroke-[#48CAE4] stroke-[1.5] animate-pulse" />
-            <circle cx="12" cy="12" r="1" className="fill-[#48CAE4]" />
-          </svg>
-        </div>
+            {/* Luminous Glow Filter for neural filaments & diamond core */}
+            <filter id="node-glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="blur1" />
+              <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur2" />
+              <feMerge>
+                <feMergeNode in="blur2" />
+                <feMergeNode in="blur1" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
 
-        {/* Branding Typography & Version Details */}
-        <div className="flex flex-col">
-          <span className="font-sans text-2xl font-bold tracking-widest uppercase bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-[#48CAE4] leading-none">
-            NeuroCity
-          </span>
-          <span className="font-mono text-[10px] tracking-widest text-[#CAF0F8]/40 leading-none mt-1 uppercase">
-            NC_OS // ENGINE_v2.0
-          </span>
-        </div>
+          {/* Infrastructure Pipelines flowing asynchronously underneath */}
+          <path 
+            d="M 22 24 C 60 31, 100 31, 150 27 C 170 25, 190 29, 215 29" 
+            stroke="#48CAE4" 
+            strokeWidth="0.8" 
+            opacity="0.3" 
+            fill="none" 
+            className="animate-pulse"
+          />
+          <path 
+            d="M 12 30 C 50 35, 110 35, 170 33 C 185 32, 205 35, 218 35" 
+            stroke="#48CAE4" 
+            strokeWidth="0.6" 
+            opacity="0.25" 
+            fill="none" 
+            className="animate-pulse"
+          />
+
+          {/* Capital 'N' Hybrid Element */}
+          <g>
+            {/* Solid vertical stems */}
+            <rect x="10" y="8" width="4.5" height="20" rx="0.75" fill="url(#brand-grad)" />
+            <rect x="25.5" y="8" width="4.5" height="20" rx="0.75" fill="url(#brand-grad)" />
+            
+            {/* Diagonal spine dissolving into neural node filaments */}
+            <line x1="14.5" y1="9.5" x2="25.5" y2="26.5" stroke="#48CAE4" strokeWidth="1.2" opacity="0.7" className="animate-pulse" filter="url(#node-glow)" />
+            <line x1="14.5" y1="14.5" x2="21" y2="24.5" stroke="#48CAE4" strokeWidth="0.8" opacity="0.5" className="animate-pulse" />
+            <line x1="19.5" y1="11.5" x2="25.5" y2="21.5" stroke="#48CAE4" strokeWidth="0.8" opacity="0.5" className="animate-pulse" />
+
+            {/* Pulsing Neural Vertices */}
+            <circle cx="17.5" cy="14" r="1.75" fill="#48CAE4" className="animate-pulse" filter="url(#node-glow)" />
+            <circle cx="21" cy="19.5" r="1.25" fill="#FFFFFF" className="animate-pulse" />
+            <circle cx="23.5" cy="23.5" r="1.75" fill="#48CAE4" className="animate-pulse" filter="url(#node-glow)" />
+          </g>
+
+          {/* Explicit Text Layout with Kerned Alignment for "CITY" */}
+          <g>
+            <text 
+              y="26" 
+              fill="url(#brand-grad)" 
+              fontFamily="system-ui, -apple-system, sans-serif" 
+              fontWeight="900" 
+              fontSize="20"
+              style={{ letterSpacing: '0.12em' }}
+            >
+              {/* EURO segment */}
+              <tspan x="34">E</tspan>
+              <tspan x="53">U</tspan>
+              <tspan x="72">R</tspan>
+              <tspan x="91">O</tspan>
+              
+              {/* CITY segment with custom kerned offsets */}
+              <tspan x="110">C</tspan>
+              
+              {/* 'I' stem sits closer to 'C' (offset from 110 is 16px instead of standard 19px) */}
+              <tspan x="126" style={{ letterSpacing: '0.06em' }}>I</tspan>
+              
+              {/* 'T' and 'Y' positioned cleanly */}
+              <tspan x="135">T</tspan>
+              <tspan x="154">Y</tspan>
+            </text>
+
+            {/* 'I' dot core - glowing diamond-vertex positioned manually over the 'I' stem */}
+            <polygon 
+              points="128.25,5.5 131.25,8.5 128.25,11.5 125.25,8.5" 
+              fill="#48CAE4" 
+              className="animate-pulse" 
+              filter="url(#node-glow)" 
+            />
+          </g>
+        </svg>
       </div>
 
       {/* Center Area - Unified Command Links */}
