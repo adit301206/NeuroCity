@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function TrafficHero({ onLaunchAnalyzer, onViewLogs }) {
   return (
-    <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center mx-6 mt-8 p-6 bg-white rounded-3xl border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+    <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center mx-6 mt-8 p-8 bg-[#caf0f8]/60 backdrop-blur-xl border border-white/80 rounded-3xl shadow-xl">
       
       {/* Local Styles for HUD animations */}
       <style>{`
@@ -120,26 +120,38 @@ export default function TrafficHero({ onLaunchAnalyzer, onViewLogs }) {
           </svg>
         </div>
 
-        {/* Frame 1: Ambulance Priority Bounding Box */}
+        {/* Frame 1: Ambulance Priority Bounding Box with Upgraded Target Reticle */}
         <div className="absolute bottom-[16%] right-[8%] w-[42%] h-[42%] border border-amber-500/80 shadow-[0_0_10px_rgba(245,158,11,0.2)] rounded p-2 z-10">
           <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-amber-500" />
           <div className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-amber-500" />
           <div className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-amber-500" />
           <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-amber-500" />
           
-          {/* Warning badge label */}
-          <div className="absolute -top-5 left-0 font-mono text-[8px] font-bold text-amber-400 bg-[#03045E] px-1.5 py-0.5 border border-amber-500/30 rounded flex items-center gap-1.5 whitespace-nowrap">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500"></span>
-            </span>
-            <span>TARGET: AMBULANCE // PRIORITY_OVERRIDE_ACTIVE</span>
+          {/* Warning badge label (pulsing generic dot removed) */}
+          <div className="absolute -top-5 left-0 font-mono text-[8px] font-bold text-amber-400 bg-[#03045E] px-1.5 py-0.5 border border-amber-500/30 rounded whitespace-nowrap">
+            <span>TARGET: AMBULANCE</span>
           </div>
           
-          {/* Cross vector outline */}
-          <svg className="w-full h-full text-amber-500/15 opacity-70 p-2" viewBox="0 0 100 100" fill="none" stroke="currentColor">
-            <path d="M 40 20 H 60 V 40 H 80 V 60 H 60 V 80 H 40 V 60 H 20 V 40 H 40 Z" strokeWidth="1.5" />
-          </svg>
+          {/* Upgraded Complex Target Reticle for Active Ambulance Detection */}
+          <div className="absolute inset-0 flex items-center justify-center p-4">
+            <div className="w-20 h-20 flex items-center justify-center rounded-xl bg-red-500/5 border border-red-500/20 animate-[pulse_2s_infinite] shadow-[0_0_25px_rgba(255,0,0,0.5)]">
+              {/* Bold Neon Red (#FF0000) Classic Medical Indicator Cross Symbol */}
+              <svg 
+                className="w-12 h-12 text-[#FF0000] drop-shadow-[0_0_10px_rgba(255,0,0,0.85)]" 
+                viewBox="0 0 100 100" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="3"
+              >
+                <path d="M 40 20 H 60 V 40 H 80 V 60 H 60 V 80 H 40 V 60 H 20 V 40 Z" />
+              </svg>
+            </div>
+          </div>
+
+          {/* Priority Text Anchor Underneath the Reticle */}
+          <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 font-mono text-[8px] font-bold text-[#FFBF00]/80 tracking-wider whitespace-nowrap bg-[#03045E]/90 px-1.5 py-0.5 border border-[#FFBF00]/30 rounded shadow-[0_0_8px_rgba(255,191,0,0.3)]">
+            [ PRIORITY_OVERRIDE_ACTIVE // CAL: 0.99 ]
+          </div>
         </div>
 
         {/* Cybernetic Telemetry Border Details */}
