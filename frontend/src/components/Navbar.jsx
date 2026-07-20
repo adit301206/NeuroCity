@@ -16,12 +16,12 @@ export default function Navbar({ onNavigate, activeTab }) {
       
       {/* Left Side - The NeuroCity Integrated Artistic Signature */}
       <div 
-        className="flex items-center cursor-pointer h-10" 
+        className="flex items-center cursor-pointer h-[52px]" 
         onClick={() => onNavigate && onNavigate('global-hub')}
       >
         <svg 
-          width="240" 
-          height="40" 
+          width="312" 
+          height="52" 
           viewBox="0 0 240 40" 
           fill="none" 
           xmlns="http://www.w3.org/2000/svg"

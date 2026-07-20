@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function TrafficHero({ onLaunchAnalyzer, onViewLogs }) {
   return (
-    <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center mx-6 mt-8 p-8 bg-[#caf0f8]/60 backdrop-blur-xl border border-white/80 rounded-3xl shadow-xl">
+    <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center mx-6 mt-14 lg:mt-16 p-8 bg-[#caf0f8]/60 backdrop-blur-xl border border-white/80 rounded-3xl shadow-xl">
       
       {/* Local Styles for HUD animations */}
       <style>{`
