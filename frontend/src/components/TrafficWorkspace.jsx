@@ -94,21 +94,6 @@ export default function TrafficWorkspace() {
     }, 1800);
   };
 
-  // --- Presets for Instant Interactive Testing ---
-  const loadPreset = (presetType) => {
-    if (isScanning) return;
-    if (presetType === 'surat') {
-      setActiveImage('preset-surat');
-      runSimulation('Surat_Central_Junction_04', { cars: 14, bikes: 8, trucks: 3 }, true);
-    } else if (presetType === 'majura') {
-      setActiveImage('preset-majura');
-      runSimulation('Majura_Gate_Junction_01', { cars: 9, bikes: 5, trucks: 1 }, false);
-    } else {
-      setActiveImage('preset-varachha');
-      runSimulation('Varachha_Transit_Hub_02', { cars: 4, bikes: 2, trucks: 0 }, false);
-    }
-  };
-
   // --- Drag and Drop File Handlers ---
   const handleDrag = (e) => {
     e.preventDefault();
@@ -192,7 +177,7 @@ export default function TrafficWorkspace() {
       `}</style>
 
       {/* THREE-COLUMN WORKSPACE MATRIX */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mx-6 mt-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mx-6 mt-14 lg:mt-16">
         
         {/* COLUMN 1: THE INTAKE DECK */}
         <section className="bg-[#CAF0F8]/40 backdrop-blur-md border border-white/60 shadow-lg rounded-2xl p-6 flex flex-col justify-between min-h-[420px]">
@@ -209,7 +194,7 @@ export default function TrafficWorkspace() {
             </p>
           </div>
 
-          {/* Interactive Drag & Drop Box */}
+          {/* Sleek, large Drag-and-Drop Image Dropzone Area */}
           <div
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
@@ -218,10 +203,10 @@ export default function TrafficWorkspace() {
             onClick={activeImage ? null : triggerBrowse}
             onMouseEnter={() => setIsHoveredUpload(true)}
             onMouseLeave={() => setIsHoveredUpload(false)}
-            className={`relative flex-1 flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-4 transition-all duration-300 ${
+            className={`relative flex-1 flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-6 transition-all duration-300 ${
               isDragActive 
-                ? 'border-[#0077B6] bg-[#90E0EF]/20' 
-                : 'border-[#00B4D8]/40 hover:border-[#00B4D8] bg-white/30 cursor-pointer'
+                ? 'border-[#48CAE4] bg-[#CAF0F8]/50 shadow-[0_0_15px_rgba(72,202,228,0.2)]' 
+                : 'border-[#00B4D8] hover:border-solid hover:border-[#48CAE4] bg-[#CAF0F8]/40 backdrop-blur-md cursor-pointer'
             }`}
           >
             <input
@@ -233,89 +218,79 @@ export default function TrafficWorkspace() {
             />
 
             {activeImage ? (
-              <div className="w-full h-full flex flex-col items-center justify-center text-center p-2">
-                <div className="w-16 h-16 rounded-xl bg-[#0077B6]/15 flex items-center justify-center text-[#03045E] mb-3">
-                  <Layers className="h-8 w-8 animate-pulse text-[#0077B6]" />
+              <div className="w-full h-full flex flex-col items-center justify-center text-center p-2 z-10">
+                {/* Micro Thumbnail */}
+                <div className="relative w-28 h-20 rounded-lg overflow-hidden border border-[#00B4D8]/50 mb-4 shadow-md bg-[#023E8A]">
+                  <img src={activeImage} className="w-full h-full object-cover" alt="Ingested frame" />
+                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                    <span className="text-[9px] font-mono font-bold text-[#48CAE4] tracking-widest bg-black/60 px-1 py-0.5 rounded border border-[#48CAE4]/30">INGESTED</span>
+                  </div>
                 </div>
+                
                 <span className="text-xs font-mono font-bold text-[#03045E] break-all max-w-full px-2 block mb-1">
                   {fileName || 'custom_upload.png'}
                 </span>
-                <span className="text-[10px] text-slate-400 font-mono mb-4 uppercase">
-                  [ Ingested Ready for Inference ]
+                
+                <span className="text-[10px] text-slate-500 font-mono mb-4 uppercase">
+                  [ READY FOR INFERENCE PIPELINE ]
                 </span>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    resetWorkspace();
-                  }}
-                  className="px-4 py-1.5 rounded-lg text-[11px] font-mono font-bold bg-[#03045E] text-white hover:bg-[#023E8A] transition-all cursor-pointer shadow-md"
-                >
-                  DISCARD // UNLINK FRAME
-                </button>
+
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={triggerBrowse}
+                    className="px-4 py-2 rounded-xl text-xs font-mono font-bold bg-[#03045E] text-white hover:bg-[#023E8A] border border-[#48CAE4] shadow-[0_0_12px_rgba(72,202,228,0.25)] transition-all cursor-pointer"
+                  >
+                    CHANGE FRAME
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      resetWorkspace();
+                    }}
+                    className="px-4 py-2 rounded-xl text-xs font-mono font-bold bg-red-600/10 text-red-700 hover:bg-red-600/20 border border-red-500/30 transition-all cursor-pointer"
+                  >
+                    DISCARD
+                  </button>
+                </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center text-center">
-                {/* Glowing cloud upload icon */}
-                <div className="mb-4 transition-transform duration-300 animate-float">
+              <div className="flex flex-col items-center text-center p-2 z-10">
+                {/* Animated Pulsing Cloud Upload Icon */}
+                <div className="mb-4 animate-[pulse_2s_infinite] transition-transform duration-300">
                   <svg
-                    className="w-14 h-14 transition-all duration-300"
+                    className="w-16 h-16 text-[#0077B6] drop-shadow-[0_0_8px_rgba(72,202,228,0.4)]"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="url(#cloudGrad)"
+                    stroke="currentColor"
                     strokeWidth="1.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   >
-                    <defs>
-                      <linearGradient id="cloudGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor={isHoveredUpload ? '#00B4D8' : '#0077B6'} />
-                        <stop offset="100%" stopColor={isHoveredUpload ? '#48CAE4' : '#48CAE4'} />
-                      </linearGradient>
-                    </defs>
                     <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
                     <path d="M12 12v9" />
                     <path d="m8 16 4-4 4 4" />
                   </svg>
                 </div>
                 
-                <span className="text-xs font-mono font-bold text-[#03045E] tracking-wider mb-1 uppercase">
-                  INGEST_FEED // ATTACH INTERSECTION FRAME
+                <span className="text-sm font-mono font-bold text-[#03045E] tracking-wider mb-2 uppercase">
+                  INGEST_TRAFFIC_FEED // BROWSE OR DRAG IMAGE
                 </span>
-                <span className="text-[10px] text-slate-400 font-mono tracking-tight">
+                
+                <span className="text-xs text-slate-500 font-mono tracking-tight mb-4">
                   Supports JPG, PNG up to 10MB
                 </span>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    triggerBrowse();
+                  }}
+                  className="px-6 py-3 rounded-xl font-mono text-xs font-bold bg-[#03045E] text-white hover:bg-[#023E8A] border border-[#48CAE4] shadow-[0_0_15px_rgba(72,202,228,0.25)] hover:shadow-[0_0_20px_rgba(72,202,228,0.5)] transition-all cursor-pointer"
+                >
+                  UPLOAD & PROCESS FRAME
+                </button>
               </div>
             )}
-          </div>
-
-          {/* Quick Sandbox Simulation Presets */}
-          <div className="mt-4 pt-4 border-t border-[#00B4D8]/20 flex flex-col gap-2">
-            <span className="text-[10px] font-mono font-bold tracking-wider text-slate-400 uppercase">
-              [ INTERACTIVE SANDBOX PRESETS ]
-            </span>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                onClick={() => loadPreset('surat')}
-                disabled={isScanning}
-                className="px-2 py-2 rounded-lg border border-[#0077B6]/30 text-[10px] font-mono font-bold text-[#03045E] hover:bg-[#90E0EF]/30 bg-white/40 transition-all cursor-pointer text-center truncate disabled:opacity-50"
-              >
-                SURAT_C_04
-              </button>
-              <button
-                onClick={() => loadPreset('majura')}
-                disabled={isScanning}
-                className="px-2 py-2 rounded-lg border border-[#0077B6]/30 text-[10px] font-mono font-bold text-[#03045E] hover:bg-[#90E0EF]/30 bg-white/40 transition-all cursor-pointer text-center truncate disabled:opacity-50"
-              >
-                MAJURA_G_01
-              </button>
-              <button
-                onClick={() => loadPreset('varachha')}
-                disabled={isScanning}
-                className="px-2 py-2 rounded-lg border border-[#0077B6]/30 text-[10px] font-mono font-bold text-[#03045E] hover:bg-[#90E0EF]/30 bg-white/40 transition-all cursor-pointer text-center truncate disabled:opacity-50"
-              >
-                VARACHHA_02
-              </button>
-            </div>
           </div>
         </section>
 
@@ -332,7 +307,7 @@ export default function TrafficWorkspace() {
             </div>
           </div>
 
-          {/* CRT Monitor Viewport Deck */}
+          {/* High-Fidelity CRT/LED Diagnostic Viewport Frame */}
           <div className="relative flex-1 w-full bg-[#023E8A] overflow-hidden rounded-xl border border-[#0077B6]/30 shadow-inner flex flex-col items-center justify-center p-4 min-h-[260px] crt-monitor">
             
             {/* CRT Screen Scanline Overlay Effect */}
@@ -345,16 +320,11 @@ export default function TrafficWorkspace() {
               }}
             />
 
-            {/* Bright metallic corner brackets */}
+            {/* Bright Metallic Corner Brackets */}
             <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-[#0096C7] z-20" />
             <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-[#0096C7] z-20" />
             <div className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-[#0096C7] z-20" />
             <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-[#0096C7] z-20" />
-
-            {/* Laser scanning beam */}
-            {activeImage && (
-              <div className="absolute left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-[#00B4D8] to-transparent shadow-[0_0_12px_#00B4D8] pointer-events-none z-30 animate-scan-beam" />
-            )}
 
             {isScanning ? (
               /* Processing Diagnostics HUD */
@@ -374,106 +344,48 @@ export default function TrafficWorkspace() {
                 </span>
               </div>
             ) : activeImage ? (
-              /* Active processed camera frame viewport output */
-              <div className="relative w-full h-full flex items-center justify-center z-20">
-                
-                {/* Virtualized Wireframe Silhouette Asset Layout */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-2">
-                  
-                  {/* Grid Lines Pattern */}
-                  <svg className="absolute inset-0 w-full h-full text-white/5" fill="none" stroke="currentColor" strokeWidth="0.5">
-                    <line x1="0" y1="25%" x2="100%" y2="25%" strokeDasharray="3 3" />
-                    <line x1="0" y1="50%" x2="100%" y2="50%" strokeDasharray="3 3" />
-                    <line x1="0" y1="75%" x2="100%" y2="75%" strokeDasharray="3 3" />
-                    <line x1="25%" y1="0" x2="25%" y2="100%" strokeDasharray="3 3" />
-                    <line x1="50%" y1="0" x2="50%" y2="100%" strokeDasharray="3 3" />
-                    <line x1="75%" y1="0" x2="75%" y2="100%" strokeDasharray="3 3" />
-                  </svg>
+              /* Active processed camera frame viewport output - Renders only clean image */
+              <div className="relative w-full h-full rounded-xl overflow-hidden z-20">
+                {/* The Processed Image Render Area */}
+                <img src={activeImage} className="w-full h-full object-contain rounded-xl" alt="Processed output" />
 
-                  {/* YOLOv8 Wireframe Bounding Box 1 (Main Target) */}
-                  <div className="absolute top-[20%] left-[15%] w-[45%] h-[55%] border border-[#48CAE4] rounded shadow-[0_0_15px_rgba(72,202,228,0.25)] flex flex-col justify-between p-1.5">
-                    
-                    {/* Glowing Reticle Corner Accents */}
-                    <span className="absolute top-0 left-0 w-1.5 h-1.5 border-t border-l border-white" />
-                    <span className="absolute top-0 right-0 w-1.5 h-1.5 border-t border-r border-white" />
-                    <span className="absolute bottom-0 left-0 w-1.5 h-1.5 border-b border-l border-white" />
-                    <span className="absolute bottom-0 right-0 w-1.5 h-1.5 border-b border-r border-white" />
-                    
-                    {/* Bounding box header label */}
-                    <div className="bg-[#03045E] text-[#48CAE4] border border-[#00B4D8]/30 px-1 py-0.5 rounded text-[8px] font-mono font-bold self-start mt-[-14px] ml-[-5px] shadow-sm tracking-wider whitespace-nowrap">
-                      [ PROCESSING_ACTIVE // ENGINE_YOLOv8x ]
-                    </div>
+                {/* Laser Scanning Sweep Line */}
+                <div className="absolute left-0 w-full h-[2px] bg-[#00B4D8] shadow-[0_0_12px_rgba(0,180,216,1)] pointer-events-none z-30 animate-scan-beam" />
 
-                    {/* Vector vehicle silhouette placeholder overlay */}
-                    <svg className="w-full h-full text-[#48CAE4]/20 p-2" viewBox="0 0 100 100" fill="none" stroke="currentColor">
-                      <path d="M15 70h70l-8-25H23z" strokeWidth="1.5" />
-                      <path d="M28 45l4-15h36l4 15" strokeWidth="1.2" />
-                      <circle cx="32" cy="70" r="7" strokeWidth="1.5" fill="#023E8A" />
-                      <circle cx="68" cy="70" r="7" strokeWidth="1.5" fill="#023E8A" />
-                    </svg>
-
-                    {/* Laser Target Ticks */}
-                    <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 font-mono text-[8px] text-[#CAF0F8] opacity-75">
-                      LOC: [X_440 // Y_208]
-                    </div>
-                  </div>
-
-                  {/* YOLOv8 Wireframe Bounding Box 2 (Secondary Target, e.g. Emergency Vehicle if flag active) */}
-                  <div className={`absolute bottom-[15%] right-[10%] w-[32%] h-[40%] border rounded p-1 flex flex-col justify-between ${
-                    hasEmergency 
-                      ? 'border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.4)]' 
-                      : 'border-[#48CAE4]/60 shadow-[0_0_8px_rgba(72,202,228,0.15)]'
-                  }`}>
-                    {/* Corner accents */}
-                    <span className={`absolute top-0 left-0 w-1 h-1 border-t border-l ${hasEmergency ? 'border-red-400' : 'border-[#48CAE4]'}`} />
-                    <span className={`absolute top-0 right-0 w-1 h-1 border-t border-r ${hasEmergency ? 'border-red-400' : 'border-[#48CAE4]'}`} />
-                    <span className={`absolute bottom-0 left-0 w-1 h-1 border-b border-l ${hasEmergency ? 'border-red-400' : 'border-[#48CAE4]'}`} />
-                    <span className={`absolute bottom-0 right-0 w-1 h-1 border-b border-r ${hasEmergency ? 'border-red-400' : 'border-[#48CAE4]'}`} />
-
-                    <div className={`text-[7px] font-mono font-bold px-1 py-0.5 rounded self-start mt-[-12px] ml-[-4px] shadow-sm tracking-wider whitespace-nowrap ${
-                      hasEmergency 
-                        ? 'bg-red-950 text-red-400 border border-red-500/50 animate-pulse' 
-                        : 'bg-[#03045E] text-[#48CAE4] border border-[#00B4D8]/30'
-                    }`}>
-                      {hasEmergency ? '[ TARGET: AMBULANCE // PRIORITY ]' : '[ TARGET: COMPACT_VEHICLE ]'}
-                    </div>
-
-                    <svg className={`w-full h-full p-1 ${hasEmergency ? 'text-red-500/30' : 'text-[#48CAE4]/20'}`} viewBox="0 0 100 100" fill="none" stroke="currentColor">
-                      {hasEmergency ? (
-                        /* Medical Cross Ambulance silhouette */
-                        <>
-                          <rect x="20" y="30" width="60" height="40" rx="3" strokeWidth="1.5" />
-                          <rect x="55" y="20" width="20" height="12" strokeWidth="1.5" />
-                          <circle cx="35" cy="70" r="6" strokeWidth="1.5" />
-                          <circle cx="65" cy="70" r="6" strokeWidth="1.5" />
-                          <path d="M 45 42 h 10 m -5 -5 v 10" strokeWidth="2.5" strokeLinecap="round" />
-                        </>
-                      ) : (
-                        /* Moto silhouette */
-                        <>
-                          <circle cx="30" cy="65" r="10" strokeWidth="1.5" />
-                          <circle cx="70" cy="65" r="10" strokeWidth="1.5" />
-                          <path d="M 30 65 L 45 45 L 60 45 L 70 65" strokeWidth="1.5" />
-                          <path d="M 45 45 L 50 30" strokeWidth="1.5" />
-                        </>
-                      )}
-                    </svg>
-                  </div>
+                {/* Glowing Neon Badge in top corner */}
+                <div className="absolute top-3 left-3 bg-[#03045E]/90 border border-[#00B4D8]/40 shadow-[0_0_10px_rgba(72,202,228,0.25)] text-[#48CAE4] font-mono text-[9px] font-bold px-2 py-1 rounded tracking-widest uppercase z-30 animate-pulse">
+                  [ YOLOv8 DEEP_INFERENCE // ACTIVE ]
                 </div>
 
-                {/* Tracking Absolute Diagnostic Badging overlay */}
-                <div className="absolute top-2 right-2 bg-black/60 border border-[#00B4D8]/30 text-white font-mono text-[8px] px-2 py-0.5 rounded tracking-widest uppercase">
-                  [ DETECTED // YOLOv8x_CORE ]
+                {/* Corner Metadata Ticks */}
+                <div className="absolute bottom-3 left-3 bg-black/75 border border-[#00B4D8]/20 text-[#CAF0F8] font-mono text-[8px] px-2 py-1 rounded z-30">
+                  COMPUTE_LATENCY: 0.104s
                 </div>
-                
-                <div className="absolute bottom-2 left-2 bg-black/60 border border-[#00B4D8]/20 text-[#CAF0F8] font-mono text-[8px] px-2 py-0.5 rounded">
-                  FPS: 60.0 // LATENCY: 0.005s
+                <div className="absolute bottom-3 right-3 bg-black/75 border border-[#00B4D8]/20 text-[#48CAE4] font-mono text-[8px] px-2 py-1 rounded z-30">
+                  CONFIDENCE: 98.4%
                 </div>
               </div>
             ) : (
-              /* Awaiting feed state screen placeholder */
-              <div className="text-center text-white/30 font-mono text-xs font-semibold px-4 tracking-wider z-20 select-none">
-                [ STANDBY // AWAITING INGESTION FEED ]
+              /* Standby Tech Wireframe State */
+              <div className="relative w-full h-full flex flex-col items-center justify-center z-20">
+                {/* Tech Wireframe Isometric Grid */}
+                <svg className="absolute inset-0 w-full h-full opacity-20 pointer-events-none" viewBox="0 0 300 200" fill="none" stroke="currentColor">
+                  <path d="M -20 100 L 150 15 L 320 100 L 150 185 Z" stroke="#48CAE4" strokeWidth="0.5" strokeDasharray="3 6" />
+                  <path d="M 20 100 L 150 35 L 280 100 L 150 165 Z" stroke="#48CAE4" strokeWidth="0.5" strokeDasharray="3 6" />
+                  <line x1="30" y1="55" x2="270" y2="145" stroke="#48CAE4" strokeWidth="1.5" />
+                  <line x1="270" y1="55" x2="30" y2="145" stroke="#48CAE4" strokeWidth="1.5" />
+                  <line x1="150" y1="10" x2="150" y2="190" stroke="#48CAE4" strokeWidth="0.5" strokeDasharray="2 4" />
+                </svg>
+
+                {/* Standby Message HUD */}
+                <div className="text-center z-20 px-4">
+                  <span className="font-mono text-xs font-bold text-[#48CAE4] tracking-widest uppercase block mb-1">
+                    STANDBY // READY FOR INFERENCE STREAM
+                  </span>
+                  <span className="font-mono text-[9px] text-slate-400 uppercase">
+                    [ AWAITING INPUT FROM INTAKE DECK ]
+                  </span>
+                </div>
               </div>
             )}
           </div>
@@ -580,7 +492,7 @@ export default function TrafficWorkspace() {
 
           </div>
 
-          {/* CRISIS INCIDENT ALERT BLOCK */}
+          {/* CRISIS INCIDENT ALERT BLOCK (DYNAMIC EMERGENCY ALERT CONDITIONAL RENDERING) */}
           <div className="mt-6">
             {hasEmergency ? (
               <div className="bg-red-500/10 border border-red-500/30 animate-pulse p-3 rounded-xl flex items-start gap-3 shadow-md">
@@ -596,15 +508,15 @@ export default function TrafficWorkspace() {
                     </span>
                   </div>
                   <p className="font-mono text-[9px] text-[#03045E] leading-relaxed font-bold">
-                    CRITICAL ALERT: EMERGENCY VEHICLE (AMBULANCE) IDENTIFIED // TRIGGERING GREEN-WAVE SIGNAL OVERRIDE
+                    CRITICAL ALERT: EMERGENCY VEHICLE (AMBULANCE) IDENTIFIED // TRIGGERING GREEN-WAVE OVERRIDE
                   </p>
                 </div>
               </div>
             ) : (
-              <div className="bg-[#023E8A]/10 border border-[#0077B6]/20 p-3 rounded-xl flex items-center gap-3">
-                <ShieldAlert className="h-5 w-5 text-[#0077B6]/80 flex-shrink-0" />
-                <span className="font-mono text-[9px] text-[#03045E] font-bold">
-                  AMBULANCE_OVERRIDE_SCANNER: ENGAGED // NO ACTIVE INCIDENTS
+              <div className="bg-[#0077B6]/20 border border-[#00B4D8]/40 p-3 rounded-xl flex items-center gap-3 text-[#03045E]">
+                <ShieldAlert className="h-5 w-5 text-[#0077B6] flex-shrink-0" />
+                <span className="font-mono text-[9px] font-bold">
+                  SYS_STATUS: OPTIMAL // NORMAL SIGNAL TIMING ACTIVE (NO EMERGENCY OVERRIDE)
                 </span>
               </div>
             )}
