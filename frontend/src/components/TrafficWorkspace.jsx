@@ -10,6 +10,8 @@ export default function TrafficWorkspace() {
   const [isDragActive, setIsDragActive] = useState(false);
   const [isHoveredUpload, setIsHoveredUpload] = useState(false);
   const [fileName, setFileName] = useState('');
+  const [isYoloView, setIsYoloView] = useState(true);
+  const [isGaugeHovered, setIsGaugeHovered] = useState(false);
 
   // Telemetry metric counters matching required state format
   const [telemetry, setTelemetry] = useState({
@@ -279,14 +281,34 @@ export default function TrafficWorkspace() {
     setFileName('');
     setTelemetry({ car: 0, bike: 0, truck: 0, ambulance: 0 });
     setIsLoading(false);
+    setIsYoloView(true);
   };
 
   const triggerBrowse = () => {
     fileInputRef.current.click();
   };
 
+  const totalVehicles = telemetry.car + telemetry.bike + telemetry.truck + telemetry.ambulance;
+  const congestionScore = Math.min(100, Math.round((totalVehicles / 30) * 100));
+
+  let gaugeColor = '#00B4D8';
+  let capacityLabel = 'OPTIMAL FLOW';
+  if (congestionScore > 75) {
+    gaugeColor = '#FF0000';
+    capacityLabel = 'HEAVY CONGESTION';
+  } else if (congestionScore >= 40) {
+    gaugeColor = '#FFBF00';
+    capacityLabel = 'MODERATE CONGESTION';
+  }
+
+  const ambulanceCount = telemetry.ambulance;
+
   return (
-    <div className="w-full bg-[#FFFFFF]">
+    <div className={`w-full bg-[#FFFFFF] relative ${
+      ambulanceCount > 0 
+        ? 'shadow-[inset_0_0_60px_rgba(220,38,38,0.25)] border border-red-500/30 backdrop-blur-xs animate-[pulse_2.5s_ease-in-out_infinite] transition-all duration-700 ease-in-out' 
+        : 'transition-all duration-700 ease-in-out'
+    }`}>
       {/* HUD Embedded Keyframe Animations */}
       <style>{`
         @keyframes hover-float {
@@ -440,9 +462,20 @@ export default function TrafficWorkspace() {
               <span className="font-mono text-xs font-bold tracking-wider text-[#03045E]">
                 INFERENCE SCREEN // YOLOv8x_MATRIX
               </span>
-              <span className="text-[10px] font-mono text-[#0077B6] font-semibold bg-[#CAF0F8] px-2 py-0.5 rounded">
-                {isLoading ? 'SCANNING_FEED' : processedImageUrl ? 'FEED_CONNECTED' : 'PORT_STANDBY'}
-              </span>
+              <div className="flex items-center gap-2">
+                {processedImageUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setIsYoloView(prev => !prev)}
+                    className="text-[9px] font-mono text-[#0077B6] font-semibold bg-[#CAF0F8] hover:bg-[#90E0EF] px-2 py-0.5 rounded transition-all"
+                  >
+                    VIEW: {isYoloView ? 'YOLO' : 'RAW'}
+                  </button>
+                )}
+                <span className="text-[10px] font-mono text-[#0077B6] font-semibold bg-[#CAF0F8] px-2 py-0.5 rounded">
+                  {isLoading ? 'SCANNING_FEED' : processedImageUrl ? 'FEED_CONNECTED' : 'PORT_STANDBY'}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -464,6 +497,34 @@ export default function TrafficWorkspace() {
             <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-[#0096C7] z-20" />
             <div className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-[#0096C7] z-20" />
             <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-[#0096C7] z-20" />
+
+            {/* Feature 1: Sleek capsule button group in top-right of the viewport monitor */}
+            {processedImageUrl && (
+              <div className="absolute top-3 right-3 z-30 flex bg-[#023E8A]/60 backdrop-blur-md rounded-full p-0.5 border border-[#00B4D8]/30 shadow-md">
+                <button
+                  type="button"
+                  onClick={() => setIsYoloView(false)}
+                  className={`px-3 py-1 text-[9px] font-mono font-bold rounded-full transition-all duration-300 ${
+                    !isYoloView
+                      ? 'bg-[#00B4D8] text-[#03045E] shadow-[0_0_8px_rgba(0,180,216,0.6)]'
+                      : 'bg-transparent text-[#CAF0F8] hover:bg-[#023E8A]/40'
+                  }`}
+                >
+                  RAW FEED
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsYoloView(true)}
+                  className={`px-3 py-1 text-[9px] font-mono font-bold rounded-full transition-all duration-300 ${
+                    isYoloView
+                      ? 'bg-[#00B4D8] text-[#03045E] shadow-[0_0_8px_rgba(0,180,216,0.6)]'
+                      : 'bg-transparent text-[#CAF0F8] hover:bg-[#023E8A]/40'
+                  }`}
+                >
+                  YOLO AI OVERLAY
+                </button>
+              </div>
+            )}
 
             {isLoading ? (
               /* High-tech spinning radar scanner state */
@@ -489,15 +550,23 @@ export default function TrafficWorkspace() {
               /* Active processed camera frame viewport output */
               <div className="relative w-full h-full rounded-xl overflow-hidden z-20">
                 {/* The Processed Image Render Area */}
-                <img src={processedImageUrl} className="w-full h-full object-contain rounded-xl" alt="Processed output" />
+                <img src={isYoloView ? processedImageUrl : (previewUrl || processedImageUrl)} className="w-full h-full object-contain rounded-xl" alt="Processed output" />
 
                 {/* Laser Scanning Sweep Line */}
-                <div className="absolute left-0 w-full h-[2px] bg-[#00B4D8] shadow-[0_0_12px_rgba(0,180,216,1)] pointer-events-none z-30 animate-scan-beam" />
+                {isYoloView && (
+                  <div className="absolute left-0 w-full h-[2px] bg-[#00B4D8] shadow-[0_0_12px_rgba(0,180,216,1)] pointer-events-none z-30 animate-scan-beam" />
+                )}
 
-                {/* Glowing Neon Badge in top corner */}
-                <div className="absolute top-3 left-3 bg-[#03045E]/90 border border-[#00B4D8]/40 shadow-[0_0_10px_rgba(72,202,228,0.25)] text-[#48CAE4] font-mono text-[9px] font-bold px-2 py-1 rounded tracking-widest uppercase z-30 animate-pulse">
-                  [ YOLOv8 DEEP_INFERENCE // ACTIVE ]
-                </div>
+                {/* Glowing Neon Badge / Slate Ice Badge in top corner */}
+                {isYoloView ? (
+                  <div className="absolute top-3 left-3 bg-[#03045E]/90 border border-[#00B4D8]/40 shadow-[0_0_10px_rgba(72,202,228,0.25)] text-[#48CAE4] font-mono text-[9px] font-bold px-2 py-1 rounded tracking-widest uppercase z-30 animate-pulse">
+                    [ YOLOv8 INFERENCE ACTIVE ]
+                  </div>
+                ) : (
+                  <div className="absolute top-3 left-3 bg-slate-700/90 border border-slate-500/40 shadow-sm text-slate-300 font-mono text-[9px] font-bold px-2 py-1 rounded tracking-widest uppercase z-30">
+                    [ RAW CAMERA STREAM // UNPROCESSED ]
+                  </div>
+                )}
 
                 {/* Corner Metadata Ticks */}
                 <div className="absolute bottom-3 left-3 bg-black/75 border border-[#00B4D8]/20 text-[#CAF0F8] font-mono text-[8px] px-2 py-1 rounded z-30">
@@ -551,6 +620,62 @@ export default function TrafficWorkspace() {
             <p className="text-slate-500 text-xs mb-6 font-sans leading-relaxed">
               Real-time vehicle class distribution metrics computed dynamically from raw frame scan lines.
             </p>
+          </div>
+
+          {/* Feature 2: Speedometer / Donut Capacity Gauge */}
+          <div 
+            className="flex flex-col items-center justify-center my-4 p-4 bg-[#CAF0F8]/20 rounded-2xl border border-white/40 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-300 relative group cursor-pointer"
+            onMouseEnter={() => setIsGaugeHovered(true)}
+            onMouseLeave={() => setIsGaugeHovered(false)}
+          >
+            <div className="relative w-28 h-28 flex items-center justify-center">
+              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
+                {/* Background Track */}
+                <circle
+                  cx="60"
+                  cy="60"
+                  r="45"
+                  className="stroke-[#CAF0F8] fill-none"
+                  strokeWidth="8"
+                />
+                {/* Progress Ring */}
+                <circle
+                  cx="60"
+                  cy="60"
+                  r="45"
+                  className="fill-none transition-all duration-700 ease-out"
+                  stroke={gaugeColor}
+                  strokeWidth="8"
+                  strokeDasharray={282.74}
+                  strokeDashoffset={282.74 - (congestionScore / 100) * 282.74}
+                  strokeLinecap="round"
+                  style={{
+                    filter: `drop-shadow(0 0 4px ${gaugeColor}40)`
+                  }}
+                />
+              </svg>
+              
+              {/* Center Content */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-xl font-extrabold text-[#03045E] tracking-tight transition-all duration-300 group-hover:scale-110">
+                  {congestionScore}%
+                </span>
+              </div>
+            </div>
+            
+            {/* Monospace Sub-label */}
+            <div className="mt-2 text-center">
+              <span className="font-mono text-[9px] font-bold text-[#03045E] tracking-wider uppercase">
+                CAPACITY: {capacityLabel}
+              </span>
+            </div>
+
+            {/* Micro Tooltip */}
+            {isGaugeHovered && (
+              <div className="absolute -top-8 bg-[#03045E] text-[#CAF0F8] font-mono text-[9px] px-2 py-1 rounded shadow-lg border border-[#00B4D8]/30 transition-all duration-200">
+                TOTAL UNITS: {totalVehicles} / 30 MAX
+              </div>
+            )}
           </div>
 
           {/* Vehicle Distribution Metric Rows */}
@@ -634,20 +759,29 @@ export default function TrafficWorkspace() {
           {/* CRISIS INCIDENT ALERT BLOCK (DYNAMIC EMERGENCY ALERT CONDITIONAL RENDERING) */}
           <div className="mt-6">
             {telemetry.ambulance > 0 ? (
-              <div className="bg-red-500/10 border border-red-500/30 animate-pulse p-3 rounded-xl flex items-start gap-3 shadow-md">
-                <div className="flex-shrink-0 mt-0.5">
-                  <div className="h-5 w-5 bg-red-600 rounded-full flex items-center justify-center shadow-[0_0_8px_#EF4444]">
-                    <span className="text-white text-xs font-mono font-bold">+</span>
-                  </div>
+              <div className="relative bg-gradient-to-r from-red-950/40 via-red-900/20 to-transparent backdrop-blur-lg border-l-4 border-red-500 border-y border-r border-red-500/30 rounded-r-xl p-4 shadow-lg shadow-red-950/20 flex items-start gap-3 overflow-hidden">
+                {/* Tactical Cybernetic Corner Ticks */}
+                <span className="absolute top-1 left-2.5 text-red-500/60 font-mono text-[10px] select-none">┌</span>
+                <span className="absolute top-1 right-2 text-red-500/60 font-mono text-[10px] select-none">┐</span>
+                <span className="absolute bottom-1 left-2.5 text-red-500/60 font-mono text-[10px] select-none">└</span>
+                <span className="absolute bottom-1 right-2 text-red-500/60 font-mono text-[10px] select-none">┘</span>
+
+                {/* Dual-ring pulse aura medical cross icon */}
+                <div className="relative flex h-5 w-5 items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+                  <span className="absolute inline-flex rounded-full h-4 w-4 bg-red-600/40"></span>
+                  {/* Glowing medical cross SVG */}
+                  <svg className="relative h-3 w-3 text-red-100 fill-current" viewBox="0 0 24 24">
+                    <path d="M19 10.5h-5.5V5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v5.5H5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5h5.5V19c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5.5H19c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5z" />
+                  </svg>
                 </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[9px] font-mono font-extrabold text-[#FFBF00] bg-red-950/80 px-1.5 py-0.5 rounded border border-[#FFBF00]/30 shadow-sm">
-                      [ CRITICAL // EMERGENCY_VEHICLE_OVERRIDE ]
-                    </span>
-                  </div>
-                  <p className="font-mono text-[9px] text-[#03045E] leading-relaxed font-bold">
-                    CRITICAL ALERT: EMERGENCY VEHICLE (AMBULANCE) IDENTIFIED // TRIGGERING GREEN-WAVE OVERRIDE
+
+                <div className="flex-1 font-mono">
+                  <h3 className="text-red-400 font-bold tracking-widest text-sm uppercase">
+                    [ 🚨 PRIORITY OVERRIDE ACTIVATED ]
+                  </h3>
+                  <p className="text-xs text-red-200/80 mt-1 leading-relaxed">
+                    EMERGENCY VEHICLE (AMBULANCE) IN ROUTE // SIGNAL PHASE SWITCHED TO GREEN-WAVE
                   </p>
                 </div>
               </div>
