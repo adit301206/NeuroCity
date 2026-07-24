@@ -1,49 +1,25 @@
 import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import TrafficHero from '../components/TrafficHero';
+import TrafficTopDeck from '../components/TrafficTopDeck';
 import TrafficWorkspace from '../components/TrafficWorkspace';
 import TrafficSimulation from '../components/TrafficSimulation';
 
 export default function TrafficEye({ onNavigate }) {
-  // Navigation State inside Traffic Eye
   const [activeTab, setActiveTab] = useState('analyzer');
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Global Navbar */}
+    <div className="min-h-screen bg-white text-slate-900">
+      {/* Global Floating Navbar */}
       <Navbar activeTab="traffic-eye" onNavigate={onNavigate} />
 
-      {/* Sub-Header Mode Switcher UI Deck */}
-      <div className="flex justify-center pt-24 pb-4">
-        <div className="bg-[#CAF0F8]/50 backdrop-blur-md p-1.5 rounded-2xl border border-white/80 shadow-md flex gap-2 z-30 relative">
-          <button
-            type="button"
-            onClick={() => setActiveTab('analyzer')}
-            className={`px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${activeTab === 'analyzer'
-                ? 'bg-[#03045E] text-white shadow-lg'
-                : 'text-[#03045E] hover:bg-white/60 font-medium'
-              }`}
-          >
-            📷 Live Frame Analyzer
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('simulator')}
-            className={`px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${activeTab === 'simulator'
-                ? 'bg-[#03045E] text-white shadow-lg'
-                : 'text-[#03045E] hover:bg-white/60 font-medium'
-              }`}
-          >
-            🚦 4-Way Signal Simulator
-          </button>
-        </div>
-      </div>
-
-      {/* DYNAMIC CONTENT RENDERING */}
+      {/* Dynamic View Rendering */}
       <main className="w-full">
         {activeTab === 'analyzer' ? (
           <>
+            <TrafficTopDeck onLaunchSimulator={() => setActiveTab('simulator')} />
             <TrafficHero
+              onLaunchSimulator={() => setActiveTab('simulator')}
               onLaunchAnalyzer={() => {
                 const workspaceSection = document.getElementById('traffic-workspace-deck');
                 if (workspaceSection) {
@@ -62,7 +38,13 @@ export default function TrafficEye({ onNavigate }) {
             </div>
           </>
         ) : (
-          <div className="pt-2 px-6 pb-12">
+          <div className="pt-24 px-6 pb-12">
+            <button
+              onClick={() => setActiveTab('analyzer')}
+              className="mb-6 px-4 py-2 text-xs font-mono font-bold text-[#03045E] bg-[#CAF0F8]/80 hover:bg-[#CAF0F8] border border-[#00B4D8]/30 hover:border-[#48CAE4] rounded-xl shadow-md transition-all duration-300 flex items-center gap-2 cursor-pointer"
+            >
+              ← Back to Main Control Room
+            </button>
             <TrafficSimulation />
           </div>
         )}
