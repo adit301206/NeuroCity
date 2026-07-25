@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useMemo } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Edges } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -294,8 +294,16 @@ function TrafficParticles({ trafficConfig }) {
 
 // MultiStageCameraRig for 2-Phase Cinematic Zoom Animation Sequence
 function MultiStageCameraRig({ isZooming, onAnimationComplete }) {
+  const { camera } = useThree();
   const progressRef = useRef(0);
   const completedRef = useRef(false);
+  const startCamPosRef = useRef(new THREE.Vector3(24, 20, 24));
+
+  useEffect(() => {
+    if (isZooming) {
+      startCamPosRef.current = camera.position.clone();
+    }
+  }, [isZooming, camera]);
 
   useFrame((state, delta) => {
     if (!isZooming) {
@@ -310,7 +318,7 @@ function MultiStageCameraRig({ isZooming, onAnimationComplete }) {
     }
 
     const progress = progressRef.current;
-    const pos = new THREE.Vector3();
+    const camPos = new THREE.Vector3();
     const target = new THREE.Vector3();
 
     if (progress < 0.45) {
@@ -319,9 +327,9 @@ function MultiStageCameraRig({ isZooming, onAnimationComplete }) {
       // Gentle sine curve easing: 0.5 - Math.cos(t1 * Math.PI) / 2
       const ease1 = 0.5 - Math.cos(t1 * Math.PI) / 2;
 
-      const startPos = new THREE.Vector3(24, 20, 24);
+      const startPos = startCamPosRef.current || new THREE.Vector3(24, 20, 24);
       const midPos = new THREE.Vector3(0, 0.7, 18);
-      pos.lerpVectors(startPos, midPos, ease1);
+      camPos.lerpVectors(startPos, midPos, ease1);
 
       // Look ahead down the road
       const startTarget = new THREE.Vector3(0, 2, 0);
@@ -335,14 +343,14 @@ function MultiStageCameraRig({ isZooming, onAnimationComplete }) {
 
       const midPos = new THREE.Vector3(0, 0.7, 18);
       const endPos = new THREE.Vector3(0, 0.4, 0.2);
-      pos.lerpVectors(midPos, endPos, ease2);
+      camPos.lerpVectors(midPos, endPos, ease2);
 
       const midTarget = new THREE.Vector3(0, 0.4, 0);
       const endTarget = new THREE.Vector3(0, 0.2, 0);
       target.lerpVectors(midTarget, endTarget, ease2);
     }
 
-    state.camera.position.copy(pos);
+    state.camera.position.copy(camPos);
     state.camera.lookAt(target);
 
     if (progress >= 0.98 && !completedRef.current) {

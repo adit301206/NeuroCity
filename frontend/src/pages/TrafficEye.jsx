@@ -39,13 +39,7 @@ export default function TrafficEye({ onNavigate }) {
           </>
         ) : (
           <div className="pt-24 px-6 pb-12">
-            <button
-              onClick={() => setActiveTab('analyzer')}
-              className="mb-6 px-4 py-2 text-xs font-mono font-bold text-[#03045E] bg-[#CAF0F8]/80 hover:bg-[#CAF0F8] border border-[#00B4D8]/30 hover:border-[#48CAE4] rounded-xl shadow-md transition-all duration-300 flex items-center gap-2 cursor-pointer"
-            >
-              ← Back to Main Control Room
-            </button>
-            <TrafficSimulation />
+            <TrafficSimulation onBackToAnalyzer={() => setActiveTab('analyzer')} />
           </div>
         )}
       </main>
