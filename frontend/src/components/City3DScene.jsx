@@ -292,7 +292,71 @@ function TrafficParticles({ trafficConfig }) {
   );
 }
 
-export default function City3DScene({ onLaunchSimulator }) {
+// MultiStageCameraRig for 2-Phase Cinematic Zoom Animation Sequence
+function MultiStageCameraRig({ isZooming, onAnimationComplete }) {
+  const progressRef = useRef(0);
+  const completedRef = useRef(false);
+
+  useFrame((state, delta) => {
+    if (!isZooming) {
+      progressRef.current = 0;
+      completedRef.current = false;
+      return;
+    }
+
+    // Increment progress by delta * 0.22 to target a ~4.5 seconds duration
+    if (progressRef.current < 1) {
+      progressRef.current = Math.min(progressRef.current + delta * 0.22, 1);
+    }
+
+    const progress = progressRef.current;
+    const pos = new THREE.Vector3();
+    const target = new THREE.Vector3();
+
+    if (progress < 0.45) {
+      // Phase 1: Descent to Main Street (0% to 45% duration)
+      const t1 = progress / 0.45;
+      // Gentle sine curve easing: 0.5 - Math.cos(t1 * Math.PI) / 2
+      const ease1 = 0.5 - Math.cos(t1 * Math.PI) / 2;
+
+      const startPos = new THREE.Vector3(24, 20, 24);
+      const midPos = new THREE.Vector3(0, 0.7, 18);
+      pos.lerpVectors(startPos, midPos, ease1);
+
+      // Look ahead down the road
+      const startTarget = new THREE.Vector3(0, 2, 0);
+      const midTarget = new THREE.Vector3(0, 0.4, 0);
+      target.lerpVectors(startTarget, midTarget, ease1);
+    } else {
+      // Phase 2: Smooth street-level cruise directly into central core (45% to 100% duration)
+      const t2 = (progress - 0.45) / 0.55;
+      // Linear transition for a smooth steady road cruise
+      const ease2 = t2;
+
+      const midPos = new THREE.Vector3(0, 0.7, 18);
+      const endPos = new THREE.Vector3(0, 0.4, 0.2);
+      pos.lerpVectors(midPos, endPos, ease2);
+
+      const midTarget = new THREE.Vector3(0, 0.4, 0);
+      const endTarget = new THREE.Vector3(0, 0.2, 0);
+      target.lerpVectors(midTarget, endTarget, ease2);
+    }
+
+    state.camera.position.copy(pos);
+    state.camera.lookAt(target);
+
+    if (progress >= 0.98 && !completedRef.current) {
+      completedRef.current = true;
+      if (onAnimationComplete) {
+        onAnimationComplete();
+      }
+    }
+  });
+
+  return null;
+}
+
+export default function City3DScene({ onLaunchSimulator, isZooming, onAnimationComplete }) {
   // Sector alignments adjusted to prevent clipping with widened roads
   const sectors = [-28, -20, -13, -5, 5, 13, 20, 28];
   
@@ -548,10 +612,14 @@ export default function City3DScene({ onLaunchSimulator }) {
         {/* Central Rotating Bobbing Trigger Signal Core */}
         <CentralIntersectionNode onLaunchSimulator={onLaunchSimulator} />
 
+        {/* Camera flight sequence rig */}
+        <MultiStageCameraRig isZooming={isZooming} onAnimationComplete={onAnimationComplete} />
+
         {/* Orbit Control setup */}
         <OrbitControls
+          enabled={!isZooming}
           enableZoom={true}
-          autoRotate
+          autoRotate={!isZooming}
           autoRotateSpeed={0.35}
           enablePan={false}
           maxPolarAngle={Math.PI / 2.1}
