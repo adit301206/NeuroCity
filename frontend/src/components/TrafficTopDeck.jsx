@@ -1,7 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import City3DScene from './City3DScene';
 
 export default function TrafficTopDeck({ onLaunchSimulator }) {
+  const [isZooming, setIsZooming] = useState(false);
+
+  const handleTriggerZoom = () => {
+    if (!isZooming) {
+      setIsZooming(true);
+    }
+  };
+
   return (
     <section className="mx-6 mt-16 mb-6 relative overflow-hidden rounded-3xl border border-[#00B4D8]/50 shadow-2xl bg-[#03045E]">
       {/* Local Styles for sweeping laser line */}
@@ -19,11 +27,15 @@ export default function TrafficTopDeck({ onLaunchSimulator }) {
 
       {/* Inner Canvas Wrapper with touch-scrolling support */}
       <div 
-        onClick={onLaunchSimulator}
+        onClick={handleTriggerZoom}
         className="w-full h-[480px] lg:h-[520px] relative touch-pan-y group cursor-pointer"
       >
         {/* 3D WebGL Scene */}
-        <City3DScene onLaunchSimulator={onLaunchSimulator} />
+        <City3DScene 
+          onLaunchSimulator={handleTriggerZoom} 
+          isZooming={isZooming}
+          onAnimationComplete={onLaunchSimulator}
+        />
 
         {/* Digital Grid Overlay HUD Pattern */}
         <div className="absolute inset-0 bg-[radial-gradient(#00B4D8_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none z-10" />
@@ -57,11 +69,14 @@ export default function TrafficTopDeck({ onLaunchSimulator }) {
           <button 
             onClick={(e) => {
               e.stopPropagation();
-              onLaunchSimulator();
+              handleTriggerZoom();
             }}
-            className="px-6 py-3 rounded-full bg-[#023E8A]/85 backdrop-blur-md border border-[#00B4D8]/50 text-[#CAF0F8] text-xs font-mono font-extrabold shadow-[0_10px_30px_rgba(3,4,94,0.6)] transition-all duration-500 hover:scale-105 hover:bg-[#0077B6]/90 hover:text-white hover:border-[#48CAE4] hover:shadow-[0_15px_40px_rgba(0,180,216,0.6)] cursor-pointer"
+            disabled={isZooming}
+            className="px-6 py-3 rounded-full bg-[#023E8A]/85 backdrop-blur-md border border-[#00B4D8]/50 text-[#CAF0F8] text-xs font-mono font-extrabold shadow-[0_10px_30px_rgba(3,4,94,0.6)] transition-all duration-500 hover:scale-105 hover:bg-[#0077B6]/90 hover:text-white hover:border-[#48CAE4] hover:shadow-[0_15px_40px_rgba(0,180,216,0.6)] cursor-pointer disabled:opacity-90 disabled:pointer-events-none"
           >
-            ⚡ CLICK TO LAUNCH 4-WAY INTERSECTION CONTROL SIMULATOR →
+            {isZooming 
+              ? "⚡ DIVING TO INTERSECTION CORE..." 
+              : "⚡ CLICK TO LAUNCH 4-WAY INTERSECTION CONTROL SIMULATOR →"}
           </button>
         </div>
       </div>
