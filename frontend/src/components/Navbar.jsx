@@ -13,17 +13,17 @@ export default function Navbar({ onNavigate, activeTab }) {
 
   return (
     <nav className="mx-6 mt-4 p-4 rounded-2xl bg-[#03045E]/95 backdrop-blur-md border border-[#48CAE4]/30 shadow-[0_10px_30px_rgba(3,4,94,0.3),0_0_25px_rgba(72,202,228,0.15)] flex items-center justify-between select-none relative z-50">
-      
+
       {/* Left Side - The NeuroCity Integrated Artistic Signature */}
-      <div 
-        className="flex items-center cursor-pointer h-[52px]" 
+      <div
+        className="flex items-center cursor-pointer h-[52px]"
         onClick={() => onNavigate && onNavigate('global-hub')}
       >
-        <svg 
-          width="312" 
-          height="52" 
-          viewBox="0 0 240 40" 
-          fill="none" 
+        <svg
+          width="312"
+          height="52"
+          viewBox="0 0 240 40"
+          fill="none"
           xmlns="http://www.w3.org/2000/svg"
           className="overflow-visible"
         >
@@ -33,7 +33,7 @@ export default function Navbar({ onNavigate, activeTab }) {
               <stop offset="0%" stopColor="#FFFFFF" />
               <stop offset="100%" stopColor="#48CAE4" />
             </linearGradient>
-            
+
             {/* Luminous Glow Filter for neural filaments & diamond core */}
             <filter id="node-glow" x="-50%" y="-50%" width="200%" height="200%">
               <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="blur1" />
@@ -47,20 +47,20 @@ export default function Navbar({ onNavigate, activeTab }) {
           </defs>
 
           {/* Infrastructure Pipelines flowing asynchronously underneath */}
-          <path 
-            d="M 22 24 C 60 31, 100 31, 150 27 C 170 25, 190 29, 215 29" 
-            stroke="#48CAE4" 
-            strokeWidth="0.8" 
-            opacity="0.3" 
-            fill="none" 
+          <path
+            d="M 22 24 C 60 31, 100 31, 150 27 C 170 25, 190 29, 215 29"
+            stroke="#48CAE4"
+            strokeWidth="0.8"
+            opacity="0.3"
+            fill="none"
             className="animate-pulse"
           />
-          <path 
-            d="M 12 30 C 50 35, 110 35, 170 33 C 185 32, 205 35, 218 35" 
-            stroke="#48CAE4" 
-            strokeWidth="0.6" 
-            opacity="0.25" 
-            fill="none" 
+          <path
+            d="M 12 30 C 50 35, 110 35, 170 33 C 185 32, 205 35, 218 35"
+            stroke="#48CAE4"
+            strokeWidth="0.6"
+            opacity="0.25"
+            fill="none"
             className="animate-pulse"
           />
 
@@ -69,7 +69,7 @@ export default function Navbar({ onNavigate, activeTab }) {
             {/* Solid vertical stems */}
             <rect x="10" y="8" width="4.5" height="20" rx="0.75" fill="url(#brand-grad)" />
             <rect x="25.5" y="8" width="4.5" height="20" rx="0.75" fill="url(#brand-grad)" />
-            
+
             {/* Diagonal spine dissolving into neural node filaments */}
             <line x1="14.5" y1="9.5" x2="25.5" y2="26.5" stroke="#48CAE4" strokeWidth="1.2" opacity="0.7" className="animate-pulse" filter="url(#node-glow)" />
             <line x1="14.5" y1="14.5" x2="21" y2="24.5" stroke="#48CAE4" strokeWidth="0.8" opacity="0.5" className="animate-pulse" />
@@ -83,11 +83,11 @@ export default function Navbar({ onNavigate, activeTab }) {
 
           {/* Explicit Text Layout with Kerned Alignment for "CITY" */}
           <g>
-            <text 
-              y="26" 
-              fill="url(#brand-grad)" 
-              fontFamily="system-ui, -apple-system, sans-serif" 
-              fontWeight="900" 
+            <text
+              y="26"
+              fill="url(#brand-grad)"
+              fontFamily="system-ui, -apple-system, sans-serif"
+              fontWeight="900"
               fontSize="20"
               style={{ letterSpacing: '0.12em' }}
             >
@@ -96,24 +96,24 @@ export default function Navbar({ onNavigate, activeTab }) {
               <tspan x="53">U</tspan>
               <tspan x="72">R</tspan>
               <tspan x="91">O</tspan>
-              
+
               {/* CITY segment with custom kerned offsets */}
               <tspan x="110">C</tspan>
-              
+
               {/* 'I' stem sits closer to 'C' (offset from 110 is 16px instead of standard 19px) */}
               <tspan x="126" style={{ letterSpacing: '0.06em' }}>I</tspan>
-              
+
               {/* 'T' and 'Y' positioned cleanly */}
               <tspan x="135">T</tspan>
               <tspan x="154">Y</tspan>
             </text>
 
             {/* 'I' dot core - glowing diamond-vertex positioned manually over the 'I' stem */}
-            <polygon 
-              points="128.25,5.5 131.25,8.5 128.25,11.5 125.25,8.5" 
-              fill="#48CAE4" 
-              className="animate-pulse" 
-              filter="url(#node-glow)" 
+            <polygon
+              points="128.25,5.5 131.25,8.5 128.25,11.5 125.25,8.5"
+              fill="#48CAE4"
+              className="animate-pulse"
+              filter="url(#node-glow)"
             />
           </g>
         </svg>
@@ -129,16 +129,14 @@ export default function Navbar({ onNavigate, activeTab }) {
               onClick={() => onNavigate && onNavigate(link.id)}
               className="relative py-1 text-sm font-medium tracking-wide transition-all duration-300 cursor-pointer group"
             >
-              <span className={`transition-colors duration-300 ${
-                isActive ? 'text-[#48CAE4] font-semibold' : 'text-[#CAF0F8]/70 group-hover:text-[#48CAE4]'
-              }`}>
+              <span className={`transition-colors duration-300 ${isActive ? 'text-[#48CAE4] font-semibold' : 'text-[#CAF0F8]/70 group-hover:text-[#48CAE4]'
+                }`}>
                 {link.label}
               </span>
-              
+
               {/* Micro dot indicator beam */}
-              <span className={`absolute bottom-[-8px] left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-[#48CAE4] rounded-full transition-all duration-300 shadow-[0_0_8px_#48CAE4] ${
-                isActive ? 'scale-100 opacity-100' : 'scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100'
-              }`}></span>
+              <span className={`absolute bottom-[-8px] left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-[#48CAE4] rounded-full transition-all duration-300 shadow-[0_0_8px_#48CAE4] ${isActive ? 'scale-100 opacity-100' : 'scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100'
+                }`}></span>
             </button>
           );
         })}
@@ -146,7 +144,7 @@ export default function Navbar({ onNavigate, activeTab }) {
 
       {/* Right Side - Operational Status & Profile Deck */}
       <div className="flex items-center gap-6">
-        
+
         {/* System Status Ping Widget */}
         <div className="flex items-center gap-2 px-3 py-1 rounded bg-[#023E8A]/40 border border-[#0077B6]/30">
           <span className="relative flex h-2 w-2">
@@ -160,7 +158,7 @@ export default function Navbar({ onNavigate, activeTab }) {
 
         {/* Profile Deck with Dropdown Trigger */}
         <div className="relative">
-          <div 
+          <div
             onClick={() => setProfileOpen(!profileOpen)}
             className="flex items-center gap-2 cursor-pointer group"
           >
@@ -171,12 +169,11 @@ export default function Navbar({ onNavigate, activeTab }) {
                 <path d="M16 4a6 6 0 100 12 6 6 0 000-12zm-8 16c-2.2 0-4 1.8-4 4v4h24v-4c0-2.2-1.8-4-4-4H8z" />
               </svg>
             </div>
-            
+
             {/* Dropdown Arrow */}
-            <ChevronDown 
-              className={`w-4 h-4 text-[#CAF0F8]/80 transition-transform duration-300 group-hover:text-white ${
-                profileOpen ? 'rotate-180' : ''
-              }`}
+            <ChevronDown
+              className={`w-4 h-4 text-[#CAF0F8]/80 transition-transform duration-300 group-hover:text-white ${profileOpen ? 'rotate-180' : ''
+                }`}
             />
           </div>
 
@@ -184,11 +181,11 @@ export default function Navbar({ onNavigate, activeTab }) {
           {profileOpen && (
             <>
               {/* Transparent overlay to close dropdown */}
-              <div 
-                className="fixed inset-0 z-40" 
+              <div
+                className="fixed inset-0 z-40"
                 onClick={() => setProfileOpen(false)}
               />
-              
+
               <div className="absolute right-0 mt-3 w-56 rounded-xl bg-[#023E8A] border border-[#0077B6] shadow-[0_10px_25px_rgba(3,4,94,0.6),0_0_15px_rgba(72,202,228,0.1)] p-1.5 z-50 animate-[fadeIn_0.2s_ease-out] text-[#CAF0F8]">
                 {/* Header segment */}
                 <div className="px-3 py-2 border-b border-[#0077B6]/40 text-xs font-mono text-[#CAF0F8]/50">
@@ -196,31 +193,31 @@ export default function Navbar({ onNavigate, activeTab }) {
                 </div>
 
                 {/* Menu items */}
-                <button 
+                <button
                   onClick={() => { setProfileOpen(false); }}
                   className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-[#0077B6]/40 hover:text-white transition-all text-left mt-1 cursor-pointer"
                 >
                   <Shield className="w-4 h-4 text-[#48CAE4]" />
                   <span>Security Console</span>
                 </button>
-                <button 
+                <button
                   onClick={() => { setProfileOpen(false); }}
                   className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-[#0077B6]/40 hover:text-white transition-all text-left cursor-pointer"
                 >
                   <Settings className="w-4 h-4 text-[#48CAE4]" />
                   <span>Platform Config</span>
                 </button>
-                <button 
+                <button
                   onClick={() => { setProfileOpen(false); }}
                   className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-[#0077B6]/40 hover:text-white transition-all text-left cursor-pointer"
                 >
                   <Terminal className="w-4 h-4 text-[#48CAE4]" />
                   <span>Logs Terminal</span>
                 </button>
-                
+
                 <div className="h-px bg-[#0077B6]/40 my-1" />
-                
-                <button 
+
+                <button
                   onClick={() => { setProfileOpen(false); }}
                   className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-red-500/20 hover:text-red-300 transition-all text-left text-red-400 cursor-pointer"
                 >

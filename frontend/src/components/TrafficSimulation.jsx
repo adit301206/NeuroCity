@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Edges } from '@react-three/drei';
 import * as THREE from 'three';
+import Navbar from './Navbar';
 import { 
   Activity, 
   ArrowLeft, 
@@ -269,7 +270,7 @@ function Vehicles({ isNorthGreen, isSouthGreen, isEastGreen, isWestGreen }) {
 // Fixed reference name
 const Vehicle3Model = Vehicle3DModel;
 
-export default function TrafficSimulation({ onBackToAnalyzer }) {
+export default function TrafficSimulation({ onBackToAnalyzer, onNavigate }) {
   // Simulation phase controller states
   const [phaseState, setPhaseState] = useState('NS_GREEN'); 
   const [emergencyOverride, setEmergencyOverride] = useState(null); 
@@ -313,7 +314,7 @@ export default function TrafficSimulation({ onBackToAnalyzer }) {
   const crosswalkPositions = [-1.2, -0.6, 0, 0.6, 1.2];
 
   return (
-    <div className={`w-full min-h-screen bg-[#030712] text-[#CAF0F8] p-6 transition-all duration-700 relative overflow-hidden select-none ${
+    <div className={`w-full min-h-screen bg-[#F8FAFC] text-[#CAF0F8] transition-all duration-700 relative overflow-hidden select-none pb-12 ${
       emergencyOverride ? 'shadow-[inset_0_0_100px_rgba(239,68,68,0.25)] border border-red-500/20' : ''
     }`}>
       {/* Injected CSS Animations */}
@@ -347,33 +348,20 @@ export default function TrafficSimulation({ onBackToAnalyzer }) {
         <div className="absolute inset-0 bg-red-600 animate-emergency-glow pointer-events-none z-0" />
       )}
 
-      {/* Main Grid Wrapper */}
-      <div className="max-w-7xl mx-auto relative z-10 space-y-6">
-        
-        {/* Terminal Header */}
-        <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pb-4 border-b border-[#00B4D8]/25">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <Terminal className="h-6 w-6 text-[#00B4D8]" />
-              <h1 className="text-xl font-extrabold tracking-widest text-[#00B4D8] uppercase">
-                NEUROCITY // INTERACTION COMMAND CORE
-              </h1>
-            </div>
-            <p className="text-[10px] font-mono text-slate-400">
-              SECURE MULTIPLEXED WEBGL SIGNAL TERMINAL // REAL-TIME DECENTRALISED NODE
-            </p>
-          </div>
+      {/* Floating Pill Navbar */}
+      <Navbar 
+        activeTab="traffic-eye" 
+        onNavigate={(targetId) => {
+          if (targetId === 'traffic-eye') {
+            onBackToAnalyzer?.();
+          } else {
+            onNavigate?.(targetId);
+          }
+        }} 
+      />
 
-          <div>
-            <button
-              onClick={() => onBackToAnalyzer?.()}
-              className="px-4 py-2 rounded-xl border font-mono font-extrabold text-[11px] tracking-wider transition-all duration-300 flex items-center gap-2 cursor-pointer bg-cyan-950/80 border-[#00B4D8]/30 hover:border-[#48CAE4] hover:bg-[#00B4D8]/10 text-cyan-300 shadow-[0_0_10px_rgba(0,180,216,0.1)] hover:shadow-[0_0_20px_rgba(0,180,216,0.2)]"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              ← RETURN TO MAIN COMMAND DECK
-            </button>
-          </div>
-        </header>
+      {/* Main Simulation Container (#03045E) */}
+      <div className="max-w-7xl mx-auto relative z-10 bg-[#03045E] p-6 rounded-3xl border border-[#00B4D8]/30 shadow-2xl mt-4 space-y-6">
 
         {/* Runtime grid columns */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
