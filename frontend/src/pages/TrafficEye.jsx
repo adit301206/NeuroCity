@@ -9,9 +9,9 @@ export default function TrafficEye({ onNavigate }) {
   const [activeTab, setActiveTab] = useState('analyzer');
 
   return (
-    <div className="min-h-screen bg-white text-slate-900">
-      {/* Global Floating Navbar */}
-      <Navbar activeTab="traffic-eye" onNavigate={onNavigate} />
+    <div className={`min-h-screen transition-colors duration-500 ${activeTab === 'analyzer' ? 'bg-white text-slate-900' : 'bg-[#F8FAFC]'}`}>
+      {/* Global Floating Navbar - Only visible on Analyzer deck */}
+      {activeTab === 'analyzer' && <Navbar activeTab="traffic-eye" onNavigate={onNavigate} />}
 
       {/* Dynamic View Rendering */}
       <main className="w-full">
@@ -38,9 +38,10 @@ export default function TrafficEye({ onNavigate }) {
             </div>
           </>
         ) : (
-          <div className="pt-24 px-6 pb-12">
-            <TrafficSimulation onBackToAnalyzer={() => setActiveTab('analyzer')} />
-          </div>
+          <TrafficSimulation
+            onBackToAnalyzer={() => setActiveTab('analyzer')}
+            onNavigate={onNavigate}
+          />
         )}
       </main>
     </div>
