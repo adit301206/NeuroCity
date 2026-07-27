@@ -26,13 +26,13 @@ export default function TrafficTopDeck({ onLaunchSimulator }) {
       `}</style>
 
       {/* Inner Canvas Wrapper with touch-scrolling support */}
-      <div 
+      <div
         onClick={handleTriggerZoom}
         className="w-full h-[480px] lg:h-[520px] relative touch-pan-y group cursor-pointer"
       >
         {/* 3D WebGL Scene */}
-        <City3DScene 
-          onLaunchSimulator={handleTriggerZoom} 
+        <City3DScene
+          onLaunchSimulator={handleTriggerZoom}
           isZooming={isZooming}
           onAnimationComplete={onLaunchSimulator}
         />
@@ -47,7 +47,7 @@ export default function TrafficTopDeck({ onLaunchSimulator }) {
         </div>
 
         {/* Sweeping Scanning Laser Line */}
-        <div 
+        <div
           className="absolute left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-[#00B4D8] to-transparent pointer-events-none z-20 animate-scan-laser"
           style={{
             boxShadow: '0 0 10px #00B4D8, 0 0 20px #48CAE4'
@@ -66,7 +66,7 @@ export default function TrafficTopDeck({ onLaunchSimulator }) {
 
         {/* Floating CTA Callout Pill Button at bottom */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 pointer-events-auto">
-          <button 
+          <button
             onClick={(e) => {
               e.stopPropagation();
               handleTriggerZoom();
@@ -74,8 +74,8 @@ export default function TrafficTopDeck({ onLaunchSimulator }) {
             disabled={isZooming}
             className="px-6 py-3 rounded-full bg-[#023E8A]/85 backdrop-blur-md border border-[#00B4D8]/50 text-[#CAF0F8] text-xs font-mono font-extrabold shadow-[0_10px_30px_rgba(3,4,94,0.6)] transition-all duration-500 hover:scale-105 hover:bg-[#0077B6]/90 hover:text-white hover:border-[#48CAE4] hover:shadow-[0_15px_40px_rgba(0,180,216,0.6)] cursor-pointer disabled:opacity-90 disabled:pointer-events-none"
           >
-            {isZooming 
-              ? "⚡ DIVING TO INTERSECTION CORE..." 
+            {isZooming
+              ? "⚡ DIVING TO INTERSECTION CORE..."
               : "⚡ CLICK TO LAUNCH 4-WAY INTERSECTION CONTROL SIMULATOR →"}
           </button>
         </div>
