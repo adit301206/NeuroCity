@@ -1,7 +1,8 @@
+# traffic_eye_api/urls.py
 from django.urls import path
 from . import views
 
 urlpatterns = [
-    path("analyze/" , views.TrafficFrameAnalysisView.as_view() , name = "traffic_frame_analysis"),
-    path("predict/" , views.predict_traffic , name = "predict_traffic"),
+    path("analyze/", views.TrafficFrameAnalysisView.as_view(), name="traffic_frame_analysis"),
+    path("predict/", views.predict_traffic, name="predict_traffic"),
 ]

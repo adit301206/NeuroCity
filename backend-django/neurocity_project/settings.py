@@ -136,3 +136,7 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
     ]
 }
+
+# Media files configurations
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
