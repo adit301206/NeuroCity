@@ -7,10 +7,10 @@ const FormData = require('form-data');
 const TrafficLog = require('../models/TrafficLog');
 const { protect } = require('../middleware/authMiddleware');
 
-// Configure Multer memory storage to buffer the file without leaving disk footprints
+// Configure Multer memory storage
 const upload = multer({
     storage: multer.memoryStorage(),
-    limits: { fileSize: 15 * 1024 * 1024 } // 15MB file size ceiling
+    limits: { fileSize: 15 * 1024 * 1024 } // 15MB limit
 });
 
 // @route   POST /api/traffic/analyze
@@ -21,10 +21,10 @@ router.post('/analyze', protect, upload.single('traffic_image'), async (req, res
             return res.status(400).json({ status: "fail", message: "Missing traffic_image file in multipart form-data" });
         }
         
-        // Grab camera location from request body or set standard fallback
-        const cameraLocation = req.body.cameraLocation || "Unknown Intersection";
+        // Grab camera location from request body or set standard default fallback
+        const cameraLocation = req.body.cameraLocation || "Surat_Central_Junction_04";
 
-        // Pack the buffered image file into a standard FormData instance using the form-data library
+        // Pack the buffered image file into a FormData instance
         const form = new FormData();
         form.append('image', req.file.buffer, {
             filename: req.file.originalname || 'traffic_capture.jpg',
@@ -34,11 +34,11 @@ router.post('/analyze', protect, upload.single('traffic_image'), async (req, res
         // Forward to Django REST view via protected internal POST request
         let djangoResponse;
         try {
-            djangoResponse = await axios.post('http://127.0.0.1:8000/api/traffic/predict/', form, {
+            djangoResponse = await axios.post('http://127.0.0.1:8000/api/traffic/analyze/', form, {
                 headers: {
                     ...form.getHeaders()
                 },
-                timeout: 15000 // 15 seconds threshold
+                timeout: 15000 // 15 seconds timeout
             });
         } catch (djangoErr) {
             console.error("[Django AI Connection Error]", djangoErr.message);
@@ -59,14 +59,7 @@ router.post('/analyze', protect, upload.single('traffic_image'), async (req, res
             });
         }
 
-        // Map the dynamic calculation objects and save to MongoDB Atlas
-        // congestionIndex must be mapped to ENUM ['LOW', 'MODERATE', 'HEAVY'].
-        // Django returns: LOW, MODERATE, HEAVY. If Django returns 'MEDIUM', map it to 'MODERATE'.
-        let mappedCongestion = telemetry.congestion_index || 'LOW';
-        if (mappedCongestion === 'MEDIUM') {
-            mappedCongestion = 'MODERATE';
-        }
-
+        // Extract user context from protect middleware
         if (!req.user || (!req.user.id && !req.user._id)) {
             return res.status(401).json({ status: "fail", message: "User context not found on request" });
         }
@@ -79,11 +72,25 @@ router.post('/analyze', protect, upload.single('traffic_image'), async (req, res
             return res.status(400).json({ status: "fail", message: "Invalid user ID format" });
         }
 
+        // Build breakdown ensuring safe defaults
+        const rawBreakdown = telemetry.vehicle_breakdown || {};
+        const vehicleBreakdown = {
+            car: rawBreakdown.car || 0,
+            bike: rawBreakdown.bike || 0,
+            truck: rawBreakdown.truck || 0,
+            bus: rawBreakdown.bus || 0,
+            auto_rickshaw: rawBreakdown.auto_rickshaw || 0,
+            ambulance: rawBreakdown.ambulance || 0
+        };
+
+        // Create new TrafficLog record
         const trafficLog = new TrafficLog({
             cameraLocation: cameraLocation,
-            vehicleCount: telemetry.total_vehicles_detected || 0,
-            congestionIndex: mappedCongestion,
-            emergencyOverrideTriggered: telemetry.emergency_override_triggered || false,
+            totalVehicles: telemetry.total_vehicles_detected || 0,
+            congestionIndex: telemetry.congestion_index || 'LOW',
+            emergencyOverride: telemetry.emergency_override_triggered || false,
+            vehicleBreakdown: vehicleBreakdown,
+            processedImageUrl: telemetry.processed_image_url || '',
             processedBy: processedByObjectId
         });
 
@@ -95,17 +102,38 @@ router.post('/analyze', protect, upload.single('traffic_image'), async (req, res
             data: {
                 logId: trafficLog._id,
                 cameraLocation: trafficLog.cameraLocation,
-                vehicleCount: trafficLog.vehicleCount,
+                totalVehicles: trafficLog.totalVehicles,
                 congestionIndex: trafficLog.congestionIndex,
-                emergencyOverrideTriggered: trafficLog.emergencyOverrideTriggered,
+                emergencyOverride: trafficLog.emergencyOverride,
+                vehicleBreakdown: trafficLog.vehicleBreakdown,
+                processedImageUrl: trafficLog.processedImageUrl,
                 createdAt: trafficLog.createdAt,
-                breakdown: telemetry.vehicle_breakdown
+                updatedAt: trafficLog.updatedAt
             }
         });
 
     } catch (error) {
         console.error("[Traffic Route Error]", error.message);
         res.status(500).json({ status: "error", message: "Server breakdown on processing traffic snapshot", error: error.message });
+    }
+});
+
+// @route   GET /api/traffic/logs
+// @desc    Retrieve historical logs from MongoDB Atlas sorted by latest first
+router.get('/logs', protect, async (req, res) => {
+    try {
+        const logs = await TrafficLog.find()
+            .sort({ createdAt: -1 })
+            .populate('processedBy', 'name email');
+
+        res.status(200).json({
+            status: "success",
+            count: logs.length,
+            data: logs
+        });
+    } catch (error) {
+        console.error("[Traffic Logs GET Error]", error.message);
+        res.status(500).json({ status: "error", message: "Failed to retrieve historical logs", error: error.message });
     }
 });
 

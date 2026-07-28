@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { UploadCloud, RefreshCw, Layers, ShieldAlert, Clock, Database } from 'lucide-react';
 
 export default function TrafficWorkspace() {
@@ -13,42 +13,59 @@ export default function TrafficWorkspace() {
   const [isYoloView, setIsYoloView] = useState(true);
   const [isGaugeHovered, setIsGaugeHovered] = useState(false);
 
-  // Telemetry metric counters matching required state format
+  // Telemetry metric counters matching required state format (car, bike, truck, bus, auto_rickshaw, ambulance)
   const [telemetry, setTelemetry] = useState({
     car: 0,
     bike: 0,
     truck: 0,
+    bus: 0,
+    auto_rickshaw: 0,
     ambulance: 0
   });
 
-  // Table Logs state initialized with sample data
-  const [logs, setLogs] = useState([
-    {
-      id: 'log-1',
-      timestamp: '19-07-2026 10:08:02',
-      location: 'Surat_Central_Junction_04',
-      volume: 'Heavy (25 Units)',
-      override: 'AMBULANCE_PRIORITY'
-    },
-    {
-      id: 'log-2',
-      timestamp: '19-07-2026 10:02:15',
-      location: 'Majura_Gate_Junction_01',
-      volume: 'Moderate (12 Units)',
-      override: 'NONE'
-    },
-    {
-      id: 'log-3',
-      timestamp: '19-07-2026 09:55:40',
-      location: 'Varachha_Transit_Hub_02',
-      volume: 'Low (04 Units)',
-      override: 'NONE'
-    }
-  ]);
+  // Table Logs state initialized with empty list (loaded live from MongoDB Atlas)
+  const [logs, setLogs] = useState([]);
 
   const fileInputRef = useRef(null);
 
-  // --- Dynamic Bounding Box drawing on HTML5 Canvas ---
+  // --- Fetch Historical Logs on Component Mount ---
+  useEffect(() => {
+    const fetchLogs = async () => {
+      const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+      const headers = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      try {
+        const response = await fetch('/api/traffic/logs', {
+          method: 'GET',
+          headers: headers
+        });
+        if (response.ok) {
+          const result = await response.json();
+          if (result.status === 'success' && Array.isArray(result.data)) {
+            const mapped = result.data.map(log => {
+              const totalUnits = log.totalVehicles || 0;
+              return {
+                id: log._id,
+                timestamp: new Date(log.createdAt).toLocaleString('en-GB', { hour12: false }).replace(/\//g, '-'),
+                location: log.cameraLocation || 'Surat_Central_Junction_04',
+                volume: `${log.congestionIndex} (${String(totalUnits).padStart(2, '0')} Units)`,
+                override: log.emergencyOverride ? 'AMBULANCE_PRIORITY' : 'NONE'
+              };
+            });
+            setLogs(mapped);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch historical traffic logs:", error);
+      }
+    };
+
+    fetchLogs();
+  }, []);
+
+  // --- Dynamic Bounding Box drawing on HTML5 Canvas (Fallback/Mock) ---
   const drawBoundingBoxes = (imageSrc, telemetryData) => {
     return new Promise((resolve) => {
       const img = new Image();
@@ -62,18 +79,20 @@ export default function TrafficWorkspace() {
         // Draw original uploaded image frame
         ctx.drawImage(img, 0, 0);
 
-        const { car, bike, truck, ambulance } = telemetryData;
+        const { car, bike, truck, bus, auto_rickshaw, ambulance } = telemetryData;
         const classes = [];
         for (let i = 0; i < car; i++) classes.push({ name: 'Car', color: '#0077B6' });
         for (let i = 0; i < bike; i++) classes.push({ name: 'Bike', color: '#00B4D8' });
         for (let i = 0; i < truck; i++) classes.push({ name: 'Truck', color: '#48CAE4' });
+        for (let i = 0; i < bus; i++) classes.push({ name: 'Bus', color: '#0096C7' });
+        for (let i = 0; i < auto_rickshaw; i++) classes.push({ name: 'AutoRickshaw', color: '#FFD166' });
         for (let i = 0; i < ambulance; i++) classes.push({ name: 'Ambulance', color: '#EF4444', isEmergency: true });
 
         // Spread boxes realistically over central area
         classes.forEach((cls) => {
           let boxW = 80 + Math.random() * 60;
           let boxH = 50 + Math.random() * 50;
-          if (cls.name === 'Truck') {
+          if (cls.name === 'Truck' || cls.name === 'Bus') {
             boxW = 120 + Math.random() * 60;
             boxH = 80 + Math.random() * 60;
           } else if (cls.name === 'Ambulance') {
@@ -141,9 +160,11 @@ export default function TrafficWorkspace() {
                         Math.random() > 0.7;
 
     const mockTelemetry = {
-      car: Math.floor(Math.random() * 15) + 5,
-      bike: Math.floor(Math.random() * 10) + 2,
-      truck: Math.floor(Math.random() * 5) + 1,
+      car: Math.floor(Math.random() * 10) + 5,
+      bike: Math.floor(Math.random() * 6) + 2,
+      truck: Math.floor(Math.random() * 3) + 1,
+      bus: Math.random() > 0.5 ? 1 : 0,
+      auto_rickshaw: Math.floor(Math.random() * 4) + 1,
       ambulance: isEmergency ? 1 : 0
     };
 
@@ -152,7 +173,7 @@ export default function TrafficWorkspace() {
     formData.append('traffic_image', selectedFile);
     formData.append('cameraLocation', fileName ? fileName.replace(/\s+/g, '_').substring(0, 25) : 'Surat_Central_Junction_04');
 
-    // Retrieve authentication token if exists
+    // Retrieve authentication token
     const token = localStorage.getItem('token') || localStorage.getItem('authToken');
     const headers = {};
     if (token) {
@@ -160,7 +181,7 @@ export default function TrafficWorkspace() {
     }
 
     try {
-      // Attempt to hit the Node backend API route
+      // Hit the Node backend API gateway route
       const response = await fetch('/api/traffic/analyze', {
         method: 'POST',
         headers: headers,
@@ -171,33 +192,41 @@ export default function TrafficWorkspace() {
         const result = await response.json();
         if (result.status === 'success' && result.data) {
           const apiData = result.data;
-          const breakdown = apiData.breakdown || {};
-          const cars = breakdown.car || breakdown.cars || apiData.vehicleCount || 0;
-          const bikes = (breakdown.bicycle || 0) + (breakdown.motorcycle || 0) + (breakdown.bike || breakdown.bikes || 0);
-          const trucks = breakdown.truck || breakdown.trucks || breakdown.bus || 0;
-          const ambulance = breakdown.emergency_vehicle || breakdown.ambulance || (apiData.emergencyOverrideTriggered ? 1 : 0);
+          const breakdown = apiData.vehicleBreakdown || {};
 
+          // Update telemetry state
           const telemetryData = {
-            car: cars,
-            bike: bikes,
-            truck: trucks,
-            ambulance: ambulance
+            car: breakdown.car || 0,
+            bike: breakdown.bike || 0,
+            truck: breakdown.truck || 0,
+            bus: breakdown.bus || 0,
+            auto_rickshaw: breakdown.auto_rickshaw || 0,
+            ambulance: breakdown.ambulance || 0
           };
-
           setTelemetry(telemetryData);
-          await drawBoundingBoxes(previewUrl, telemetryData);
 
-          const totalUnits = telemetryData.car + telemetryData.bike + telemetryData.truck + telemetryData.ambulance;
-          const volumeLevel = apiData.congestionIndex || (totalUnits > 18 ? 'Heavy' : totalUnits > 8 ? 'Moderate' : 'Low');
+          // Prepend server-side visual annotated URL directly from Django port 8000
+          const annotatedUrl = apiData.processedImageUrl 
+            ? (apiData.processedImageUrl.startsWith('http') 
+                ? apiData.processedImageUrl 
+                : `http://127.0.0.1:8000${apiData.processedImageUrl}`)
+            : previewUrl;
+          
+          setProcessedImageUrl(annotatedUrl);
+
+          // Append transaction to MongoDB log table
+          const totalUnits = apiData.totalVehicles || 0;
+          const volumeLevel = apiData.congestionIndex || 'LOW';
           const newLog = {
             id: apiData.logId || `log-${Date.now()}`,
             timestamp: apiData.createdAt 
               ? new Date(apiData.createdAt).toLocaleString('en-GB', { hour12: false }).replace(/\//g, '-')
               : new Date().toLocaleString('en-GB', { hour12: false }).replace(/\//g, '-'),
-            location: apiData.cameraLocation || fileName.replace(/\s+/g, '_').substring(0, 25),
+            location: apiData.cameraLocation || 'Surat_Central_Junction_04',
             volume: `${volumeLevel} (${String(totalUnits).padStart(2, '0')} Units)`,
-            override: telemetryData.ambulance > 0 ? 'AMBULANCE_PRIORITY' : 'NONE'
+            override: apiData.emergencyOverride ? 'AMBULANCE_PRIORITY' : 'NONE'
           };
+
           setLogs((prev) => [newLog, ...prev]);
           setIsLoading(false);
           return;
@@ -207,17 +236,17 @@ export default function TrafficWorkspace() {
     } catch (err) {
       console.log("[Node Backend Connection Failed or Unauthorized - Running High-Fidelity Simulation Fallback]", err);
       
-      // Simulate inference workload delay (YOLOv8 Processing Frame...)
+      // Fallback: Simulate inference workload delay (YOLOv8 Processing Frame...)
       setTimeout(async () => {
         setTelemetry(mockTelemetry);
         await drawBoundingBoxes(previewUrl, mockTelemetry);
 
-        const totalUnits = mockTelemetry.car + mockTelemetry.bike + mockTelemetry.truck + mockTelemetry.ambulance;
+        const totalUnits = mockTelemetry.car + mockTelemetry.bike + mockTelemetry.truck + mockTelemetry.bus + mockTelemetry.auto_rickshaw + mockTelemetry.ambulance;
         const volumeLevel = totalUnits > 18 ? 'Heavy' : totalUnits > 8 ? 'Moderate' : 'Low';
         const newLog = {
           id: `log-${Date.now()}`,
           timestamp: new Date().toLocaleString('en-GB', { hour12: false }).replace(/\//g, '-'),
-          location: fileName.replace(/\s+/g, '_').substring(0, 25),
+          location: fileName.replace(/\s+/g, '_').substring(0, 25) || 'Surat_Central_Junction_04',
           volume: `${volumeLevel} (${String(totalUnits).padStart(2, '0')} Units)`,
           override: mockTelemetry.ambulance > 0 ? 'AMBULANCE_PRIORITY' : 'NONE'
         };
@@ -279,7 +308,7 @@ export default function TrafficWorkspace() {
     setPreviewUrl('');
     setProcessedImageUrl(null);
     setFileName('');
-    setTelemetry({ car: 0, bike: 0, truck: 0, ambulance: 0 });
+    setTelemetry({ car: 0, bike: 0, truck: 0, bus: 0, auto_rickshaw: 0, ambulance: 0 });
     setIsLoading(false);
     setIsYoloView(true);
   };
@@ -288,7 +317,7 @@ export default function TrafficWorkspace() {
     fileInputRef.current.click();
   };
 
-  const totalVehicles = telemetry.car + telemetry.bike + telemetry.truck + telemetry.ambulance;
+  const totalVehicles = telemetry.car + telemetry.bike + telemetry.truck + telemetry.bus + telemetry.auto_rickshaw + telemetry.ambulance;
   const congestionScore = Math.min(100, Math.round((totalVehicles / 30) * 100));
 
   let gaugeColor = '#00B4D8';
@@ -490,6 +519,7 @@ export default function TrafficWorkspace() {
                 backgroundImage: 'linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06))',
                 backgroundSize: '100% 4px, 6px 100%'
               }}
+              disabled={isLoading}
             />
 
             {/* Bright Metallic Corner Brackets */}
@@ -750,6 +780,50 @@ export default function TrafficWorkspace() {
                 <div 
                   className="bg-[#48CAE4] h-full rounded-full transition-all duration-500" 
                   style={{ width: `${Math.min(100, (telemetry.truck / 8) * 100)}%` }}
+                />
+              </div>
+            </div>
+
+            {/* BUSES row */}
+            <div className="flex flex-col">
+              <div className="flex justify-between items-center mb-1">
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5 text-[#0096C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="2" y="3" width="20" height="14" rx="2" />
+                    <line x1="6" y1="17" x2="6" y2="21" />
+                    <line x1="18" y1="17" x2="18" y2="21" />
+                    <circle cx="6" cy="12" r="1" fill="currentColor" />
+                    <circle cx="18" cy="12" r="1" fill="currentColor" />
+                  </svg>
+                  <span className="font-mono text-xs font-bold text-[#03045E]">BUSES // TRANSIT</span>
+                </div>
+                <span className="font-mono text-base font-extrabold text-[#03045E]">
+                  {String(telemetry.bus).padStart(2, '0')}
+                </span>
+              </div>
+              <div className="w-full bg-[#CAF0F8] rounded-full h-2 overflow-hidden border border-white/60">
+                <div 
+                  className="bg-[#0096C7] h-full rounded-full transition-all duration-500" 
+                  style={{ width: `${Math.min(100, (telemetry.bus / 8) * 100)}%` }}
+                />
+              </div>
+            </div>
+
+            {/* AUTO-RICKSHAWS row */}
+            <div className="flex flex-col">
+              <div className="flex justify-between items-center mb-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">🛺</span>
+                  <span className="font-mono text-xs font-bold text-[#03045E]">AUTO-RICKSHAWS // LOCAL</span>
+                </div>
+                <span className="font-mono text-base font-extrabold text-[#03045E]">
+                  {String(telemetry.auto_rickshaw).padStart(2, '0')}
+                </span>
+              </div>
+              <div className="w-full bg-[#CAF0F8] rounded-full h-2 overflow-hidden border border-white/60">
+                <div 
+                  className="bg-[#FFBF00] h-full rounded-full transition-all duration-500" 
+                  style={{ width: `${Math.min(100, (telemetry.auto_rickshaw / 15) * 100)}%` }}
                 />
               </div>
             </div>
