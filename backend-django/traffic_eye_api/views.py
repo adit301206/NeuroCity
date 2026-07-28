@@ -1,10 +1,9 @@
-from django.shortcuts import render
-
 # traffic_eye_api/views.py
 import os
 import cv2
 import numpy as np
 import collections
+from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -12,6 +11,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import api_view, parser_classes
 from .services.hf_transformer_engine import HFTrafficEyeService
 
+# Initialize global traffic analyzer service
 traffic_analyzer = HFTrafficEyeService()
 
 class TrafficFrameAnalysisView(APIView):
@@ -20,7 +20,10 @@ class TrafficFrameAnalysisView(APIView):
     def post(self, request, format=None):
         uploaded_frame = request.FILES.get('image')
         if not uploaded_frame:
-            return Response({"status": "error", "message": "Missing image frame."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"status": "error", "message": "Missing image frame under key 'image'."}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
             
         temp_filename = "temp_incoming_feed.jpg"
         with open(temp_filename, 'wb+') as destination:
@@ -32,40 +35,52 @@ class TrafficFrameAnalysisView(APIView):
             telemetry_payload = traffic_analyzer.analyze_live_frame(temp_filename)
             
             if "error" not in telemetry_payload:
-                # 2. Extract the raw results array mapping
+                # 2. Extract the raw results object to plot bounding boxes
                 raw_results = telemetry_payload.pop("raw_results_object")
                 
-                # 3. Use YOLO's plotting renderer to draw the neon boxes and labels
+                # 3. Use YOLO's built-in plotting utility to draw classes and boxes
                 annotated_image = raw_results.plot()
                 
-                # 4. Save the verified bounding box image to disk
-                output_dir = "test_outputs"
-                os.makedirs(output_dir, exist_ok=True)
-                output_path = os.path.join(output_dir, "latest_api_prediction.jpg")
+                # 4. Save the verified bounding box image to /media/processed/
+                processed_dir = os.path.join(settings.BASE_DIR, "media", "processed")
+                os.makedirs(processed_dir, exist_ok=True)
+                
+                # Maintain the original file name or use a default
+                filename = uploaded_frame.name if uploaded_frame.name else "annotated_feed.jpg"
+                output_path = os.path.join(processed_dir, filename)
                 
                 cv2.imwrite(output_path, annotated_image)
                 print(f"💾 Visual check canvas saved cleanly to: {output_path}")
+                
+                # Add processed image info to telemetry payload
+                telemetry_payload["processed_image_url"] = f"/media/processed/{filename}"
+                telemetry_payload["processed_image_path"] = output_path
             
             response_status = status.HTTP_200_OK
         except Exception as e:
             telemetry_payload = {"status": "error", "message": f"Inference breakdown: {str(e)}"}
             response_status = status.HTTP_500_INTERNAL_SERVER_ERROR
         finally:
+            # Cleanup temporary file
             if os.path.exists(temp_filename):
                 os.remove(temp_filename)
                 
         return Response(telemetry_payload, status=response_status)
+
 
 @api_view(['POST'])
 @parser_classes([MultiPartParser, FormParser])
 def predict_traffic(request):
     """
     In-memory image classification pipeline utilizing YOLOv8.
-    Decodes file stream to OpenCV color matrix and runs object detection.
+    Decodes file stream directly into OpenCV color matrix and runs object detection.
     """
     uploaded_frame = request.FILES.get('image')
     if not uploaded_frame:
-        return Response({"status": "error", "message": "Missing image frame."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"status": "error", "message": "Missing image frame under key 'image'."}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
         
     try:
         # Read the file stream dynamically and decode into an OpenCV BGR matrix
@@ -73,28 +88,47 @@ def predict_traffic(request):
         cv_image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
         
         if cv_image is None:
-            return Response({"status": "error", "message": "Failed to decode image."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"status": "error", "message": "Failed to decode image."}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
             
         img_h, img_w, _ = cv_image.shape
+        img_area = img_h * img_w
         
         # Access the loaded YOLO model
         model = traffic_analyzer.model
-        results = model(cv_image, conf=0.20, iou=0.40, verbose=False)
+        
+        # Consistent production parameters: conf=0.45, iou=0.45
+        results = model(cv_image, conf=0.45, iou=0.45, verbose=False)
         
         traffic_registry = collections.defaultdict(int)
         parsed_detections = []
         emergency_override_triggered = False
-        valid_class_ids = [1, 2, 3, 5, 7] # bicycle, car, motorcycle, bus, truck
         
         detected_boxes = results[0].boxes
-        for box in detected_boxes:
+        filtered_indices = []
+        
+        for idx, box in enumerate(detected_boxes):
             class_id = int(box.cls[0])
-            if class_id in valid_class_ids:
+            if class_id in traffic_analyzer.valid_class_ids:
                 class_name = model.names[class_id]
                 score = float(box.conf[0])
                 coords = box.xyxy[0].tolist()
                 
-                final_label = class_name
+                # Bounding Box Area Filter: ignore boxes < 0.2% (0.002) of total image size
+                box_w = coords[2] - coords[0]
+                box_h = coords[3] - coords[1]
+                box_area = box_w * box_h
+                if (box_area / img_area) < 0.002:
+                    continue
+                
+                # Standardized Class Mapping: bicycle and motorcycle mapped to 'bike'
+                if class_name in ['bicycle', 'motorcycle']:
+                    final_label = 'bike'
+                else:
+                    final_label = class_name
+                
                 xmin, ymin, xmax, ymax = map(int, [max(0, coords[0]), max(0, coords[1]), min(img_w, coords[2]), min(img_h, coords[3])])
                 
                 if (xmax - xmin) > 10 and (ymax - ymin) > 10:
@@ -108,8 +142,10 @@ def predict_traffic(request):
                     # Heuristics: Emergency Red Profile
                     if final_label in ['car', 'truck', 'bus']:
                         if traffic_analyzer._is_emergency_red_profile(cropped_box):
-                            final_label = 'emergency_vehicle'
-                            emergency_override_triggered = True
+                            final_label = 'ambulance'
+                            # Require confidence >= 0.65 for emergency override
+                            if score >= 0.65:
+                                emergency_override_triggered = True
                 
                 traffic_registry[final_label] += 1
                 parsed_detections.append({
@@ -117,16 +153,22 @@ def predict_traffic(request):
                     "confidence": round(score, 4),
                     "bbox_xyxy": [round(coord, 2) for coord in coords]
                 })
+                filtered_indices.append(idx)
                 
         total_tracked = len(parsed_detections)
         congestion_index = "LOW" if total_tracked <= 5 else "MEDIUM" if total_tracked <= 15 else "HEAVY"
         
-        # Save verification bounding box visual check representation to disk
+        # Save verification bounding box visual check representation to /media/processed/
+        filename = uploaded_frame.name if uploaded_frame.name else "predict_feed.jpg"
+        processed_dir = os.path.join(settings.BASE_DIR, "media", "processed")
+        os.makedirs(processed_dir, exist_ok=True)
+        output_path = os.path.join(processed_dir, filename)
+        
+        if len(detected_boxes) > 0:
+            results[0].boxes = detected_boxes[filtered_indices]
+        
         try:
             annotated_image = results[0].plot()
-            output_dir = "test_outputs"
-            os.makedirs(output_dir, exist_ok=True)
-            output_path = os.path.join(output_dir, "latest_api_prediction.jpg")
             cv2.imwrite(output_path, annotated_image)
             print(f"💾 Visual check canvas saved cleanly to: {output_path}")
         except Exception as img_err:
@@ -139,7 +181,9 @@ def predict_traffic(request):
             "congestion_index": congestion_index,
             "emergency_override_triggered": emergency_override_triggered,
             "vehicle_breakdown": dict(traffic_registry),
-            "detections_metadata": parsed_detections
+            "detections_metadata": parsed_detections,
+            "processed_image_url": f"/media/processed/{filename}",
+            "processed_image_path": output_path
         }, status=status.HTTP_200_OK)
         
     except Exception as e:

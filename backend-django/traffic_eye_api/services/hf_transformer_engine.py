@@ -4,14 +4,20 @@ import collections
 import time
 import numpy as np
 import cv2
+from django.conf import settings
 from ultralytics import YOLO
 
 class HFTrafficEyeService:
     def __init__(self):
         print("🚦 Initializing Windshield-Optimized YOLOv8 NeuroCity Engine...")
-        # Using yolov8s.pt (Small) to get better pyramid scaling layers for dense streets
-        self.model = YOLO('yolov8s.pt') 
-        self.valid_class_ids = [1, 2, 3, 5, 7] # bicycle, car, motorcycle, bus, truck
+        # Load yolov8s.pt pre-downloaded in the Django project root
+        model_path = os.path.join(settings.BASE_DIR, 'yolov8s.pt')
+        if not os.path.exists(model_path):
+            # Fallback to local filename
+            model_path = 'yolov8s.pt'
+        self.model = YOLO(model_path)
+        # 1: bicycle, 2: car, 3: motorcycle, 5: bus, 7: truck
+        self.valid_class_ids = [1, 2, 3, 5, 7]
 
     def _is_rickshaw_color_profile(self, cropped_vehicle_bgr):
         """
@@ -67,8 +73,6 @@ class HFTrafficEyeService:
             total_pixels = cropped_vehicle_bgr.shape[0] * cropped_vehicle_bgr.shape[1]
             red_ratio = np.sum(red_mask > 0) / total_pixels
             
-            # Since fire trucks are fully red, they will easily clear this threshold (>35%).
-            # Ambulances with emergency stripes and red sirens will clear a basic 4% floor threshold.
             return red_ratio > 0.04
         except Exception:
             return False
@@ -79,11 +83,12 @@ class HFTrafficEyeService:
             
         start_time = time.time()
         
-        # Lowering conf to 0.20 to aggressively find objects through shadows/glare
-        results = self.model(image_path, conf=0.20, iou=0.40, verbose=False)
+        # Increase prediction confidence to 0.45 and NMS IoU to 0.45
+        results = self.model(image_path, conf=0.45, iou=0.45, verbose=False)
         
         raw_bgr_img = cv2.imread(image_path)
         img_h, img_w, _ = raw_bgr_img.shape
+        img_area = img_h * img_w
         
         latency = time.time() - start_time
         traffic_registry = collections.defaultdict(int)
@@ -91,7 +96,9 @@ class HFTrafficEyeService:
         emergency_override_triggered = False
         
         detected_boxes = results[0].boxes
-        for box in detected_boxes:
+        filtered_indices = [] # to keep track of indices of boxes that passed area filter
+        
+        for idx, box in enumerate(detected_boxes):
             class_id = int(box.cls[0])
             
             if class_id in self.valid_class_ids:
@@ -99,7 +106,18 @@ class HFTrafficEyeService:
                 score = float(box.conf[0])
                 coords = box.xyxy[0].tolist()
                 
-                final_label = class_name
+                # Bounding Box Area Filter: ignore boxes < 0.2% (0.002) of total image size
+                box_w = coords[2] - coords[0]
+                box_h = coords[3] - coords[1]
+                box_area = box_w * box_h
+                if (box_area / img_area) < 0.002:
+                    continue
+                
+                # Standardized Class Mapping: bicycle and motorcycle mapped to 'bike'
+                if class_name in ['bicycle', 'motorcycle']:
+                    final_label = 'bike'
+                else:
+                    final_label = class_name
                 
                 # Setup safe integer crop coordinates
                 xmin, ymin, xmax, ymax = map(int, [max(0, coords[0]), max(0, coords[1]), min(img_w, coords[2]), min(img_h, coords[3])])
@@ -108,17 +126,19 @@ class HFTrafficEyeService:
                     cropped_box = raw_bgr_img[ymin:ymax, xmin:xmax]
                     
                     # 🛺 1. MENTOR AUTO-RICKSHAW LOGIC
-                    # If it's guessed as a bus/truck under 60% confidence, check for Rickshaw yellow/green profiles
+                    # If it's guessed as a bus/truck under 60% confidence, check for Rickshaw profiles
                     if class_name in ['bus', 'truck'] and score < 0.60:
                         if self._is_rickshaw_color_profile(cropped_box):
                             final_label = 'auto_rickshaw'
                     
-                    # 🚑🔥 2. MENTOR EMERGENCY VEHICLE LOGIC (Ambulance + Fire Brigade)
+                    # 🚑 2. MENTOR EMERGENCY VEHICLE LOGIC (Ambulance + Priority vehicles)
                     # If it's a car, truck, or bus, run our red profile check to capture emergency vectors
                     if final_label in ['car', 'truck', 'bus']:
                         if self._is_emergency_red_profile(cropped_box):
-                            final_label = 'emergency_vehicle'
-                            emergency_override_triggered = True  # Instantly fire the Green Wave Signal Override!
+                            final_label = 'ambulance'
+                            # Require confidence >= 0.65 before setting emergency_override_triggered = True
+                            if score >= 0.65:
+                                emergency_override_triggered = True
 
                 # Count final processed labels safely
                 traffic_registry[final_label] += 1
@@ -127,13 +147,14 @@ class HFTrafficEyeService:
                     "confidence": round(score, 4),
                     "bbox_xyxy": [round(coord, 2) for coord in coords]
                 })
-                
-                # Keep track of un-intercepted heavy commercial baseline vehicles
-                if final_label in ['bus', 'truck']:
-                    pass 
+                filtered_indices.append(idx)
 
         total_tracked = len(parsed_detections)
         congestion_index = "LOW" if total_tracked <= 5 else "MEDIUM" if total_tracked <= 15 else "HEAVY"
+
+        # Update results boxes to contain only the ones that passed the filters
+        if len(detected_boxes) > 0:
+            results[0].boxes = detected_boxes[filtered_indices]
 
         return {
             "status": "success",
