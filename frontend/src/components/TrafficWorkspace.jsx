@@ -190,43 +190,61 @@ export default function TrafficWorkspace() {
 
       if (response.ok) {
         const result = await response.json();
-        if (result.status === 'success' && result.data) {
-          const apiData = result.data;
-          const breakdown = apiData.vehicleBreakdown || {};
-
-          // Update telemetry state
-          const telemetryData = {
-            car: breakdown.car || 0,
-            bike: breakdown.bike || 0,
-            truck: breakdown.truck || 0,
-            bus: breakdown.bus || 0,
-            auto_rickshaw: breakdown.auto_rickshaw || 0,
-            ambulance: breakdown.ambulance || 0
-          };
+        
+        // Robust Data Extraction
+        const payload = result.data || result;
+        const rawTelemetry = payload.rawTelemetry || payload.telemetry || payload;
+        const breakdown = payload.breakdown || payload.vehicleBreakdown || rawTelemetry.vehicle_breakdown || {};
+        
+        if (payload) {
+          // Safely convert vehicle counts to Numbers defaulting to 0
+          const car = Number(breakdown.car) || 0;
+          const bike = Number(breakdown.bike) || 0;
+          const truck = Number(breakdown.truck) || 0;
+          const bus = Number(breakdown.bus) || 0;
+          const auto_rickshaw = Number(breakdown.auto_rickshaw || breakdown.autoRickshaw || breakdown.auto_rickshaws || breakdown.autoRickshaws) || 0;
+          const ambulance = Number(breakdown.ambulance) || 0;
+          
+          const telemetryData = { car, bike, truck, bus, auto_rickshaw, ambulance };
           setTelemetry(telemetryData);
-
-          // Prepend server-side visual annotated URL directly from Django port 8000
-          const annotatedUrl = apiData.processedImageUrl 
-            ? (apiData.processedImageUrl.startsWith('http') 
-                ? apiData.processedImageUrl 
-                : `http://127.0.0.1:8000${apiData.processedImageUrl}`)
-            : previewUrl;
+          
+          // Prepend server-side visual annotated URL directly from Django port 8000 if relative
+          let annotatedUrl = payload.processedImageUrl || payload.processed_image_url || 
+                             rawTelemetry.processedImageUrl || rawTelemetry.processed_image_url || 
+                             payload.imageUrl || payload.image_url || rawTelemetry.imageUrl || rawTelemetry.image_url;
+          if (annotatedUrl) {
+            if (!annotatedUrl.startsWith('http')) {
+              annotatedUrl = `http://127.0.0.1:8000${annotatedUrl}`;
+            }
+          } else {
+            annotatedUrl = previewUrl;
+          }
           
           setProcessedImageUrl(annotatedUrl);
-
+          
+          // Calculate totalUnits dynamically from the extracted numbers
+          const totalUnits = car + bike + truck + bus + auto_rickshaw + ambulance;
+          const volumeLevel = payload.congestionIndex || rawTelemetry.congestionIndex || 
+                              payload.congestion_index || rawTelemetry.congestion_index || 
+                              (totalUnits > 18 ? 'Heavy' : totalUnits > 8 ? 'Moderate' : 'Low');
+                              
+          const emergencyOverride = payload.emergencyOverride !== undefined ? payload.emergencyOverride : 
+                                    rawTelemetry.emergencyOverride !== undefined ? rawTelemetry.emergencyOverride : 
+                                    payload.emergency_override_triggered !== undefined ? payload.emergency_override_triggered : 
+                                    rawTelemetry.emergency_override_triggered !== undefined ? rawTelemetry.emergency_override_triggered : 
+                                    (ambulance > 0);
+          
           // Append transaction to MongoDB log table
-          const totalUnits = apiData.totalVehicles || 0;
-          const volumeLevel = apiData.congestionIndex || 'LOW';
           const newLog = {
-            id: apiData.logId || `log-${Date.now()}`,
-            timestamp: apiData.createdAt 
-              ? new Date(apiData.createdAt).toLocaleString('en-GB', { hour12: false }).replace(/\//g, '-')
+            id: payload.logId || payload._id || rawTelemetry.logId || rawTelemetry._id || `log-${Date.now()}`,
+            timestamp: (payload.createdAt || rawTelemetry.createdAt)
+              ? new Date(payload.createdAt || rawTelemetry.createdAt).toLocaleString('en-GB', { hour12: false }).replace(/\//g, '-')
               : new Date().toLocaleString('en-GB', { hour12: false }).replace(/\//g, '-'),
-            location: apiData.cameraLocation || 'Surat_Central_Junction_04',
+            location: payload.cameraLocation || rawTelemetry.cameraLocation || payload.location || rawTelemetry.location || 'Surat_Central_Junction_04',
             volume: `${volumeLevel} (${String(totalUnits).padStart(2, '0')} Units)`,
-            override: apiData.emergencyOverride ? 'AMBULANCE_PRIORITY' : 'NONE'
+            override: emergencyOverride ? 'AMBULANCE_PRIORITY' : 'NONE'
           };
-
+          
           setLogs((prev) => [newLog, ...prev]);
           setIsLoading(false);
           return;
@@ -509,7 +527,7 @@ export default function TrafficWorkspace() {
           </div>
 
           {/* High-Fidelity CRT/LED Diagnostic Viewport Frame */}
-          <div className="relative flex-1 w-full bg-[#023E8A] overflow-hidden rounded-xl border border-[#0077B6]/30 shadow-inner flex flex-col items-center justify-center p-4 min-h-[260px] crt-monitor">
+          <div className="relative flex-1 w-full bg-[#023E8A] overflow-hidden rounded-xl border border-[#0077B6]/30 shadow-inner flex flex-col items-center justify-center min-h-[260px] max-h-[380px] crt-monitor">
             
             {/* CRT Screen Scanline Overlay Effect */}
             <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,rgba(72,202,228,0.12)_0%,rgba(3,4,94,0.45)_100%)] z-10" />
@@ -523,10 +541,10 @@ export default function TrafficWorkspace() {
             />
 
             {/* Bright Metallic Corner Brackets */}
-            <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-[#0096C7] z-20" />
-            <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-[#0096C7] z-20" />
-            <div className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-[#0096C7] z-20" />
-            <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-[#0096C7] z-20" />
+            <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-[#0096C7] z-30" />
+            <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-[#0096C7] z-30" />
+            <div className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-[#0096C7] z-30" />
+            <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-[#0096C7] z-30" />
 
             {/* Feature 1: Sleek capsule button group in top-right of the viewport monitor */}
             {processedImageUrl && (
@@ -558,7 +576,7 @@ export default function TrafficWorkspace() {
 
             {isLoading ? (
               /* High-tech spinning radar scanner state */
-              <div className="text-center z-20 flex flex-col items-center">
+              <div className="text-center z-20 flex flex-col items-center p-4">
                 <div className="relative w-28 h-28 mb-4 flex items-center justify-center">
                   <div className="absolute inset-0 rounded-full border-2 border-[#00B4D8]/30 animate-pulse" />
                   <div className="absolute inset-3 rounded-full border border-[#00B4D8]/20" />
@@ -578,9 +596,9 @@ export default function TrafficWorkspace() {
               </div>
             ) : processedImageUrl ? (
               /* Active processed camera frame viewport output */
-              <div className="relative w-full h-full rounded-xl overflow-hidden z-20">
+              <div className="relative w-full h-full max-h-[380px] rounded-xl overflow-hidden z-20">
                 {/* The Processed Image Render Area */}
-                <img src={isYoloView ? processedImageUrl : (previewUrl || processedImageUrl)} className="w-full h-full object-contain rounded-xl" alt="Processed output" />
+                <img src={isYoloView ? processedImageUrl : (previewUrl || processedImageUrl)} className="w-full h-full object-cover max-h-[380px] rounded-xl" alt="Processed output" />
 
                 {/* Laser Scanning Sweep Line */}
                 {isYoloView && (
@@ -608,7 +626,7 @@ export default function TrafficWorkspace() {
               </div>
             ) : (
               /* Standby Tech Wireframe State */
-              <div className="relative w-full h-full flex flex-col items-center justify-center z-20">
+              <div className="relative w-full h-full flex flex-col items-center justify-center z-20 p-4">
                 {/* Tech Wireframe Isometric Grid */}
                 <svg className="absolute inset-0 w-full h-full opacity-20 pointer-events-none" viewBox="0 0 300 200" fill="none" stroke="currentColor">
                   <path d="M -20 100 L 150 15 L 320 100 L 150 185 Z" stroke="#48CAE4" strokeWidth="0.5" strokeDasharray="3 6" />
@@ -652,60 +670,86 @@ export default function TrafficWorkspace() {
             </p>
           </div>
 
-          {/* Feature 2: Speedometer / Donut Capacity Gauge */}
-          <div 
-            className="flex flex-col items-center justify-center my-4 p-4 bg-[#CAF0F8]/20 rounded-2xl border border-white/40 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-300 relative group cursor-pointer"
-            onMouseEnter={() => setIsGaugeHovered(true)}
-            onMouseLeave={() => setIsGaugeHovered(false)}
-          >
-            <div className="relative w-28 h-28 flex items-center justify-center">
-              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
-                {/* Background Track */}
-                <circle
-                  cx="60"
-                  cy="60"
-                  r="45"
-                  className="stroke-[#CAF0F8] fill-none"
-                  strokeWidth="8"
-                />
-                {/* Progress Ring */}
-                <circle
-                  cx="60"
-                  cy="60"
-                  r="45"
-                  className="fill-none transition-all duration-700 ease-out"
-                  stroke={gaugeColor}
-                  strokeWidth="8"
-                  strokeDasharray={282.74}
-                  strokeDashoffset={282.74 - (congestionScore / 100) * 282.74}
-                  strokeLinecap="round"
-                  style={{
-                    filter: `drop-shadow(0 0 4px ${gaugeColor}40)`
-                  }}
-                />
-              </svg>
+          {/* Side-by-Side Donut Capacity Gauge and Total Vehicles Detected Badge */}
+          <div className="grid grid-cols-2 gap-4 my-4">
+            
+            {/* Feature 2: Speedometer / Donut Capacity Gauge */}
+            <div 
+              className="flex flex-col items-center justify-center p-4 bg-[#CAF0F8]/20 rounded-2xl border border-white/40 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-300 relative group cursor-pointer"
+              onMouseEnter={() => setIsGaugeHovered(true)}
+              onMouseLeave={() => setIsGaugeHovered(false)}
+            >
+              <div className="relative w-24 h-24 flex items-center justify-center">
+                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
+                  {/* Background Track */}
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="45"
+                    className="stroke-[#CAF0F8] fill-none"
+                    strokeWidth="10"
+                  />
+                  {/* Progress Ring */}
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="45"
+                    className="fill-none transition-all duration-700 ease-out"
+                    stroke={gaugeColor}
+                    strokeWidth="10"
+                    strokeDasharray={282.74}
+                    strokeDashoffset={282.74 - (congestionScore / 100) * 282.74}
+                    strokeLinecap="round"
+                    style={{
+                      filter: `drop-shadow(0 0 4px ${gaugeColor}40)`
+                    }}
+                  />
+                </svg>
+                
+                {/* Center Content */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-lg font-extrabold text-[#03045E] tracking-tight transition-all duration-300 group-hover:scale-110">
+                    {congestionScore}%
+                  </span>
+                </div>
+              </div>
               
-              {/* Center Content */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-xl font-extrabold text-[#03045E] tracking-tight transition-all duration-300 group-hover:scale-110">
-                  {congestionScore}%
+              {/* Monospace Sub-label */}
+              <div className="mt-2 text-center">
+                <span className="font-mono text-[8px] font-bold text-[#03045E] tracking-wider uppercase">
+                  {capacityLabel.replace(' CONGESTION', '')}
+                </span>
+              </div>
+
+              {/* Micro Tooltip */}
+              {isGaugeHovered && (
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#03045E] text-[#CAF0F8] font-mono text-[9px] px-2 py-1 rounded shadow-lg border border-[#00B4D8]/30 transition-all duration-200 whitespace-nowrap z-40">
+                  TOTAL UNITS: {totalVehicles} / 30 MAX
+                </div>
+              )}
+            </div>
+
+            {/* Total Vehicles Detected Card */}
+            <div className="flex flex-col items-center justify-center p-4 bg-[#03045E]/5 rounded-2xl border border-[#00B4D8]/20 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-300 relative group">
+              {/* Pulsing indicator dot in top-right */}
+              <div className="absolute top-3 right-3 flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+              </div>
+
+              <div className="text-center">
+                <span className="font-mono text-[8px] font-bold text-[#0077B6] tracking-widest uppercase block mb-1">
+                  TOTAL DETECTED
+                </span>
+                <span className="text-4xl font-black text-[#03045E] tracking-tight block">
+                  {String(totalVehicles).padStart(2, '0')}
+                </span>
+                <span className="font-mono text-[8px] text-slate-500 tracking-tighter uppercase block mt-1">
+                  VEHICLES / LIVE
                 </span>
               </div>
             </div>
-            
-            {/* Monospace Sub-label */}
-            <div className="mt-2 text-center">
-              <span className="font-mono text-[9px] font-bold text-[#03045E] tracking-wider uppercase">
-                CAPACITY: {capacityLabel}
-              </span>
-            </div>
 
-            {/* Micro Tooltip */}
-            {isGaugeHovered && (
-              <div className="absolute -top-8 bg-[#03045E] text-[#CAF0F8] font-mono text-[9px] px-2 py-1 rounded shadow-lg border border-[#00B4D8]/30 transition-all duration-200">
-                TOTAL UNITS: {totalVehicles} / 30 MAX
-              </div>
-            )}
           </div>
 
           {/* Vehicle Distribution Metric Rows */}
