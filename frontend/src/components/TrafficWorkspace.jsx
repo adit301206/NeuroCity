@@ -155,9 +155,9 @@ export default function TrafficWorkspace() {
     setIsLoading(true);
 
     // Setup fallback simulation values
-    const isEmergency = fileName.toLowerCase().includes('ambulance') || 
-                        fileName.toLowerCase().includes('emergency') || 
-                        Math.random() > 0.7;
+    const isEmergency = fileName.toLowerCase().includes('ambulance') ||
+      fileName.toLowerCase().includes('emergency') ||
+      Math.random() > 0.7;
 
     const mockTelemetry = {
       car: Math.floor(Math.random() * 10) + 5,
@@ -190,12 +190,12 @@ export default function TrafficWorkspace() {
 
       if (response.ok) {
         const result = await response.json();
-        
+
         // Robust Data Extraction
         const payload = result.data || result;
         const rawTelemetry = payload.rawTelemetry || payload.telemetry || payload;
         const breakdown = payload.breakdown || payload.vehicleBreakdown || rawTelemetry.vehicle_breakdown || {};
-        
+
         if (payload) {
           // Safely convert vehicle counts to Numbers defaulting to 0
           const car = Number(breakdown.car) || 0;
@@ -204,14 +204,14 @@ export default function TrafficWorkspace() {
           const bus = Number(breakdown.bus) || 0;
           const auto_rickshaw = Number(breakdown.auto_rickshaw || breakdown.autoRickshaw || breakdown.auto_rickshaws || breakdown.autoRickshaws) || 0;
           const ambulance = Number(breakdown.ambulance) || 0;
-          
+
           const telemetryData = { car, bike, truck, bus, auto_rickshaw, ambulance };
           setTelemetry(telemetryData);
-          
+
           // Prepend server-side visual annotated URL directly from Django port 8000 if relative
-          let annotatedUrl = payload.processedImageUrl || payload.processed_image_url || 
-                             rawTelemetry.processedImageUrl || rawTelemetry.processed_image_url || 
-                             payload.imageUrl || payload.image_url || rawTelemetry.imageUrl || rawTelemetry.image_url;
+          let annotatedUrl = payload.processedImageUrl || payload.processed_image_url ||
+            rawTelemetry.processedImageUrl || rawTelemetry.processed_image_url ||
+            payload.imageUrl || payload.image_url || rawTelemetry.imageUrl || rawTelemetry.image_url;
           if (annotatedUrl) {
             if (!annotatedUrl.startsWith('http')) {
               annotatedUrl = `http://127.0.0.1:8000${annotatedUrl}`;
@@ -219,21 +219,21 @@ export default function TrafficWorkspace() {
           } else {
             annotatedUrl = previewUrl;
           }
-          
+
           setProcessedImageUrl(annotatedUrl);
-          
+
           // Calculate totalUnits dynamically from the extracted numbers
           const totalUnits = car + bike + truck + bus + auto_rickshaw + ambulance;
-          const volumeLevel = payload.congestionIndex || rawTelemetry.congestionIndex || 
-                              payload.congestion_index || rawTelemetry.congestion_index || 
-                              (totalUnits > 18 ? 'Heavy' : totalUnits > 8 ? 'Moderate' : 'Low');
-                              
-          const emergencyOverride = payload.emergencyOverride !== undefined ? payload.emergencyOverride : 
-                                    rawTelemetry.emergencyOverride !== undefined ? rawTelemetry.emergencyOverride : 
-                                    payload.emergency_override_triggered !== undefined ? payload.emergency_override_triggered : 
-                                    rawTelemetry.emergency_override_triggered !== undefined ? rawTelemetry.emergency_override_triggered : 
-                                    (ambulance > 0);
-          
+          const volumeLevel = payload.congestionIndex || rawTelemetry.congestionIndex ||
+            payload.congestion_index || rawTelemetry.congestion_index ||
+            (totalUnits > 18 ? 'Heavy' : totalUnits > 8 ? 'Moderate' : 'Low');
+
+          const emergencyOverride = payload.emergencyOverride !== undefined ? payload.emergencyOverride :
+            rawTelemetry.emergencyOverride !== undefined ? rawTelemetry.emergencyOverride :
+              payload.emergency_override_triggered !== undefined ? payload.emergency_override_triggered :
+                rawTelemetry.emergency_override_triggered !== undefined ? rawTelemetry.emergency_override_triggered :
+                  (ambulance > 0);
+
           // Append transaction to MongoDB log table
           const newLog = {
             id: payload.logId || payload._id || rawTelemetry.logId || rawTelemetry._id || `log-${Date.now()}`,
@@ -244,7 +244,7 @@ export default function TrafficWorkspace() {
             volume: `${volumeLevel} (${String(totalUnits).padStart(2, '0')} Units)`,
             override: emergencyOverride ? 'AMBULANCE_PRIORITY' : 'NONE'
           };
-          
+
           setLogs((prev) => [newLog, ...prev]);
           setIsLoading(false);
           return;
@@ -253,7 +253,7 @@ export default function TrafficWorkspace() {
       throw new Error("Local API connection failed, running simulated inference");
     } catch (err) {
       console.log("[Node Backend Connection Failed or Unauthorized - Running High-Fidelity Simulation Fallback]", err);
-      
+
       // Fallback: Simulate inference workload delay (YOLOv8 Processing Frame...)
       setTimeout(async () => {
         setTelemetry(mockTelemetry);
@@ -289,7 +289,7 @@ export default function TrafficWorkspace() {
     e.preventDefault();
     e.stopPropagation();
     setIsDragActive(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       processFile(e.dataTransfer.files[0]);
     }
@@ -305,7 +305,7 @@ export default function TrafficWorkspace() {
     if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
       setSelectedFile(file);
       setFileName(file.name);
-      
+
       // Revoke older URL to free memory
       if (previewUrl && previewUrl.startsWith('blob:')) {
         URL.revokeObjectURL(previewUrl);
@@ -351,11 +351,10 @@ export default function TrafficWorkspace() {
   const ambulanceCount = telemetry.ambulance;
 
   return (
-    <div className={`w-full bg-[#FFFFFF] relative ${
-      ambulanceCount > 0 
-        ? 'shadow-[inset_0_0_60px_rgba(220,38,38,0.25)] border border-red-500/30 backdrop-blur-xs animate-[pulse_2.5s_ease-in-out_infinite] transition-all duration-700 ease-in-out' 
+    <div className={`w-full bg-[#FFFFFF] relative ${ambulanceCount > 0
+        ? 'shadow-[inset_0_0_60px_rgba(220,38,38,0.25)] border border-red-500/30 backdrop-blur-xs animate-[pulse_2.5s_ease-in-out_infinite] transition-all duration-700 ease-in-out'
         : 'transition-all duration-700 ease-in-out'
-    }`}>
+      }`}>
       {/* HUD Embedded Keyframe Animations */}
       <style>{`
         @keyframes hover-float {
@@ -386,7 +385,7 @@ export default function TrafficWorkspace() {
 
       {/* THREE-COLUMN WORKSPACE MATRIX */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mx-6 mt-14 lg:mt-16">
-        
+
         {/* COLUMN 1: THE INTAKE DECK */}
         <section className="bg-[#CAF0F8]/40 backdrop-blur-md border border-white/60 shadow-lg rounded-2xl p-6 flex flex-col justify-between min-h-[420px]">
           <div>
@@ -396,7 +395,7 @@ export default function TrafficWorkspace() {
               </span>
               <div className="h-2 w-2 rounded-full bg-[#00B4D8] animate-ping" />
             </div>
-            
+
             <p className="text-slate-500 text-xs mb-4 font-sans leading-relaxed">
               Feed raw municipal sensor telemetry images into the YOLOv8x computer vision inference pipelines.
             </p>
@@ -411,11 +410,10 @@ export default function TrafficWorkspace() {
             onClick={previewUrl ? null : triggerBrowse}
             onMouseEnter={() => setIsHoveredUpload(true)}
             onMouseLeave={() => setIsHoveredUpload(false)}
-            className={`relative flex-1 flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-6 transition-all duration-300 ${
-              isDragActive 
-                ? 'border-[#48CAE4] bg-[#CAF0F8]/50 shadow-[0_0_15px_rgba(72,202,228,0.25)]' 
+            className={`relative flex-1 flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-6 transition-all duration-300 ${isDragActive
+                ? 'border-[#48CAE4] bg-[#CAF0F8]/50 shadow-[0_0_15px_rgba(72,202,228,0.25)]'
                 : 'border-[#00B4D8] hover:border-solid hover:border-[#48CAE4] bg-[#CAF0F8]/40 backdrop-blur-md cursor-pointer'
-            }`}
+              }`}
           >
             <input
               ref={fileInputRef}
@@ -434,11 +432,11 @@ export default function TrafficWorkspace() {
                     <span className="text-[9px] font-mono font-bold text-[#48CAE4] tracking-widest bg-black/60 px-1 py-0.5 rounded border border-[#48CAE4]/30">INGESTED</span>
                   </div>
                 </div>
-                
+
                 <span className="text-xs font-mono font-bold text-[#03045E] break-all max-w-full px-2 block mb-1">
                   {fileName || 'custom_upload.png'}
                 </span>
-                
+
                 <span className="text-[10px] text-slate-500 font-mono mb-4 uppercase">
                   [ READY FOR INFERENCE PIPELINE ]
                 </span>
@@ -451,7 +449,7 @@ export default function TrafficWorkspace() {
                   >
                     {isLoading ? 'YOLOv8 Processing Frame...' : 'UPLOAD & PROCESS FRAME'}
                   </button>
-                  
+
                   <div className="flex gap-2 justify-center">
                     <button
                       onClick={triggerBrowse}
@@ -479,11 +477,11 @@ export default function TrafficWorkspace() {
                 <div className="mb-4 animate-[pulse_2s_infinite] transition-transform duration-300">
                   <UploadCloud className="w-16 h-16 text-[#0077B6] drop-shadow-[0_0_8px_rgba(72,202,228,0.4)]" />
                 </div>
-                
+
                 <span className="text-sm font-mono font-bold text-[#03045E] tracking-wider mb-2 uppercase">
                   INGEST_TRAFFIC_FEED // BROWSE OR DRAG IMAGE
                 </span>
-                
+
                 <span className="text-xs text-slate-500 font-mono tracking-tight mb-4">
                   Supports JPG, PNG up to 10MB
                 </span>
@@ -528,11 +526,11 @@ export default function TrafficWorkspace() {
 
           {/* High-Fidelity CRT/LED Diagnostic Viewport Frame */}
           <div className="relative flex-1 w-full bg-[#023E8A] overflow-hidden rounded-xl border border-[#0077B6]/30 shadow-inner flex flex-col items-center justify-center min-h-[260px] max-h-[380px] crt-monitor">
-            
+
             {/* CRT Screen Scanline Overlay Effect */}
             <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,rgba(72,202,228,0.12)_0%,rgba(3,4,94,0.45)_100%)] z-10" />
-            <div 
-              className="absolute inset-0 pointer-events-none opacity-[0.04] z-10" 
+            <div
+              className="absolute inset-0 pointer-events-none opacity-[0.04] z-10"
               style={{
                 backgroundImage: 'linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06))',
                 backgroundSize: '100% 4px, 6px 100%'
@@ -552,22 +550,20 @@ export default function TrafficWorkspace() {
                 <button
                   type="button"
                   onClick={() => setIsYoloView(false)}
-                  className={`px-3 py-1 text-[9px] font-mono font-bold rounded-full transition-all duration-300 ${
-                    !isYoloView
+                  className={`px-3 py-1 text-[9px] font-mono font-bold rounded-full transition-all duration-300 ${!isYoloView
                       ? 'bg-[#00B4D8] text-[#03045E] shadow-[0_0_8px_rgba(0,180,216,0.6)]'
                       : 'bg-transparent text-[#CAF0F8] hover:bg-[#023E8A]/40'
-                  }`}
+                    }`}
                 >
                   RAW FEED
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsYoloView(true)}
-                  className={`px-3 py-1 text-[9px] font-mono font-bold rounded-full transition-all duration-300 ${
-                    isYoloView
+                  className={`px-3 py-1 text-[9px] font-mono font-bold rounded-full transition-all duration-300 ${isYoloView
                       ? 'bg-[#00B4D8] text-[#03045E] shadow-[0_0_8px_rgba(0,180,216,0.6)]'
                       : 'bg-transparent text-[#CAF0F8] hover:bg-[#023E8A]/40'
-                  }`}
+                    }`}
                 >
                   YOLO AI OVERLAY
                 </button>
@@ -664,7 +660,7 @@ export default function TrafficWorkspace() {
               </span>
               <Database className="h-4 w-4 text-[#0077B6]" />
             </div>
-            
+
             <p className="text-slate-500 text-xs mb-6 font-sans leading-relaxed">
               Real-time vehicle class distribution metrics computed dynamically from raw frame scan lines.
             </p>
@@ -672,9 +668,9 @@ export default function TrafficWorkspace() {
 
           {/* Side-by-Side Donut Capacity Gauge and Total Vehicles Detected Badge */}
           <div className="grid grid-cols-2 gap-4 my-4">
-            
+
             {/* Feature 2: Speedometer / Donut Capacity Gauge */}
-            <div 
+            <div
               className="flex flex-col items-center justify-center p-4 bg-[#CAF0F8]/20 rounded-2xl border border-white/40 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-300 relative group cursor-pointer"
               onMouseEnter={() => setIsGaugeHovered(true)}
               onMouseLeave={() => setIsGaugeHovered(false)}
@@ -705,7 +701,7 @@ export default function TrafficWorkspace() {
                     }}
                   />
                 </svg>
-                
+
                 {/* Center Content */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <span className="text-lg font-extrabold text-[#03045E] tracking-tight transition-all duration-300 group-hover:scale-110">
@@ -713,7 +709,7 @@ export default function TrafficWorkspace() {
                   </span>
                 </div>
               </div>
-              
+
               {/* Monospace Sub-label */}
               <div className="mt-2 text-center">
                 <span className="font-mono text-[8px] font-bold text-[#03045E] tracking-wider uppercase">
@@ -754,7 +750,7 @@ export default function TrafficWorkspace() {
 
           {/* Vehicle Distribution Metric Rows */}
           <div className="flex-1 flex flex-col gap-4">
-            
+
             {/* CARS row */}
             <div className="flex flex-col">
               <div className="flex justify-between items-center mb-1">
@@ -772,8 +768,8 @@ export default function TrafficWorkspace() {
                 </span>
               </div>
               <div className="w-full bg-[#CAF0F8] rounded-full h-2 overflow-hidden border border-white/60">
-                <div 
-                  className="bg-[#0077B6] h-full rounded-full transition-all duration-500" 
+                <div
+                  className="bg-[#0077B6] h-full rounded-full transition-all duration-500"
                   style={{ width: `${Math.min(100, (telemetry.car / 25) * 100)}%` }}
                 />
               </div>
@@ -797,8 +793,8 @@ export default function TrafficWorkspace() {
                 </span>
               </div>
               <div className="w-full bg-[#CAF0F8] rounded-full h-2 overflow-hidden border border-white/60">
-                <div 
-                  className="bg-[#00B4D8] h-full rounded-full transition-all duration-500" 
+                <div
+                  className="bg-[#00B4D8] h-full rounded-full transition-all duration-500"
                   style={{ width: `${Math.min(100, (telemetry.bike / 15) * 100)}%` }}
                 />
               </div>
@@ -821,8 +817,8 @@ export default function TrafficWorkspace() {
                 </span>
               </div>
               <div className="w-full bg-[#CAF0F8] rounded-full h-2 overflow-hidden border border-white/60">
-                <div 
-                  className="bg-[#48CAE4] h-full rounded-full transition-all duration-500" 
+                <div
+                  className="bg-[#48CAE4] h-full rounded-full transition-all duration-500"
                   style={{ width: `${Math.min(100, (telemetry.truck / 8) * 100)}%` }}
                 />
               </div>
@@ -846,8 +842,8 @@ export default function TrafficWorkspace() {
                 </span>
               </div>
               <div className="w-full bg-[#CAF0F8] rounded-full h-2 overflow-hidden border border-white/60">
-                <div 
-                  className="bg-[#0096C7] h-full rounded-full transition-all duration-500" 
+                <div
+                  className="bg-[#0096C7] h-full rounded-full transition-all duration-500"
                   style={{ width: `${Math.min(100, (telemetry.bus / 8) * 100)}%` }}
                 />
               </div>
@@ -865,8 +861,8 @@ export default function TrafficWorkspace() {
                 </span>
               </div>
               <div className="w-full bg-[#CAF0F8] rounded-full h-2 overflow-hidden border border-white/60">
-                <div 
-                  className="bg-[#FFBF00] h-full rounded-full transition-all duration-500" 
+                <div
+                  className="bg-[#FFBF00] h-full rounded-full transition-all duration-500"
                   style={{ width: `${Math.min(100, (telemetry.auto_rickshaw / 15) * 100)}%` }}
                 />
               </div>
@@ -919,7 +915,7 @@ export default function TrafficWorkspace() {
       {/* BOTTOM SPAN: THE ARCHIVED DATA HISTORY LOGS */}
       <section className="mx-6 mt-12 lg:mt-16 mb-12">
         <div className="bg-[#ADE8F4]/20 backdrop-blur-md border border-[#023E8A] shadow-lg rounded-2xl p-6">
-          
+
           {/* Section Header */}
           <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4 border-b border-[#023E8A]/20 pb-3">
             <div className="flex items-center gap-2">
@@ -954,11 +950,10 @@ export default function TrafficWorkspace() {
               </thead>
               <tbody className="divide-y divide-slate-100 font-mono text-[11px] text-slate-700">
                 {logs.map((log, index) => (
-                  <tr 
-                    key={log.id} 
-                    className={`transition-all duration-200 hover:bg-[#90E0EF] cursor-pointer ${
-                      index % 2 === 0 ? 'bg-[#CAF0F8]/30' : 'bg-white/40'
-                    }`}
+                  <tr
+                    key={log.id}
+                    className={`transition-all duration-200 hover:bg-[#90E0EF] cursor-pointer ${index % 2 === 0 ? 'bg-[#CAF0F8]/30' : 'bg-white/40'
+                      }`}
                   >
                     <td className="px-6 py-3 whitespace-nowrap tracking-tighter">
                       {log.timestamp}
