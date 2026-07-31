@@ -1,116 +1,148 @@
 # traffic_eye_api/services/hf_transformer_engine.py
 import os
+import collections
 import time
-import cv2
 import numpy as np
-from django.conf import settings
+import cv2
 from ultralytics import YOLO
 
 class HFTrafficEyeService:
     def __init__(self):
-        print("🚦 Initializing NeuroCity Traffic Eye YOLOv8 Engine...")
-        
-        # Safe fallback for BASE_DIR
-        try:
-            from django.conf import settings
-            base_dir = getattr(settings, 'BASE_DIR', '.')
-        except Exception:
-            base_dir = '.'
+        print("🚦 Initializing Windshield-Optimized YOLOv8 NeuroCity Engine...")
+        # Using yolov8s.pt (Small) to get better pyramid scaling layers for dense streets
+        self.model = YOLO('yolov8s.pt') 
+        self.valid_class_ids = [1, 2, 3, 5, 7] # bicycle, car, motorcycle, bus, truck
 
-        model_path = os.path.join(base_dir, 'yolov8s.pt')
-        if not os.path.exists(model_path):
-            model_path = 'yolov8s.pt'  # Will auto-download if not found locally
+    def _is_rickshaw_color_profile(self, cropped_vehicle_bgr):
+        """
+        Applies a localized color mask to check if the cropped vehicle box contains 
+        significant concentrations of green and yellow hues typical of Indian auto-rickshaws.
+        """
+        try:
+            if cropped_vehicle_bgr is None or cropped_vehicle_bgr.size == 0:
+                return False
+                
+            hsv = cv2.cvtColor(cropped_vehicle_bgr, cv2.COLOR_BGR2HSV)
             
-        self.model = YOLO(model_path)
+            # 🟢 Green Mask (Typical commercial body paint)
+            lower_green = np.array([35, 40, 40])
+            upper_green = np.array([85, 255, 255])
+            green_mask = cv2.inRange(hsv, lower_green, upper_green)
+            
+            # 🟡 Yellow Mask (Typical roof/hood colors)
+            lower_yellow = np.array([11, 40, 40])
+            upper_yellow = np.array([34, 255, 255])
+            yellow_mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
+            
+            combined_rickshaw_mask = green_mask + yellow_mask
+            
+            total_pixels = cropped_vehicle_bgr.shape[0] * cropped_vehicle_bgr.shape[1]
+            rickshaw_ratio = np.sum(combined_rickshaw_mask > 0) / total_pixels
+            
+            return rickshaw_ratio > 0.05  # More than 5% matches auto signatures
+        except Exception:
+            return False
+
+    def _is_emergency_red_profile(self, cropped_vehicle_bgr):
+        """
+        Applies an HSV color mask tracking intense emergency reds. 
+        Identifies both ambulances (sirens/decals) and fire brigades (solid red body paint).
+        """
+        try:
+            if cropped_vehicle_bgr is None or cropped_vehicle_bgr.size == 0:
+                return False
+                
+            hsv = cv2.cvtColor(cropped_vehicle_bgr, cv2.COLOR_BGR2HSV)
+            
+            # 🔴 Red wraps around the HSV 0-180 degree line, so we combine upper and lower bounds
+            lower_red1 = np.array([0, 120, 120])
+            upper_red1 = np.array([10, 255, 255])
+            lower_red2 = np.array([170, 120, 120])
+            upper_red2 = np.array([180, 255, 255])
+            
+            mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
+            mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
+            red_mask = mask1 + mask2
+            
+            total_pixels = cropped_vehicle_bgr.shape[0] * cropped_vehicle_bgr.shape[1]
+            red_ratio = np.sum(red_mask > 0) / total_pixels
+            
+            # Since fire trucks are fully red, they will easily clear this threshold (>35%).
+            # Ambulances with emergency stripes and red sirens will clear a basic 4% floor threshold.
+            return red_ratio > 0.04
+        except Exception:
+            return False
 
     def analyze_live_frame(self, image_path):
         if not os.path.exists(image_path):
-            return {"status": "error", "message": f"Target image not found at {image_path}"}
-
+            return {"error": "Target image not discovered."}
+            
         start_time = time.time()
-
-        # Run inference: conf=0.25 detects smaller/distant vehicles, iou=0.45 purges duplicates
-        results = self.model.predict(
-            source=image_path,
-            conf=0.25,
-            iou=0.45,
-            save=False
-        )
-        result = results[0]
-
-        counts = {
-            'car': 0,
-            'bike': 0,
-            'truck': 0,
-            'bus': 0,
-            'auto_rickshaw': 0,
-            'ambulance': 0
-        }
-
+        
+        # Lowering conf to 0.20 to aggressively find objects through shadows/glare
+        results = self.model(image_path, conf=0.20, iou=0.40, verbose=False)
+        
+        raw_bgr_img = cv2.imread(image_path)
+        img_h, img_w, _ = raw_bgr_img.shape
+        
+        latency = time.time() - start_time
+        traffic_registry = collections.defaultdict(int)
         parsed_detections = []
         emergency_override_triggered = False
-
-        for box in result.boxes:
-            cls_id = int(box.cls[0].item())
-            conf = float(box.conf[0].item())
-            bbox = box.xyxy[0].tolist()  # [x1, y1, x2, y2]
+        
+        detected_boxes = results[0].boxes
+        for box in detected_boxes:
+            class_id = int(box.cls[0])
             
-            raw_class = result.names[cls_id].lower()
+            if class_id in self.valid_class_ids:
+                class_name = self.model.names[class_id]
+                score = float(box.conf[0])
+                coords = box.xyxy[0].tolist()
+                
+                final_label = class_name
+                
+                # Setup safe integer crop coordinates
+                xmin, ymin, xmax, ymax = map(int, [max(0, coords[0]), max(0, coords[1]), min(img_w, coords[2]), min(img_h, coords[3])])
+                
+                if (xmax - xmin) > 10 and (ymax - ymin) > 10:
+                    cropped_box = raw_bgr_img[ymin:ymax, xmin:xmax]
+                    
+                    # 🛺 1. MENTOR AUTO-RICKSHAW LOGIC
+                    # If it's guessed as a bus/truck under 60% confidence, check for Rickshaw yellow/green profiles
+                    if class_name in ['bus', 'truck'] and score < 0.60:
+                        if self._is_rickshaw_color_profile(cropped_box):
+                            final_label = 'auto_rickshaw'
+                    
+                    # 🚑🔥 2. MENTOR EMERGENCY VEHICLE LOGIC (Ambulance + Fire Brigade)
+                    # If it's a car, truck, or bus, run our red profile check to capture emergency vectors
+                    if final_label in ['car', 'truck', 'bus']:
+                        if self._is_emergency_red_profile(cropped_box):
+                            final_label = 'emergency_vehicle'
+                            emergency_override_triggered = True  # Instantly fire the Green Wave Signal Override!
 
-            box_w = bbox[2] - bbox[0]
-            box_h = bbox[3] - bbox[1]
+                # Count final processed labels safely
+                traffic_registry[final_label] += 1
+                parsed_detections.append({
+                    "class": final_label,
+                    "confidence": round(score, 4),
+                    "bbox_xyxy": [round(coord, 2) for coord in coords]
+                })
+                
+                # Keep track of un-intercepted heavy commercial baseline vehicles
+                if final_label in ['bus', 'truck']:
+                    pass 
 
-            # --- Class Mapping & Spatial Heuristics for Indian Traffic ---
-            if raw_class == 'car':
-                detected_class = 'car'
-            elif raw_class in ['motorcycle', 'bicycle']:
-                detected_class = 'bike'
-            elif raw_class == 'truck':
-                detected_class = 'truck'
-            elif raw_class == 'bus':
-                # Bounding box heuristic: Compact 'bus' bounding boxes in Indian traffic are Auto-Rickshaws
-                if box_w < 120 and box_h < 120:
-                    detected_class = 'auto_rickshaw'
-                else:
-                    detected_class = 'bus'
-            elif raw_class == 'ambulance':
-                detected_class = 'ambulance'
-            else:
-                # Ignore non-vehicle COCO classes (person, traffic light, dog, etc.)
-                continue
-
-            # Priority Emergency Trigger Rule
-            if detected_class == 'ambulance' and conf >= 0.50:
-                emergency_override_triggered = True
-
-            counts[detected_class] += 1
-
-            parsed_detections.append({
-                'class': detected_class,
-                'confidence': round(conf, 4),
-                'bbox_xyxy': [round(v, 2) for v in bbox]
-            })
-
-        total_vehicles = sum(counts.values())
-
-        # Determine Congestion Level
-        if total_vehicles <= 6:
-            congestion_index = "LOW"
-        elif total_vehicles <= 15:
-            congestion_index = "MEDIUM"
-        else:
-            congestion_index = "HEAVY"
-
-        latency = round(time.time() - start_time, 4)
+        total_tracked = len(parsed_detections)
+        congestion_index = "LOW" if total_tracked <= 5 else "MEDIUM" if total_tracked <= 15 else "HEAVY"
 
         return {
             "status": "success",
-            "engine": "NeuroCity_YOLOv8_Optimized",
-            "compute_latency_seconds": latency,
-            "total_vehicles_detected": total_vehicles,
+            "engine": "Improved_YOLOv8_MultiScale",
+            "compute_latency_seconds": round(latency, 4),
+            "total_vehicles_detected": total_tracked,
             "congestion_index": congestion_index,
             "emergency_override_triggered": emergency_override_triggered,
-            "vehicle_breakdown": counts,
+            "vehicle_breakdown": dict(traffic_registry),
             "detections_metadata": parsed_detections,
-            "raw_results_object": result
+            "raw_results_object": results[0]
         }

@@ -21,7 +21,7 @@ except Exception as e:
 
 # --- 3. Configure Target Image Path ---
 ASSETS_DIR = os.path.join(BASE_DIR, 'assets')
-IMAGE_NAME = 'd3.jpg'
+IMAGE_NAME = '8.jpg'
 image_path = os.path.join(ASSETS_DIR, IMAGE_NAME)
 
 print("=" * 60)
