@@ -5,13 +5,19 @@ import TrafficTopDeck from '../components/TrafficTopDeck';
 import TrafficWorkspace from '../components/TrafficWorkspace';
 import TrafficSimulation from '../components/TrafficSimulation';
 
-export default function TrafficEye({ onNavigate }) {
+export default function TrafficEye({ onNavigate, user, onOpenAuth, onLogout }) {
   const [activeTab, setActiveTab] = useState('analyzer');
 
   return (
-    <div className={`min-h-screen transition-colors duration-500 ${activeTab === 'analyzer' ? 'bg-white text-slate-900' : 'bg-[#F8FAFC]'}`}>
-      {/* Global Floating Navbar - Only visible on Analyzer deck */}
-      {activeTab === 'analyzer' && <Navbar activeTab="traffic-eye" onNavigate={onNavigate} />}
+    <div className="min-h-screen bg-white text-slate-900">
+      {/* Global Floating Navbar */}
+      <Navbar 
+        activeTab="traffic-eye" 
+        onNavigate={onNavigate} 
+        user={user} 
+        onOpenAuth={onOpenAuth} 
+        onLogout={onLogout} 
+      />
 
       {/* Dynamic View Rendering */}
       <main className="w-full">
