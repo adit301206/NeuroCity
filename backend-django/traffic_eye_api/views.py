@@ -46,7 +46,9 @@ class TrafficFrameAnalysisView(APIView):
                 
                 if raw_results is not None:
                     annotated_frame = raw_results.plot()
-                    cv2.imwrite(processed_path, annotated_frame)
+                else:
+                    annotated_frame = cv2.imread(temp_filename)
+                cv2.imwrite(processed_path, annotated_frame)
 
                 raw_breakdown = telemetry_payload.get("vehicle_breakdown", {})
                 
