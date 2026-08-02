@@ -188,56 +188,55 @@ export default function TrafficWorkspace() {
         body: formData
       });
 
+      const result = await response.json();
+
       if (response.ok && (result.status === 'success' || result.data)) {
         const payload = result.data || result;
 
         // 1. Fail-safe breakdown unwrapping
-        const breakdown =
-          payload.breakdown ||
-          payload.vehicleBreakdown ||
-          payload.vehicle_breakdown ||
-          {};
+        const breakdown = payload.breakdown || payload.vehicleBreakdown || payload.vehicle_breakdown || {};
 
-        const carCount = Number(breakdown.car || 0);
-        const bikeCount = Number(breakdown.bike || 0);
-        const truckCount = Number(breakdown.truck || 0);
-        const busCount = Number(breakdown.bus || 0);
-        const rickshawCount = Number(breakdown.auto_rickshaw || breakdown.rickshaw || 0);
-        const ambulanceCount = Number(breakdown.ambulance || breakdown.emergency_vehicle || 0);
+        const car = Number(breakdown.car || 0);
+        const bike = Number(breakdown.bike || 0);
+        const truck = Number(breakdown.truck || 0);
+        const bus = Number(breakdown.bus || 0);
+        const auto_rickshaw = Number(breakdown.auto_rickshaw || breakdown.rickshaw || 0);
+        const ambulance = Number(breakdown.ambulance || breakdown.emergency_vehicle || 0);
 
         // 2. Set Telemetry state
         setTelemetry({
-          car: carCount,
-          bike: bikeCount,
-          truck: truckCount,
-          bus: busCount,
-          auto_rickshaw: rickshawCount,
-          ambulance: ambulanceCount
+          car,
+          bike,
+          truck,
+          bus,
+          auto_rickshaw,
+          ambulance
         });
 
         // 3. Resolve Processed Image Path (Prefix local Django port 8000 if relative)
         const imgPath = payload.processedImageUrl || payload.processed_image_url;
         if (imgPath) {
-          setProcessedImageUrl(imgPath.startsWith('http') ? imgPath : `http://127.0.0.1:8000${imgPath}`);
+          setProcessedImageUrl(imgPath.startsWith('/media/') ? `http://127.0.0.1:8000${imgPath}` : imgPath);
         } else {
           setProcessedImageUrl(previewUrl);
         }
 
         // 4. Prepend transaction entry to table log
-        const totalCount = carCount + bikeCount + truckCount + busCount + rickshawCount + ambulanceCount;
+        const totalCount = car + bike + truck + bus + auto_rickshaw + ambulance;
         const newLogEntry = {
           id: payload.logId || `log-${Date.now()}`,
           timestamp: new Date().toLocaleString('en-GB', { hour12: false }).replace(/\//g, '-'),
           location: payload.cameraLocation || 'Surat_Central_Junction_04',
           volume: `${payload.congestionIndex || 'MEDIUM'} (${String(totalCount).padStart(2, '0')} Units)`,
-          override: (payload.emergencyOverrideTriggered || ambulanceCount > 0) ? 'AMBULANCE_PRIORITY' : 'NONE'
+          override: (payload.emergencyOverrideTriggered || ambulance > 0) ? 'AMBULANCE_PRIORITY' : 'NONE'
         };
 
         setLogs((prev) => [newLogEntry, ...prev]);
+        setIsLoading(false);
       } else {
         alert(`API Error: ${result.message || 'Failed to analyze frame'}`);
+        throw new Error("Local API connection failed, running simulated inference");
       }
-      throw new Error("Local API connection failed, running simulated inference");
     } catch (err) {
       console.log("[Node Backend Connection Failed or Unauthorized - Running High-Fidelity Simulation Fallback]", err);
 
@@ -322,13 +321,7 @@ export default function TrafficWorkspace() {
     fileInputRef.current.click();
   };
 
-  const totalVehicles =
-    Number(telemetry.car || 0) +
-    Number(telemetry.bike || 0) +
-    Number(telemetry.truck || 0) +
-    Number(telemetry.bus || 0) +
-    Number(telemetry.auto_rickshaw || 0) +
-    Number(telemetry.ambulance || 0);
+  const totalVehicles = Number(telemetry.car || 0) + Number(telemetry.bike || 0) + Number(telemetry.truck || 0) + Number(telemetry.bus || 0) + Number(telemetry.auto_rickshaw || 0) + Number(telemetry.ambulance || 0);
   const congestionScore = Math.min(100, Math.round((totalVehicles / 30) * 100));
 
   let gaugeColor = '#00B4D8';
