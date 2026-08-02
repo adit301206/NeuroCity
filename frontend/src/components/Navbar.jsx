@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { ChevronDown, Shield, Settings, LogOut, Terminal } from 'lucide-react';
+import { ChevronDown, Shield, Settings, LogOut, Terminal, UserCheck, KeyRound } from 'lucide-react';
 
-export default function Navbar({ onNavigate, activeTab }) {
+export default function Navbar({ onNavigate, activeTab, user, onOpenAuth, onLogout }) {
   const [profileOpen, setProfileOpen] = useState(false);
 
   const links = [
@@ -143,10 +143,10 @@ export default function Navbar({ onNavigate, activeTab }) {
       </div>
 
       {/* Right Side - Operational Status & Profile Deck */}
-      <div className="flex items-center gap-6">
-
+      <div className="flex items-center gap-5">
+        
         {/* System Status Ping Widget */}
-        <div className="flex items-center gap-2 px-3 py-1 rounded bg-[#023E8A]/40 border border-[#0077B6]/30">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#023E8A]/40 border border-[#0077B6]/30">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_#10B981]"></span>
@@ -156,78 +156,90 @@ export default function Navbar({ onNavigate, activeTab }) {
           </span>
         </div>
 
-        {/* Profile Deck with Dropdown Trigger */}
-        <div className="relative">
-          <div
-            onClick={() => setProfileOpen(!profileOpen)}
-            className="flex items-center gap-2 cursor-pointer group"
-          >
-            {/* Circular Avatar Container with Cyan Ring */}
-            <div className="w-8 h-8 rounded-full border-2 border-[#48CAE4]/60 overflow-hidden bg-[#023E8A] flex items-center justify-center transition-all duration-300 group-hover:border-[#90E0EF] shadow-[0_0_8px_rgba(72,202,228,0.2)]">
-              {/* Elegant futuristic line-art avatar representation */}
-              <svg viewBox="0 0 32 32" className="w-6 h-6 text-[#90E0EF]/80" fill="currentColor">
-                <path d="M16 4a6 6 0 100 12 6 6 0 000-12zm-8 16c-2.2 0-4 1.8-4 4v4h24v-4c0-2.2-1.8-4-4-4H8z" />
-              </svg>
+        {/* Profile Deck or Login Trigger Button */}
+        {user ? (
+          <div className="relative">
+            <div 
+              onClick={() => setProfileOpen(!profileOpen)}
+              className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-[#023E8A]/60 border border-[#0077B6]/60 cursor-pointer group hover:border-[#48CAE4] transition-all"
+            >
+              {/* Avatar Container with Cyan Ring */}
+              <div className="w-7 h-7 rounded-lg border border-[#48CAE4] overflow-hidden bg-[#0077B6] flex items-center justify-center text-[#48CAE4] shadow-[0_0_8px_rgba(72,202,228,0.3)]">
+                <UserCheck className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex flex-col text-left font-mono">
+                <span className="text-xs font-bold text-white tracking-tight truncate max-w-[110px]">
+                  {user.name}
+                </span>
+                <span className="text-[9px] text-[#48CAE4] uppercase tracking-wider">
+                  [ {user.role || 'citizen'} ]
+                </span>
+              </div>
+              <ChevronDown 
+                className={`w-3.5 h-3.5 text-[#CAF0F8]/80 transition-transform duration-300 group-hover:text-white ${
+                  profileOpen ? 'rotate-180' : ''
+                }`}
+              />
             </div>
 
-            {/* Dropdown Arrow */}
-            <ChevronDown
-              className={`w-4 h-4 text-[#CAF0F8]/80 transition-transform duration-300 group-hover:text-white ${profileOpen ? 'rotate-180' : ''
-                }`}
-            />
-          </div>
+            {/* Interactive Dropdown Menu */}
+            {profileOpen && (
+              <>
+                <div 
+                  className="fixed inset-0 z-40" 
+                  onClick={() => setProfileOpen(false)}
+                />
+                
+                <div className="absolute right-0 mt-3 w-56 rounded-xl bg-[#023E8A] border border-[#0077B6] shadow-[0_10px_25px_rgba(3,4,94,0.6),0_0_15px_rgba(72,202,228,0.1)] p-1.5 z-50 animate-[fadeIn_0.2s_ease-out] text-[#CAF0F8]">
+                  <div className="px-3 py-2 border-b border-[#0077B6]/40 text-xs font-mono text-[#CAF0F8]/70">
+                    <div className="text-[10px] text-[#48CAE4] uppercase">CLEARANCE LEVEL</div>
+                    <div className="font-bold text-white text-xs mt-0.5">{user.email}</div>
+                  </div>
 
-          {/* Interactive Dropdown Menu */}
-          {profileOpen && (
-            <>
-              {/* Transparent overlay to close dropdown */}
-              <div
-                className="fixed inset-0 z-40"
-                onClick={() => setProfileOpen(false)}
-              />
-
-              <div className="absolute right-0 mt-3 w-56 rounded-xl bg-[#023E8A] border border-[#0077B6] shadow-[0_10px_25px_rgba(3,4,94,0.6),0_0_15px_rgba(72,202,228,0.1)] p-1.5 z-50 animate-[fadeIn_0.2s_ease-out] text-[#CAF0F8]">
-                {/* Header segment */}
-                <div className="px-3 py-2 border-b border-[#0077B6]/40 text-xs font-mono text-[#CAF0F8]/50">
-                  ADMIN_LEVEL_01
+                  <button 
+                    onClick={() => { setProfileOpen(false); }}
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-[#0077B6]/40 hover:text-white transition-all text-left mt-1 cursor-pointer"
+                  >
+                    <Shield className="w-4 h-4 text-[#48CAE4]" />
+                    <span>Security Console</span>
+                  </button>
+                  <button 
+                    onClick={() => { setProfileOpen(false); }}
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-[#0077B6]/40 hover:text-white transition-all text-left cursor-pointer"
+                  >
+                    <Settings className="w-4 h-4 text-[#48CAE4]" />
+                    <span>Platform Config</span>
+                  </button>
+                  <button 
+                    onClick={() => { setProfileOpen(false); }}
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-[#0077B6]/40 hover:text-white transition-all text-left cursor-pointer"
+                  >
+                    <Terminal className="w-4 h-4 text-[#48CAE4]" />
+                    <span>Logs Terminal</span>
+                  </button>
+                  
+                  <div className="h-px bg-[#0077B6]/40 my-1" />
+                  
+                  <button 
+                    onClick={() => { setProfileOpen(false); onLogout && onLogout(); }}
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-rose-500/20 hover:text-rose-300 transition-all text-left text-rose-400 cursor-pointer"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Disconnect Session</span>
+                  </button>
                 </div>
-
-                {/* Menu items */}
-                <button
-                  onClick={() => { setProfileOpen(false); }}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-[#0077B6]/40 hover:text-white transition-all text-left mt-1 cursor-pointer"
-                >
-                  <Shield className="w-4 h-4 text-[#48CAE4]" />
-                  <span>Security Console</span>
-                </button>
-                <button
-                  onClick={() => { setProfileOpen(false); }}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-[#0077B6]/40 hover:text-white transition-all text-left cursor-pointer"
-                >
-                  <Settings className="w-4 h-4 text-[#48CAE4]" />
-                  <span>Platform Config</span>
-                </button>
-                <button
-                  onClick={() => { setProfileOpen(false); }}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-[#0077B6]/40 hover:text-white transition-all text-left cursor-pointer"
-                >
-                  <Terminal className="w-4 h-4 text-[#48CAE4]" />
-                  <span>Logs Terminal</span>
-                </button>
-
-                <div className="h-px bg-[#0077B6]/40 my-1" />
-
-                <button
-                  onClick={() => { setProfileOpen(false); }}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-red-500/20 hover:text-red-300 transition-all text-left text-red-400 cursor-pointer"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>Disconnect</span>
-                </button>
-              </div>
-            </>
-          )}
-        </div>
+              </>
+            )}
+          </div>
+        ) : (
+          <button
+            onClick={() => onOpenAuth ? onOpenAuth() : (onNavigate && onNavigate('auth'))}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#0077B6] to-[#0096C7] border border-[#48CAE4]/50 text-white font-mono text-xs font-bold tracking-wider hover:from-[#0096C7] hover:to-[#48CAE4] transition-all shadow-[0_0_15px_rgba(72,202,228,0.25)] cursor-pointer"
+          >
+            <KeyRound className="w-4 h-4 text-[#CAF0F8]" />
+            <span>SIGN IN / REGISTER</span>
+          </button>
+        )}
 
       </div>
     </nav>
