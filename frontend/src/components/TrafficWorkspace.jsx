@@ -188,69 +188,55 @@ export default function TrafficWorkspace() {
         body: formData
       });
 
-      if (response.ok) {
-        const result = await response.json();
+      const result = await response.json();
 
-        // Robust Data Extraction
+      if (response.ok && (result.status === 'success' || result.data)) {
         const payload = result.data || result;
-        const rawTelemetry = payload.rawTelemetry || payload.telemetry || payload;
-        const breakdown = payload.breakdown || payload.vehicleBreakdown || rawTelemetry.vehicle_breakdown || {};
 
-        if (payload) {
-          // Safely convert vehicle counts to Numbers defaulting to 0
-          const car = Number(breakdown.car) || 0;
-          const bike = Number(breakdown.bike) || 0;
-          const truck = Number(breakdown.truck) || 0;
-          const bus = Number(breakdown.bus) || 0;
-          const auto_rickshaw = Number(breakdown.auto_rickshaw || breakdown.autoRickshaw || breakdown.auto_rickshaws || breakdown.autoRickshaws) || 0;
-          const ambulance = Number(breakdown.ambulance) || 0;
+        // 1. Fail-safe breakdown unwrapping
+        const breakdown = payload.breakdown || payload.vehicleBreakdown || payload.vehicle_breakdown || {};
 
-          const telemetryData = { car, bike, truck, bus, auto_rickshaw, ambulance };
-          setTelemetry(telemetryData);
+        const car = Number(breakdown.car || 0);
+        const bike = Number(breakdown.bike || 0);
+        const truck = Number(breakdown.truck || 0);
+        const bus = Number(breakdown.bus || 0);
+        const auto_rickshaw = Number(breakdown.auto_rickshaw || breakdown.rickshaw || 0);
+        const ambulance = Number(breakdown.ambulance || breakdown.emergency_vehicle || 0);
 
-          // Prepend server-side visual annotated URL directly from Django port 8000 if relative
-          let annotatedUrl = payload.processedImageUrl || payload.processed_image_url ||
-            rawTelemetry.processedImageUrl || rawTelemetry.processed_image_url ||
-            payload.imageUrl || payload.image_url || rawTelemetry.imageUrl || rawTelemetry.image_url;
-          if (annotatedUrl) {
-            if (!annotatedUrl.startsWith('http')) {
-              annotatedUrl = `http://127.0.0.1:8000${annotatedUrl}`;
-            }
-          } else {
-            annotatedUrl = previewUrl;
-          }
+        // 2. Set Telemetry state
+        setTelemetry({
+          car,
+          bike,
+          truck,
+          bus,
+          auto_rickshaw,
+          ambulance
+        });
 
-          setProcessedImageUrl(annotatedUrl);
-
-          // Calculate totalUnits dynamically from the extracted numbers
-          const totalUnits = car + bike + truck + bus + auto_rickshaw + ambulance;
-          const volumeLevel = payload.congestionIndex || rawTelemetry.congestionIndex ||
-            payload.congestion_index || rawTelemetry.congestion_index ||
-            (totalUnits > 18 ? 'Heavy' : totalUnits > 8 ? 'Moderate' : 'Low');
-
-          const emergencyOverride = payload.emergencyOverride !== undefined ? payload.emergencyOverride :
-            rawTelemetry.emergencyOverride !== undefined ? rawTelemetry.emergencyOverride :
-              payload.emergency_override_triggered !== undefined ? payload.emergency_override_triggered :
-                rawTelemetry.emergency_override_triggered !== undefined ? rawTelemetry.emergency_override_triggered :
-                  (ambulance > 0);
-
-          // Append transaction to MongoDB log table
-          const newLog = {
-            id: payload.logId || payload._id || rawTelemetry.logId || rawTelemetry._id || `log-${Date.now()}`,
-            timestamp: (payload.createdAt || rawTelemetry.createdAt)
-              ? new Date(payload.createdAt || rawTelemetry.createdAt).toLocaleString('en-GB', { hour12: false }).replace(/\//g, '-')
-              : new Date().toLocaleString('en-GB', { hour12: false }).replace(/\//g, '-'),
-            location: payload.cameraLocation || rawTelemetry.cameraLocation || payload.location || rawTelemetry.location || 'Surat_Central_Junction_04',
-            volume: `${volumeLevel} (${String(totalUnits).padStart(2, '0')} Units)`,
-            override: emergencyOverride ? 'AMBULANCE_PRIORITY' : 'NONE'
-          };
-
-          setLogs((prev) => [newLog, ...prev]);
-          setIsLoading(false);
-          return;
+        // 3. Resolve Processed Image Path (Prefix local Django port 8000 if relative)
+        const imgPath = payload.processedImageUrl || payload.processed_image_url;
+        if (imgPath) {
+          setProcessedImageUrl(imgPath.startsWith('/media/') ? `http://127.0.0.1:8000${imgPath}` : imgPath);
+        } else {
+          setProcessedImageUrl(previewUrl);
         }
+
+        // 4. Prepend transaction entry to table log
+        const totalCount = car + bike + truck + bus + auto_rickshaw + ambulance;
+        const newLogEntry = {
+          id: payload.logId || `log-${Date.now()}`,
+          timestamp: new Date().toLocaleString('en-GB', { hour12: false }).replace(/\//g, '-'),
+          location: payload.cameraLocation || 'Surat_Central_Junction_04',
+          volume: `${payload.congestionIndex || 'MEDIUM'} (${String(totalCount).padStart(2, '0')} Units)`,
+          override: (payload.emergencyOverrideTriggered || ambulance > 0) ? 'AMBULANCE_PRIORITY' : 'NONE'
+        };
+
+        setLogs((prev) => [newLogEntry, ...prev]);
+        setIsLoading(false);
+      } else {
+        alert(`API Error: ${result.message || 'Failed to analyze frame'}`);
+        throw new Error("Local API connection failed, running simulated inference");
       }
-      throw new Error("Local API connection failed, running simulated inference");
     } catch (err) {
       console.log("[Node Backend Connection Failed or Unauthorized - Running High-Fidelity Simulation Fallback]", err);
 
@@ -335,7 +321,7 @@ export default function TrafficWorkspace() {
     fileInputRef.current.click();
   };
 
-  const totalVehicles = telemetry.car + telemetry.bike + telemetry.truck + telemetry.bus + telemetry.auto_rickshaw + telemetry.ambulance;
+  const totalVehicles = Number(telemetry.car || 0) + Number(telemetry.bike || 0) + Number(telemetry.truck || 0) + Number(telemetry.bus || 0) + Number(telemetry.auto_rickshaw || 0) + Number(telemetry.ambulance || 0);
   const congestionScore = Math.min(100, Math.round((totalVehicles / 30) * 100));
 
   let gaugeColor = '#00B4D8';
@@ -352,8 +338,8 @@ export default function TrafficWorkspace() {
 
   return (
     <div className={`w-full bg-[#FFFFFF] relative ${ambulanceCount > 0
-        ? 'shadow-[inset_0_0_60px_rgba(220,38,38,0.25)] border border-red-500/30 backdrop-blur-xs animate-[pulse_2.5s_ease-in-out_infinite] transition-all duration-700 ease-in-out'
-        : 'transition-all duration-700 ease-in-out'
+      ? 'shadow-[inset_0_0_60px_rgba(220,38,38,0.25)] border border-red-500/30 backdrop-blur-xs animate-[pulse_2.5s_ease-in-out_infinite] transition-all duration-700 ease-in-out'
+      : 'transition-all duration-700 ease-in-out'
       }`}>
       {/* HUD Embedded Keyframe Animations */}
       <style>{`
@@ -411,8 +397,8 @@ export default function TrafficWorkspace() {
             onMouseEnter={() => setIsHoveredUpload(true)}
             onMouseLeave={() => setIsHoveredUpload(false)}
             className={`relative flex-1 flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-6 transition-all duration-300 ${isDragActive
-                ? 'border-[#48CAE4] bg-[#CAF0F8]/50 shadow-[0_0_15px_rgba(72,202,228,0.25)]'
-                : 'border-[#00B4D8] hover:border-solid hover:border-[#48CAE4] bg-[#CAF0F8]/40 backdrop-blur-md cursor-pointer'
+              ? 'border-[#48CAE4] bg-[#CAF0F8]/50 shadow-[0_0_15px_rgba(72,202,228,0.25)]'
+              : 'border-[#00B4D8] hover:border-solid hover:border-[#48CAE4] bg-[#CAF0F8]/40 backdrop-blur-md cursor-pointer'
               }`}
           >
             <input
@@ -551,8 +537,8 @@ export default function TrafficWorkspace() {
                   type="button"
                   onClick={() => setIsYoloView(false)}
                   className={`px-3 py-1 text-[9px] font-mono font-bold rounded-full transition-all duration-300 ${!isYoloView
-                      ? 'bg-[#00B4D8] text-[#03045E] shadow-[0_0_8px_rgba(0,180,216,0.6)]'
-                      : 'bg-transparent text-[#CAF0F8] hover:bg-[#023E8A]/40'
+                    ? 'bg-[#00B4D8] text-[#03045E] shadow-[0_0_8px_rgba(0,180,216,0.6)]'
+                    : 'bg-transparent text-[#CAF0F8] hover:bg-[#023E8A]/40'
                     }`}
                 >
                   RAW FEED
@@ -561,8 +547,8 @@ export default function TrafficWorkspace() {
                   type="button"
                   onClick={() => setIsYoloView(true)}
                   className={`px-3 py-1 text-[9px] font-mono font-bold rounded-full transition-all duration-300 ${isYoloView
-                      ? 'bg-[#00B4D8] text-[#03045E] shadow-[0_0_8px_rgba(0,180,216,0.6)]'
-                      : 'bg-transparent text-[#CAF0F8] hover:bg-[#023E8A]/40'
+                    ? 'bg-[#00B4D8] text-[#03045E] shadow-[0_0_8px_rgba(0,180,216,0.6)]'
+                    : 'bg-transparent text-[#CAF0F8] hover:bg-[#023E8A]/40'
                     }`}
                 >
                   YOLO AI OVERLAY

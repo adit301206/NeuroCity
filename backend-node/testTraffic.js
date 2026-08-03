@@ -17,12 +17,18 @@ const runTrafficTest = async () => {
         const token = loginRes.data.token;
         console.log('[Test] Login successful. Token obtained.');
 
-        // 2. Prepare multipart form data with a dummy image buffer
+        // 2. Prepare multipart form data with a real image buffer
+        const fs = require('fs');
+        const path = require('path');
+        const imagePath = path.join(__dirname, '../backend-django/traffic_eye_api/assets/d5.webp');
+        if (!fs.existsSync(imagePath)) {
+            throw new Error(`Test image not found at: ${imagePath}`);
+        }
+        const imageBuffer = fs.readFileSync(imagePath);
         const form = new FormData();
-        const dummyBuffer = Buffer.from('fake-image-bytes-here');
-        form.append('traffic_image', dummyBuffer, {
-            filename: 'traffic_test.jpg',
-            contentType: 'image/jpeg'
+        form.append('traffic_image', imageBuffer, {
+            filename: 'd5.webp',
+            contentType: 'image/webp'
         });
         form.append('cameraLocation', 'Main St & Broadway Intersection');
 

@@ -4,7 +4,7 @@ import TrafficTopDeck from '../components/TrafficTopDeck';
 import TrafficWorkspace from '../components/TrafficWorkspace';
 import TrafficSimulation from '../components/TrafficSimulation';
 
-export default function TrafficEye({ onNavigate }) {
+export default function TrafficEye({ onNavigate, user, onOpenAuth, onLogout }) {
   const [activeTab, setActiveTab] = useState('analyzer');
 
   return (
