@@ -1,0 +1,358 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+:root{
+  --bg: #E0F2FE;                   /* આ એકદમ સરસ સોફ્ટ લાઇટ બ્લૂ કલર છે */
+  --panel: #022b6b;                /* કાર્ડનો કલર ડાર્ક બ્લુ એવો ને એવો જ રહેશે */
+  --panel-2: #011638;              
+  --line: rgba(14, 116, 144, 0.35); /* ગ્રીડ લાઈનોનો કલર ડાર્ક બ્લૂ કર્યો */
+  --ink: #FFFFFF;                  
+  --ink-dim: #CAF0F8;            
+  --ink-faint: #90E0EF;          
+  --signal: #00B4D8;             
+  --signal-2: #48CAE4;           
+  --pulse: #FF5B9E;              
+  --ok: #10B981;                 
+}
+
+.nuro-auth *{ box-sizing: border-box; }
+
+.nuro-auth{
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  color: #0F172A;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow: auto;
+}
+
+.nuro-auth canvas#net{
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+}
+
+.nuro-auth::before{
+  content:'';
+  position: fixed; inset:0;
+  background:
+    radial-gradient(120% 90% at 12% 8%, rgba(110,91,255,0.08), transparent 55%),
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: auto, 42px 42px, 42px 42px;
+  opacity: 0.6;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.nuro-auth .stage{
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+}
+
+@media (max-width: 880px){
+  .nuro-auth .stage{ grid-template-columns: 1fr; }
+  .nuro-auth .left{ display:none; }
+}
+
+.nuro-auth .left{
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 48px;
+}
+
+.nuro-auth .brand{
+  position: relative; z-index: 2;
+  display:flex; align-items:center; gap:12px;
+}
+
+.nuro-auth .brand-mark{
+  width:34px; height:34px; flex-shrink:0;
+}
+
+.nuro-auth .brand-name{
+  font-family:'Space Grotesk', sans-serif;
+  font-weight:600;
+  font-size: 19px;
+  letter-spacing: 0.01em;
+  color: #0F172A;
+}
+
+.nuro-auth .left-copy{
+  position: relative; z-index: 2;
+  max-width: 420px;
+}
+
+.nuro-auth .eyebrow{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #0077B6;
+  display:flex; align-items:center; gap:8px;
+  margin-bottom: 18px;
+}
+
+.nuro-auth .eyebrow .dot{
+  width:6px; height:6px; border-radius:50%;
+  background: var(--ok);
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.18);
+}
+
+.nuro-auth .left-copy h1{
+  font-family:'Space Grotesk', sans-serif;
+  font-size: 34px;
+  line-height: 1.18;
+  font-weight: 600;
+  margin: 0 0 14px;
+  letter-spacing: -0.01em;
+  color: #03045E;
+}
+
+.nuro-auth .left-copy p{
+  color: #475569;
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.nuro-auth .stat-row{
+  position: relative; z-index: 2;
+  display:flex; gap: 34px;
+  font-family:'IBM Plex Mono', monospace;
+}
+
+.nuro-auth .stat-row div span.n{
+  display:block;
+  font-size: 20px;
+  color: #03045E;
+  font-weight: 500;
+}
+.nuro-auth .stat-row div span.l{
+  display:block;
+  font-size: 11px;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 4px;
+}
+
+.nuro-auth .right{
+  display:flex; align-items:center; justify-content:center;
+  padding: 40px 32px;
+  position: relative;
+  z-index: 1;
+}
+
+.nuro-auth .form-wrap{
+  width: 100%;
+  max-width: 380px;
+  background: var(--panel); /* તમારું ડાર્ક બ્લુ કાર્ડ */
+  border: 1px solid rgba(72, 202, 228, 0.4);
+  border-radius: 18px;
+  padding: 36px 34px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 20px 60px -20px rgba(0,0,0,0.2);
+  color: var(--ink);
+}
+
+.nuro-auth .form-head{
+  margin-bottom: 32px;
+}
+
+.nuro-auth .form-head .tag{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 10px;
+}
+
+.nuro-auth .form-head h2{
+  font-family:'Space Grotesk', sans-serif;
+  font-size: 26px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  color: var(--ink);
+}
+
+.nuro-auth .form-head p{
+  color: var(--ink-dim);
+  font-size: 14px;
+  margin:0;
+}
+
+.nuro-auth .form-head p a{ color: var(--signal-2); text-decoration:none; background:none; border:none; cursor:pointer; font-size: inherit; font-family: inherit; padding:0; }
+.nuro-auth .form-head p a:hover{ text-decoration: underline; }
+
+.nuro-auth form{ display:flex; flex-direction:column; gap: 18px; margin-top: 28px; }
+
+.nuro-auth .field label{
+  display:block;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-dim);
+  margin-bottom: 7px;
+}
+
+.nuro-auth .field .input-row{
+  position: relative;
+  display:flex; align-items:center;
+}
+
+.nuro-auth .field input{
+  width: 100%;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 40px 12px 13px;
+  color: var(--ink);
+  font-size: 14.5px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+}
+
+.nuro-auth .field input::placeholder{ color: var(--ink-faint); }
+
+.nuro-auth .field input:focus{
+  border-color: var(--signal);
+  box-shadow: 0 0 0 3px rgba(110,91,255,0.16);
+  background: #021a38;
+}
+
+.nuro-auth .field .icon{
+  position:absolute; right:13px;
+  width:16px; height:16px;
+  color: var(--ink-faint);
+  pointer-events:none;
+}
+
+.nuro-auth .toggle-pass{
+  position:absolute; right:11px;
+  background:none; border:none; cursor:pointer;
+  padding:4px;
+  color: var(--ink-faint);
+  display:flex;
+}
+.nuro-auth .toggle-pass:hover{ color: var(--ink-dim); }
+.nuro-auth .toggle-pass svg{ width:16px; height:16px; }
+
+.nuro-auth .row-between{
+  display:flex; align-items:center; justify-content: space-between;
+  font-size: 13px;
+  margin-top: -4px;
+}
+
+.nuro-auth .remember{
+  display:flex; align-items:center; gap: 8px;
+  color: var(--ink-dim);
+  cursor:pointer;
+  user-select:none;
+}
+
+.nuro-auth .remember input{
+  appearance:none; -webkit-appearance:none;
+  width:16px; height:16px;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  cursor:pointer;
+  position: relative;
+  flex-shrink:0;
+}
+.nuro-auth .remember input:checked{
+  background: var(--signal);
+  border-color: var(--signal);
+}
+.nuro-auth .remember input:checked::after{
+  content:'';
+  position:absolute; left:5px; top:2px;
+  width:4px; height:8px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(40deg);
+}
+
+.nuro-auth .row-between a{ color: var(--signal-2); text-decoration:none; }
+.nuro-auth .row-between a:hover{ text-decoration: underline; }
+
+.nuro-auth button.submit{
+  margin-top: 6px;
+  background: var(--signal);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 13px 16px;
+  font-size: 14.5px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  transition: background .15s ease, transform .05s ease, box-shadow .15s ease;
+}
+.nuro-auth button.submit:hover{ background: var(--signal-2); box-shadow: 0 4px 22px -4px rgba(0,180,216,0.55); }
+.nuro-auth button.submit:active{ transform: translateY(1px); }
+.nuro-auth button.submit:disabled{ opacity: 0.7; cursor: default; }
+
+.nuro-auth button.submit svg{ width:15px; height:15px; transition: transform .15s ease; }
+.nuro-auth button.submit:hover svg{ transform: translateX(3px); }
+
+.nuro-auth .foot-note{
+  margin-top: 28px;
+  text-align:center;
+  font-size: 12.5px;
+  color: var(--ink-faint);
+}
+.nuro-auth .foot-note a{ color: var(--ink-dim); text-decoration:none; }
+.nuro-auth .foot-note a:hover{ text-decoration: underline; }
+
+.nuro-auth .err{
+  display:none;
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--pulse);
+  background: rgba(255,91,158,0.08);
+  border: 1px solid rgba(255,91,158,0.25);
+  padding: 9px 11px;
+  border-radius: 7px;
+  margin-top: -4px;
+}
+.nuro-auth .err.show{ display:block; }
+
+@media (prefers-reduced-motion: reduce){
+  .nuro-auth * { animation: none !important; transition: none !important; }
+}
+
+/* Back to Home Button Style */
+.nuro-auth .back-home-btn {
+  width: 100%;
+  margin-top: 14px;
+  background: transparent;
+  border: 1px dashed var(--line);
+  color: var(--signal-2);
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 13.5px;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.nuro-auth .back-home-btn:hover {
+  background: rgba(72, 202, 228, 0.08);
+  border-color: var(--signal);
+  color: var(--ink);
+}

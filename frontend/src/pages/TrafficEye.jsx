@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Navbar from '../components/Navbar';
 import TrafficHero from '../components/TrafficHero';
 import TrafficTopDeck from '../components/TrafficTopDeck';
 import TrafficWorkspace from '../components/TrafficWorkspace';
@@ -10,9 +9,7 @@ export default function TrafficEye({ onNavigate }) {
 
   return (
     <div className={`min-h-screen transition-colors duration-500 ${activeTab === 'analyzer' ? 'bg-white text-slate-900' : 'bg-[#F8FAFC]'}`}>
-      {/* Global Floating Navbar - Only visible on Analyzer deck */}
-      {activeTab === 'analyzer' && <Navbar activeTab="traffic-eye" onNavigate={onNavigate} />}
-
+      
       {/* Dynamic View Rendering */}
       <main className="w-full">
         {activeTab === 'analyzer' ? (
