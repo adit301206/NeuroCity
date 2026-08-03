@@ -1,9 +1,6 @@
-import React, { useState } from 'react';
-import { ChevronDown, Shield, Settings, LogOut, Terminal, UserCheck, KeyRound } from 'lucide-react';
+import React from 'react';
 
-export default function Navbar({ onNavigate, activeTab, user, onOpenAuth, onLogout }) {
-  const [profileOpen, setProfileOpen] = useState(false);
-
+export default function Navbar({ onNavigate, activeTab }) {
   const links = [
     { id: 'global-hub', label: 'Global Hub' },
     { id: 'traffic-eye', label: 'Traffic Eye' },
@@ -28,13 +25,11 @@ export default function Navbar({ onNavigate, activeTab, user, onOpenAuth, onLogo
           className="overflow-visible"
         >
           <defs>
-            {/* Seamless Linear Gradient across typography footprint */}
             <linearGradient id="brand-grad" x1="10" y1="0" x2="200" y2="0" gradientUnits="userSpaceOnUse">
               <stop offset="0%" stopColor="#FFFFFF" />
               <stop offset="100%" stopColor="#48CAE4" />
             </linearGradient>
 
-            {/* Luminous Glow Filter for neural filaments & diamond core */}
             <filter id="node-glow" x="-50%" y="-50%" width="200%" height="200%">
               <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="blur1" />
               <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur2" />
@@ -46,7 +41,6 @@ export default function Navbar({ onNavigate, activeTab, user, onOpenAuth, onLogo
             </filter>
           </defs>
 
-          {/* Infrastructure Pipelines flowing asynchronously underneath */}
           <path
             d="M 22 24 C 60 31, 100 31, 150 27 C 170 25, 190 29, 215 29"
             stroke="#48CAE4"
@@ -64,24 +58,17 @@ export default function Navbar({ onNavigate, activeTab, user, onOpenAuth, onLogo
             className="animate-pulse"
           />
 
-          {/* Capital 'N' Hybrid Element */}
           <g>
-            {/* Solid vertical stems */}
             <rect x="10" y="8" width="4.5" height="20" rx="0.75" fill="url(#brand-grad)" />
             <rect x="25.5" y="8" width="4.5" height="20" rx="0.75" fill="url(#brand-grad)" />
-
-            {/* Diagonal spine dissolving into neural node filaments */}
             <line x1="14.5" y1="9.5" x2="25.5" y2="26.5" stroke="#48CAE4" strokeWidth="1.2" opacity="0.7" className="animate-pulse" filter="url(#node-glow)" />
             <line x1="14.5" y1="14.5" x2="21" y2="24.5" stroke="#48CAE4" strokeWidth="0.8" opacity="0.5" className="animate-pulse" />
             <line x1="19.5" y1="11.5" x2="25.5" y2="21.5" stroke="#48CAE4" strokeWidth="0.8" opacity="0.5" className="animate-pulse" />
-
-            {/* Pulsing Neural Vertices */}
             <circle cx="17.5" cy="14" r="1.75" fill="#48CAE4" className="animate-pulse" filter="url(#node-glow)" />
             <circle cx="21" cy="19.5" r="1.25" fill="#FFFFFF" className="animate-pulse" />
             <circle cx="23.5" cy="23.5" r="1.75" fill="#48CAE4" className="animate-pulse" filter="url(#node-glow)" />
           </g>
 
-          {/* Explicit Text Layout with Kerned Alignment for "CITY" */}
           <g>
             <text
               y="26"
@@ -91,24 +78,16 @@ export default function Navbar({ onNavigate, activeTab, user, onOpenAuth, onLogo
               fontSize="20"
               style={{ letterSpacing: '0.12em' }}
             >
-              {/* EURO segment */}
               <tspan x="34">E</tspan>
               <tspan x="53">U</tspan>
               <tspan x="72">R</tspan>
               <tspan x="91">O</tspan>
-
-              {/* CITY segment with custom kerned offsets */}
               <tspan x="110">C</tspan>
-
-              {/* 'I' stem sits closer to 'C' (offset from 110 is 16px instead of standard 19px) */}
               <tspan x="126" style={{ letterSpacing: '0.06em' }}>I</tspan>
-
-              {/* 'T' and 'Y' positioned cleanly */}
               <tspan x="135">T</tspan>
               <tspan x="154">Y</tspan>
             </text>
 
-            {/* 'I' dot core - glowing diamond-vertex positioned manually over the 'I' stem */}
             <polygon
               points="128.25,5.5 131.25,8.5 128.25,11.5 125.25,8.5"
               fill="#48CAE4"
@@ -129,118 +108,39 @@ export default function Navbar({ onNavigate, activeTab, user, onOpenAuth, onLogo
               onClick={() => onNavigate && onNavigate(link.id)}
               className="relative py-1 text-sm font-medium tracking-wide transition-all duration-300 cursor-pointer group"
             >
-              <span className={`transition-colors duration-300 ${isActive ? 'text-[#48CAE4] font-semibold' : 'text-[#CAF0F8]/70 group-hover:text-[#48CAE4]'
-                }`}>
+              <span className={`transition-colors duration-300 ${isActive ? 'text-[#48CAE4] font-semibold' : 'text-[#CAF0F8]/70 group-hover:text-[#48CAE4]'}`}>
                 {link.label}
               </span>
 
-              {/* Micro dot indicator beam */}
-              <span className={`absolute bottom-[-8px] left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-[#48CAE4] rounded-full transition-all duration-300 shadow-[0_0_8px_#48CAE4] ${isActive ? 'scale-100 opacity-100' : 'scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100'
-                }`}></span>
+              <span className={`absolute bottom-[-8px] left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-[#48CAE4] rounded-full transition-all duration-300 shadow-[0_0_8px_#48CAE4] ${isActive ? 'scale-100 opacity-100' : 'scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100'}`}></span>
             </button>
           );
         })}
       </div>
 
-      {/* Right Side - Operational Status & Profile Deck */}
-      <div className="flex items-center gap-5">
-        
-        {/* System Status Ping Widget */}
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#023E8A]/40 border border-[#0077B6]/30">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_#10B981]"></span>
-          </span>
-          <span className="font-mono text-[10px] tracking-wider text-[#CAF0F8]/80 font-medium">
-            SYS_STATUS: <span className="text-emerald-400">ACTIVE</span>
-          </span>
-        </div>
+      {/* Right Side - Auth Buttons Only */}
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => onNavigate && onNavigate('login')}
+          className={`px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+            activeTab === 'login' 
+              ? 'bg-white text-[#03045E] font-semibold shadow-[0_0_10px_rgba(255,255,255,0.4)]' 
+              : 'bg-[#48CAE4] text-[#03045E] hover:bg-[#90E0EF] shadow-[0_0_10px_rgba(72,202,228,0.2)]'
+          }`}
+        >
+          Login
+        </button>
 
-        {/* Profile Deck or Login Trigger Button */}
-        {user ? (
-          <div className="relative">
-            <div 
-              onClick={() => setProfileOpen(!profileOpen)}
-              className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-[#023E8A]/60 border border-[#0077B6]/60 cursor-pointer group hover:border-[#48CAE4] transition-all"
-            >
-              {/* Avatar Container with Cyan Ring */}
-              <div className="w-7 h-7 rounded-lg border border-[#48CAE4] overflow-hidden bg-[#0077B6] flex items-center justify-center text-[#48CAE4] shadow-[0_0_8px_rgba(72,202,228,0.3)]">
-                <UserCheck className="w-4 h-4 text-white" />
-              </div>
-              <div className="flex flex-col text-left font-mono">
-                <span className="text-xs font-bold text-white tracking-tight truncate max-w-[110px]">
-                  {user.name}
-                </span>
-                <span className="text-[9px] text-[#48CAE4] uppercase tracking-wider">
-                  [ {user.role || 'citizen'} ]
-                </span>
-              </div>
-              <ChevronDown 
-                className={`w-3.5 h-3.5 text-[#CAF0F8]/80 transition-transform duration-300 group-hover:text-white ${
-                  profileOpen ? 'rotate-180' : ''
-                }`}
-              />
-            </div>
-
-            {/* Interactive Dropdown Menu */}
-            {profileOpen && (
-              <>
-                <div 
-                  className="fixed inset-0 z-40" 
-                  onClick={() => setProfileOpen(false)}
-                />
-                
-                <div className="absolute right-0 mt-3 w-56 rounded-xl bg-[#023E8A] border border-[#0077B6] shadow-[0_10px_25px_rgba(3,4,94,0.6),0_0_15px_rgba(72,202,228,0.1)] p-1.5 z-50 animate-[fadeIn_0.2s_ease-out] text-[#CAF0F8]">
-                  <div className="px-3 py-2 border-b border-[#0077B6]/40 text-xs font-mono text-[#CAF0F8]/70">
-                    <div className="text-[10px] text-[#48CAE4] uppercase">CLEARANCE LEVEL</div>
-                    <div className="font-bold text-white text-xs mt-0.5">{user.email}</div>
-                  </div>
-
-                  <button 
-                    onClick={() => { setProfileOpen(false); }}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-[#0077B6]/40 hover:text-white transition-all text-left mt-1 cursor-pointer"
-                  >
-                    <Shield className="w-4 h-4 text-[#48CAE4]" />
-                    <span>Security Console</span>
-                  </button>
-                  <button 
-                    onClick={() => { setProfileOpen(false); }}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-[#0077B6]/40 hover:text-white transition-all text-left cursor-pointer"
-                  >
-                    <Settings className="w-4 h-4 text-[#48CAE4]" />
-                    <span>Platform Config</span>
-                  </button>
-                  <button 
-                    onClick={() => { setProfileOpen(false); }}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-[#0077B6]/40 hover:text-white transition-all text-left cursor-pointer"
-                  >
-                    <Terminal className="w-4 h-4 text-[#48CAE4]" />
-                    <span>Logs Terminal</span>
-                  </button>
-                  
-                  <div className="h-px bg-[#0077B6]/40 my-1" />
-                  
-                  <button 
-                    onClick={() => { setProfileOpen(false); onLogout && onLogout(); }}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-rose-500/20 hover:text-rose-300 transition-all text-left text-rose-400 cursor-pointer"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span>Disconnect Session</span>
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        ) : (
-          <button
-            onClick={() => onOpenAuth ? onOpenAuth() : (onNavigate && onNavigate('auth'))}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#0077B6] to-[#0096C7] border border-[#48CAE4]/50 text-white font-mono text-xs font-bold tracking-wider hover:from-[#0096C7] hover:to-[#48CAE4] transition-all shadow-[0_0_15px_rgba(72,202,228,0.25)] cursor-pointer"
-          >
-            <KeyRound className="w-4 h-4 text-[#CAF0F8]" />
-            <span>SIGN IN / REGISTER</span>
-          </button>
-        )}
-
+        <button
+          onClick={() => onNavigate && onNavigate('signup')}
+          className={`px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+            activeTab === 'signup' 
+              ? 'bg-white text-[#03045E] font-semibold shadow-[0_0_10px_rgba(255,255,255,0.4)]' 
+              : 'bg-[#48CAE4] text-[#03045E] hover:bg-[#90E0EF] shadow-[0_0_10px_rgba(72,202,228,0.2)]'
+          }`}
+        >
+          Sign Up
+        </button>
       </div>
     </nav>
   );

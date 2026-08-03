@@ -886,18 +886,6 @@ export default function TrafficSimulation({ onBackToAnalyzer, onNavigate }) {
         <div className="absolute inset-0 bg-red-600 animate-emergency-glow pointer-events-none z-0" />
       )}
 
-      {/* Floating Pill Navbar */}
-      <Navbar
-        activeTab="Traffic Eye"
-        onNavigate={(targetId) => {
-          if (targetId === 'Traffic Eye' || targetId === 'traffic-eye') {
-            onBackToAnalyzer?.();
-          } else {
-            onNavigate?.(targetId);
-          }
-        }}
-      />
-
       {/* Main Simulation Container */}
       <main className="w-full max-w-7xl mx-auto px-6 mt-8 lg:mt-10">
         <div className="relative z-10 bg-[#03045E] p-6 lg:p-8 rounded-3xl border border-[#00B4D8]/50 shadow-[0_25px_60px_rgba(3,4,94,0.35)] space-y-6">
