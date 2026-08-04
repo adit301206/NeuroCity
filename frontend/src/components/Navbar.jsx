@@ -1,12 +1,32 @@
 import React from 'react';
 
-export default function Navbar({ onNavigate, activeTab }) {
+export default function Navbar({ onNavigate, activeTab, currentUser, onLogout }) {
   const links = [
     { id: 'global-hub', label: 'Global Hub' },
     { id: 'traffic-eye', label: 'Traffic Eye' },
     { id: 'energy-sentinel', label: 'Energy Sentinel' },
     { id: 'citizen-desk', label: 'Citizen Desk' },
   ];
+
+  const user = currentUser || (() => {
+    try {
+      const saved = localStorage.getItem('user');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      return null;
+    }
+  })();
+
+  const handleLogoutClick = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    if (onLogout) {
+      onLogout();
+    }
+    if (onNavigate) {
+      onNavigate('login');
+    }
+  };
 
   return (
     <nav className="mx-6 mt-4 p-4 rounded-2xl bg-[#03045E]/95 backdrop-blur-md border border-[#48CAE4]/30 shadow-[0_10px_30px_rgba(3,4,94,0.3),0_0_25px_rgba(72,202,228,0.15)] flex items-center justify-between select-none relative z-50">
@@ -118,29 +138,55 @@ export default function Navbar({ onNavigate, activeTab }) {
         })}
       </div>
 
-      {/* Right Side - Auth Buttons Only */}
+      {/* Right Side - Auth or User Profile */}
       <div className="flex items-center gap-3">
-        <button
-          onClick={() => onNavigate && onNavigate('login')}
-          className={`px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-            activeTab === 'login' 
-              ? 'bg-white text-[#03045E] font-semibold shadow-[0_0_10px_rgba(255,255,255,0.4)]' 
-              : 'bg-[#48CAE4] text-[#03045E] hover:bg-[#90E0EF] shadow-[0_0_10px_rgba(72,202,228,0.2)]'
-          }`}
-        >
-          Login
-        </button>
+        {user ? (
+          <div className="flex items-center gap-3.5 text-white">
+            <div className="flex flex-col items-end">
+              <span className="text-sm font-semibold text-[#CAF0F8]">
+                {user.name || user.email}
+              </span>
+              <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider ${
+                user.role === 'admin' 
+                  ? 'bg-red-500/20 text-red-300 border border-red-500/30' 
+                  : 'bg-[#48CAE4]/20 text-[#90E0EF] border border-[#48CAE4]/30'
+              }`}>
+                {user.role || 'citizen'}
+              </span>
+            </div>
+            
+            <button
+              onClick={handleLogoutClick}
+              className="px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer bg-red-600 hover:bg-red-500 text-white shadow-[0_0_10px_rgba(220,38,38,0.2)]"
+            >
+              Logout
+            </button>
+          </div>
+        ) : (
+          <>
+            <button
+              onClick={() => onNavigate && onNavigate('login')}
+              className={`px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+                activeTab === 'login' 
+                  ? 'bg-white text-[#03045E] font-semibold shadow-[0_0_10px_rgba(255,255,255,0.4)]' 
+                  : 'bg-[#48CAE4] text-[#03045E] hover:bg-[#90E0EF] shadow-[0_0_10px_rgba(72,202,228,0.2)]'
+              }`}
+            >
+              Login
+            </button>
 
-        <button
-          onClick={() => onNavigate && onNavigate('signup')}
-          className={`px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-            activeTab === 'signup' 
-              ? 'bg-white text-[#03045E] font-semibold shadow-[0_0_10px_rgba(255,255,255,0.4)]' 
-              : 'bg-[#48CAE4] text-[#03045E] hover:bg-[#90E0EF] shadow-[0_0_10px_rgba(72,202,228,0.2)]'
-          }`}
-        >
-          Sign Up
-        </button>
+            <button
+              onClick={() => onNavigate && onNavigate('signup')}
+              className={`px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+                activeTab === 'signup' 
+                  ? 'bg-white text-[#03045E] font-semibold shadow-[0_0_10px_rgba(255,255,255,0.4)]' 
+                  : 'bg-[#48CAE4] text-[#03045E] hover:bg-[#90E0EF] shadow-[0_0_10px_rgba(72,202,228,0.2)]'
+              }`}
+            >
+              Sign Up
+            </button>
+          </>
+        )}
       </div>
     </nav>
   );

@@ -3,8 +3,10 @@ const router = express.Router();
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
+const JWT_SECRET = process.env.JWT_SECRET || 'neurocity_jwt_secret_key_2026';
+
 const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    return jwt.sign({ id }, JWT_SECRET, { expiresIn: '7d' });
 };
 
 router.post('/register', async (req, res) => {
@@ -40,15 +42,18 @@ router.post('/register', async (req, res) => {
         
         await user.save();
         
+        const userData = { 
+            id: user._id, 
+            name: user.name, 
+            email: user.email, 
+            role: user.role 
+        };
+        
         res.status(201).json({
             status: "success",
             token: generateToken(user._id),
-            user: { 
-                id: user._id, 
-                name: user.name, 
-                email: user.email, 
-                role: user.role 
-            }
+            user: userData,
+            data: userData
         });
     } catch (error) {
         if (error.name === 'ValidationError') {
@@ -73,15 +78,18 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ status: "fail", message: 'Invalid credentials' });
         }
         
+        const userData = { 
+            id: user._id, 
+            name: user.name, 
+            email: user.email, 
+            role: user.role 
+        };
+        
         res.json({
             status: "success",
             token: generateToken(user._id),
-            user: { 
-                id: user._id, 
-                name: user.name, 
-                email: user.email, 
-                role: user.role 
-            }
+            user: userData,
+            data: userData
         });
     } catch (error) {
         res.status(500).json({ status: "error", message: error.message });

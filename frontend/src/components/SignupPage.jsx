@@ -7,7 +7,7 @@ import './auth.css';
 //   onSignupSuccess()  -> called after a successful signup
 //   onSwitchToLogin()  -> called when the user clicks "Sign in"
 //   onBackToHome()     -> called when the user clicks "Back to Home"
-export default function SignupPage({ onSignupSuccess, onSwitchToLogin, onBackToHome, onNavigate, activeTab }) {
+export default function SignupPage({ onSignupSuccess, onSwitchToLogin, onBackToHome, onNavigate, activeTab, currentUser, onLogout }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('citizen');
@@ -40,12 +40,24 @@ export default function SignupPage({ onSignupSuccess, onSwitchToLogin, onBackToH
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password, role })
       });
-      const data = await res.json();
+      
+      let data = {};
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        // Fallback for non-JSON or empty response
+      }
 
-      if (res.ok && data.token) {
+      if (res.status === 201 && data.token) {
         localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.data));
-        onSignupSuccess && onSignupSuccess(data.data);
+        const userObj = data.user || data.data;
+        localStorage.setItem('user', JSON.stringify(userObj));
+        onSignupSuccess && onSignupSuccess(userObj);
+        if (onNavigate) {
+          onNavigate('home');
+        } else if (onBackToHome) {
+          onBackToHome();
+        }
       } else {
         setError(data.message || 'Registration failed');
       }
@@ -73,7 +85,7 @@ export default function SignupPage({ onSignupSuccess, onSwitchToLogin, onBackToH
 
   return (
     <div className="nuro-auth">
-      <Navbar activeTab={activeTab || 'signup'} onNavigate={handleNav} />
+      <Navbar activeTab={activeTab || 'signup'} onNavigate={handleNav} currentUser={currentUser} onLogout={onLogout} />
       <NetworkBackground />
 
       <div className="stage">
