@@ -6,6 +6,10 @@ const EnergyLogSchema = new mongoose.Schema({
         required: [true, 'Please provide the region zone code'],
         trim: true
     },
+    city: {
+        type: String,
+        default: 'Surat'
+    },
     temperature: {
         type: Number,
         required: [true, 'Temperature metric is required']
@@ -14,6 +18,18 @@ const EnergyLogSchema = new mongoose.Schema({
         type: Number,
         required: [true, 'Humidity metric is required']
     },
+    windSpeed: {
+        type: Number,
+        default: 0
+    },
+    hour: {
+        type: Number,
+        default: 12
+    },
+    month: {
+        type: Number,
+        default: 6
+    },
     predictedLoadMW: {
         type: Number,
         required: [true, 'Predicted load in megawatts is required']
@@ -21,7 +37,7 @@ const EnergyLogSchema = new mongoose.Schema({
     gridStatus: {
         type: String,
         required: [true, 'Grid status classification is required'],
-        enum: ['NORMAL', 'STRESSED', 'CRITICAL'],
+        enum: ['NORMAL', 'STRESSED', 'CRITICAL', 'STABLE', 'MODERATE_HIGH', 'CRITICAL_PEAK'],
         default: 'NORMAL'
     },
     checkedBy: {

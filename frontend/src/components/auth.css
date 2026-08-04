@@ -23,6 +23,9 @@
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow: auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 .nuro-auth canvas#net{
@@ -355,4 +358,72 @@
   background: rgba(72, 202, 228, 0.08);
   border-color: var(--signal);
   color: var(--ink);
+}
+
+/* Social Auth & Divider */
+.nuro-auth .auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 18px 0;
+  color: rgba(144, 224, 239, 0.6);
+  font-size: 11px;
+  font-family: monospace;
+}
+.nuro-auth .auth-divider::before, .nuro-auth .auth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid rgba(0, 119, 182, 0.3);
+}
+.nuro-auth .auth-divider:not(:empty)::before {
+  margin-right: .5em;
+}
+.nuro-auth .auth-divider:not(:empty)::after {
+  margin-left: .5em;
+}
+
+.nuro-auth .google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(72, 202, 228, 0.3);
+  border-radius: 8px;
+  color: #CAF0F8;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.nuro-auth .google-btn:hover {
+  background: rgba(0, 119, 182, 0.2);
+  border-color: #48CAE4;
+  box-shadow: 0 0 10px rgba(72, 202, 228, 0.25);
+}
+
+/* Custom Role Toggle Cards */
+.nuro-auth .role-picker {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.nuro-auth .role-card {
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: monospace;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Navbar positioning inside auth pages */
+.nuro-auth nav {
+  position: relative;
+  z-index: 50;
 }
