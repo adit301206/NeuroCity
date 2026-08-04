@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import Navbar from './components/Navbar.jsx';
 import TrafficEye from './pages/TrafficEye.jsx';
 import EnergySentinel from './components/EnergySentinel.jsx';
-import LoginPage from './components/LoginPage.jsx';     // તમારો લૉગિન પેજ કમ્પોનન્ટ
-import SignupPage from './components/SignupPage.jsx';   // તમારો સાઇનઅપ પેજ કમ્પોનન્ટ
-import NetworkBackground from './components/NetworkBackground.jsx'; // બેકગ્રાઉન્ડ એનિમેશન
-import './components/auth.css'; // ઓથેન્ટિકેશન માટેની CSS ફાઇલ
+import CitizenDesk from './pages/CitizenDesk.jsx'; // Make sure the path matches your folder structure
+import LoginPage from './components/LoginPage.jsx';     
+import SignupPage from './components/SignupPage.jsx';   
+import NetworkBackground from './components/NetworkBackground.jsx'; 
+import './components/auth.css'; 
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('global-hub');
@@ -29,12 +30,12 @@ export default function App() {
 
   const handleLoginSuccess = (userData) => {
     setUser(userData);
-    setActiveTab('global-hub');
+    setActiveTab('citizen-desk');
   };
 
   const handleSignupSuccess = (userData) => {
     setUser(userData);
-    setActiveTab('global-hub');
+    setActiveTab('citizen-desk');
   };
 
   return (
@@ -62,13 +63,17 @@ export default function App() {
         {activeTab === 'traffic-eye' && <TrafficEye />}
         {activeTab === 'energy-sentinel' && <EnergySentinel />}
         
+        {/* Render CitizenDesk Component */}
         {activeTab === 'citizen-desk' && (
-          <div className="p-8 text-center text-[#03045E] font-bold text-xl">
-            Citizen Desk Portal
-          </div>
+          <CitizenDesk
+            onNavigate={(tab) => setActiveTab(tab)}
+            user={user}
+            onOpenAuth={() => setActiveTab('login')}
+            onLogout={handleLogout}
+          />
         )}
 
-        {/* લૉગિન પેજ */}
+        {/* Login Page */}
         {activeTab === 'login' && (
           <LoginPage 
             onLoginSuccess={handleLoginSuccess}
@@ -79,7 +84,7 @@ export default function App() {
           />
         )}
 
-        {/* સાઇનઅપ પેજ */}
+        {/* Signup Page */}
         {activeTab === 'signup' && (
           <SignupPage 
             onSignupSuccess={handleSignupSuccess}

@@ -1,72 +1,63 @@
-import React, { useState } from 'react';
-import Navbar from '../components/Navbar';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Shield, AlertTriangle, CheckCircle2, Clock, Send, Sparkles, MapPin,
-  User, FileText, Filter, Zap, Activity, RefreshCw, Layers, Radio, Check, Lock, KeyRound
+  User, FileText, Filter, Zap, Activity, RefreshCw, Layers, Radio, Check, Lock, KeyRound, ChevronDown
 } from 'lucide-react';
 
 export default function CitizenDesk({ onNavigate, user, onOpenAuth, onLogout }) {
   const [complaintText, setComplaintText] = useState('');
-  const [ward, setWard] = useState('Ward 4 - Ring Road');
+  const [selectedCity, setSelectedCity] = useState('Surat');
+  const [customCity, setCustomCity] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [aiResult, setAiResult] = useState(null);
   const [ticketFilter, setTicketFilter] = useState('all');
+  const [tickets, setTickets] = useState([]);
+  const [loadingTickets, setLoadingTickets] = useState(false);
 
-  // Initial Seed Tickets with Reporter Email bindings
-  const [tickets, setTickets] = useState([
-    {
-      id: 'TKN-9401',
-      title: 'Exposed live electrical cable leaking sparks near school gate',
-      category: 'Electrical_Hazard',
-      priority: 3,
-      priorityLabel: 'Priority 3 - High',
-      department: 'Electrical Grid Command',
-      ward: 'Ward 4 - Ring Road',
-      timestamp: '10 mins ago',
-      status: 'Urgent',
-      reporter: 'Citizen Observer',
-      reporterEmail: 'citizen@neurocity.gov'
-    },
-    {
-      id: 'TKN-9388',
-      title: 'Severe water logging blocking emergency ambulance access under flyover',
-      category: 'Water_Logging',
-      priority: 2,
-      priorityLabel: 'Priority 2 - Medium',
-      department: 'Drainage & Municipal Works',
-      ward: 'Ward 12 - Central Hub',
-      timestamp: '28 mins ago',
-      status: 'In Progress',
-      reporter: 'Priya Sharma',
-      reporterEmail: 'priya@neurocity.gov'
-    },
-    {
-      id: 'TKN-9365',
-      title: 'Deep pothole structural damage on fast lane near junction signal',
-      category: 'Road_Repair',
-      priority: 2,
-      priorityLabel: 'Priority 2 - Medium',
-      department: 'Road Maintenance Dept',
-      ward: 'Ward 8 - Majura Gate',
-      timestamp: '1 hour ago',
-      status: 'In Progress',
-      reporter: 'Traffic Operator',
-      reporterEmail: 'operator@neurocity.gov'
-    },
-    {
-      id: 'TKN-9310',
-      title: 'Street light array failure creating dark zone on pedestrian walkway',
-      category: 'Public_Safety',
-      priority: 1,
-      priorityLabel: 'Priority 1 - Low',
-      department: 'Municipal Lighting Cell',
-      ward: 'Ward 4 - Ring Road',
-      timestamp: '3 hours ago',
-      status: 'Resolved',
-      reporter: 'Citizen Observer',
-      reporterEmail: 'citizen@neurocity.gov'
-    }
-  ]);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []);
+
+  // Retrieve complaints from live API on load/user login
+  useEffect(() => {
+    const fetchTickets = async () => {
+      if (!user) {
+        setTickets([]);
+        return;
+      }
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      setLoadingTickets(true);
+      try {
+        const res = await fetch('/api/complaints/all', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        const result = await res.json();
+        if (res.ok && result.status === 'success') {
+          setTickets(result.data || []);
+        }
+      } catch (err) {
+        console.error('Error fetching tickets from MongoDB Atlas:', err);
+      } finally {
+        setLoadingTickets(false);
+      }
+    };
+
+    fetchTickets();
+  }, [user]);
 
   // Sample Preset Complaints for 1-Click Testing
   const samplePresets = [
@@ -119,62 +110,73 @@ export default function CitizenDesk({ onNavigate, user, onOpenAuth, onLogout }) 
     if (user.role === 'admin') return;
     if (!complaintText.trim()) return;
 
+    const finalCityLocation = selectedCity === 'Other...' ? customCity.trim() : selectedCity;
+    if (!finalCityLocation) {
+      alert('Please type a valid city name.');
+      return;
+    }
+
     setIsSubmitting(true);
     setAiResult(null);
 
-    let category = 'Public_Safety';
+    const token = localStorage.getItem('token');
 
-    // Attempt Django microservice backend call
     try {
-      const response = await fetch('http://localhost:8000/api/complaints/triage/', {
+      const response = await fetch('/api/complaints/submit', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ description: complaintText })
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          title: complaintText.split('.').slice(0, 1).join('.').substring(0, 80) || 'Complaint Request',
+          description: complaintText,
+          location: finalCityLocation,
+          ward: finalCityLocation,
+          isNearCriticalNode: false
+        })
       });
-      const data = await response.json();
-      if (response.ok && data.predicted_category) {
-        category = data.predicted_category;
+
+      const resData = await response.json();
+      if (response.ok && resData.status === 'success') {
+        const ticket = resData.data;
+        const details = getCategoryDetails(ticket.category);
+        
+        setAiResult({
+          category: ticket.category,
+          categoryFormatted: ticket.category.replace(/_/g, ' '),
+          priority: ticket.priority,
+          priorityLabel: details.label,
+          department: details.dept,
+          confidence: '98.4%',
+          inferenceTime: '0.012s'
+        });
+
+        setTickets(prev => [ticket, ...prev]);
+        setComplaintText('');
+        if (selectedCity === 'Other...') {
+          setCustomCity('');
+        }
       } else {
-        category = inferLocalCategory(complaintText);
+        alert(resData.message || 'Submission failed');
       }
     } catch (err) {
-      console.warn('Django ML API offline. Using local AI Triage Inference engine:', err);
-      category = inferLocalCategory(complaintText);
-    }
-
-    const details = getCategoryDetails(category);
-
-    setTimeout(() => {
-      const resultObj = {
-        category: category,
+      console.error('Error submitting ticket:', err);
+      // Fallback local processing
+      const category = inferLocalCategory(complaintText);
+      const details = getCategoryDetails(category);
+      setAiResult({
+        category,
         categoryFormatted: category.replace(/_/g, ' '),
         priority: details.priority,
         priorityLabel: details.label,
         department: details.dept,
-        confidence: '98.4%',
-        inferenceTime: '0.012s'
-      };
-
-      setAiResult(resultObj);
-
-      const newTicket = {
-        id: `TKN-${Math.floor(1000 + Math.random() * 9000)}`,
-        title: complaintText,
-        category: category,
-        priority: details.priority,
-        priorityLabel: details.label,
-        department: details.dept,
-        ward: ward,
-        timestamp: 'Just now',
-        status: details.priority === 3 ? 'Urgent' : 'In Progress',
-        reporter: user.name,
-        reporterEmail: user.email
-      };
-
-      setTickets([newTicket, ...tickets]);
+        confidence: 'Local Triage Fallback',
+        inferenceTime: '0.005s'
+      });
+    } finally {
       setIsSubmitting(false);
-      setComplaintText('');
-    }, 600);
+    }
   };
 
   // Local fallback rule-based classifier matching Django Random Forest trained model logic
@@ -191,7 +193,7 @@ export default function CitizenDesk({ onNavigate, user, onOpenAuth, onLogout }) 
   const handleUpdateStatus = (ticketId, newStatus) => {
     // Admin only security check
     if (!user || user.role !== 'admin') return;
-    setTickets(tickets.map(t => t.id === ticketId ? { ...t, status: newStatus } : t));
+    setTickets(tickets.map(t => (t._id === ticketId || t.id === ticketId) ? { ...t, status: newStatus } : t));
   };
 
   // User-Specific or Admin Global Filtering Rule:
@@ -201,7 +203,10 @@ export default function CitizenDesk({ onNavigate, user, onOpenAuth, onLogout }) 
   const userSpecificTickets = tickets.filter(t => {
     if (!user) return false;
     if (user.role === 'admin') return true;
-    return t.reporterEmail === user.email || t.reporter === user.name;
+    const tUserEmail = t.reporterEmail || (t.user && t.user.email);
+    const tUserName = t.reporter || (t.user && t.user.name);
+    const tUserId = typeof t.user === 'object' ? (t.user._id || t.user.id) : t.user;
+    return tUserEmail === user.email || tUserName === user.name || tUserId === user.id || tUserId === user._id;
   });
 
   const filteredTickets = userSpecificTickets.filter(t => {
@@ -212,16 +217,7 @@ export default function CitizenDesk({ onNavigate, user, onOpenAuth, onLogout }) 
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#BAE6FD] via-[#E0F2FE] to-[#BAE6FD] text-slate-900 font-sans pb-16">
-
-      {/* Global Floating Navbar */}
-      <Navbar
-        activeTab="citizen-desk"
-        onNavigate={onNavigate}
-        user={user}
-        onOpenAuth={onOpenAuth}
-        onLogout={onLogout}
-      />
+    <div className="min-h-screen bg-white text-slate-900 font-sans pb-16">
 
       <main className="max-w-7xl mx-auto px-6 pt-6 space-y-8">
 
@@ -273,7 +269,7 @@ export default function CitizenDesk({ onNavigate, user, onOpenAuth, onLogout }) 
 
           {/* ================= DIV 2: COMPLAINT SUBMISSION TERMINAL ================= */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="p-6 rounded-2xl bg-[#DCEEFE] border border-[#60A5FA] shadow-lg space-y-5 relative overflow-hidden">
+            <div className="p-6 rounded-2xl bg-[#DCEEFE] border border-[#60A5FA] shadow-lg space-y-5 relative overflow-visible">
               <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#0284C7] to-[#2563EB]"></div>
 
               <div className="flex items-center justify-between border-b border-[#93C5FD] pb-4">
@@ -372,39 +368,61 @@ export default function CitizenDesk({ onNavigate, user, onOpenAuth, onLogout }) 
                       />
                     </div>
 
-                    {/* City Ward / Location Dropdown Selector */}
+                    {/* City / Location Custom Dropdown Selector */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
+                      <div className="relative z-40 font-sans" ref={dropdownRef}>
                         <label className="block text-xs font-mono text-[#0F2942] font-bold mb-1.5 flex items-center gap-1">
                           <MapPin className="w-3.5 h-3.5 text-[#0284C7]" />
-                          <span>SELECT MUNICIPAL WARD</span>
+                          <span>SELECT CITY</span>
                         </label>
-                        <select
-                          value={ward}
-                          onChange={(e) => setWard(e.target.value)}
-                          className="w-full p-2.5 rounded-xl bg-white border border-[#38BDF8] text-slate-900 text-xs font-mono font-medium focus:outline-none focus:border-[#0284C7] transition-all cursor-pointer shadow-sm"
+                        
+                        {/* Custom Dropdown Trigger Button */}
+                        <button
+                          type="button"
+                          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                          className="w-full p-2.5 rounded-xl bg-white border border-[#38BDF8] text-slate-900 text-xs font-mono font-medium focus:outline-none focus:border-[#0284C7] transition-all cursor-pointer shadow-sm flex items-center justify-between"
                         >
-                          <option value="Surat Ward 1 - Majura Gate & Ring Road">Surat Ward 1 - Majura Gate & Ring Road</option>
-                          <option value="Surat Ward 2 - Athwa Lines & Dumas Road">Surat Ward 2 - Athwa Lines & Dumas Road</option>
-                          <option value="Surat Ward 3 - Adajan & Honey Park">Surat Ward 3 - Adajan & Honey Park</option>
-                          <option value="Surat Ward 4 - Rander & Tapi Riverfront">Surat Ward 4 - Rander & Tapi Riverfront</option>
-                          <option value="Surat Ward 5 - Varachha & Diamond Market">Surat Ward 5 - Varachha & Diamond Market Hub</option>
-                          <option value="Surat Ward 6 - Katargam & Textile Zone">Surat Ward 6 - Katargam & Textile Zone</option>
-                          <option value="Surat Ward 7 - Piplod & University Circle">Surat Ward 7 - Piplod & University Circle</option>
-                          <option value="Surat Ward 8 - Vesu & VIP Road Corridor">Surat Ward 8 - Vesu & VIP Road Corridor</option>
-                          <option value="Surat Ward 9 - Ghod Dod Road & Commerce">Surat Ward 9 - Ghod Dod Road & Commercial District</option>
-                          <option value="Surat Ward 10 - Railway Station Terminal">Surat Ward 10 - Railway Station & Market Hub</option>
-                          <option value="Surat Ward 11 - Udhna Industrial Area">Surat Ward 11 - Udhna Industrial Area & Substation</option>
-                          <option value="Surat Ward 12 - Limbayat & Dindoli">Surat Ward 12 - Limbayat & Dindoli Zone</option>
-                          <option value="Surat Ward 13 - Pandesara Estate">Surat Ward 13 - Pandesara Industrial Estate</option>
-                          <option value="Surat Ward 14 - Althan & Canal Road">Surat Ward 14 - Althan & Canal Road</option>
-                          <option value="Surat Ward 15 - Pal & Hazira Highway">Surat Ward 15 - Pal & Hazira Highway</option>
-                          <option value="Surat Ward 16 - Hazira Port & Belt">Surat Ward 16 - Hazira Industrial Port & Belt</option>
-                          <option value="Surat Ward 17 - Citylight & Science Centre">Surat Ward 17 - Citylight & Science Centre Zone</option>
-                          <option value="Surat Ward 18 - Sarthana & Nature Park">Surat Ward 18 - Sarthana & Nature Park</option>
-                          <option value="Surat Ward 19 - Bhestan & Transit Terminal">Surat Ward 19 - Bhestan & Transit Terminal</option>
-                          <option value="Surat Ward 20 - Sachin GIDC & Grid">Surat Ward 20 - Sachin GIDC & Power Grid</option>
-                        </select>
+                          <span>{selectedCity}</span>
+                          <ChevronDown className={`w-4 h-4 text-[#0284C7] transition-transform duration-200 ${isDropdownOpen ? 'transform rotate-180' : ''}`} />
+                        </button>
+
+                        {/* Dropdown Popover */}
+                        {isDropdownOpen && (
+                          <div className="absolute top-full left-0 right-0 mt-1 z-[999] bg-white border border-[#60A5FA] rounded-xl shadow-2xl overflow-hidden py-1 max-h-52 overflow-y-auto scrollbar-thin scrollbar-thumb-[#38BDF8] scrollbar-track-[#BAE6FD]/30">
+                            {['Surat', 'Ahmedabad', 'Mumbai', 'Vadodara', 'Rajkot', 'Delhi', 'Bengaluru', 'Other...'].map((city) => {
+                              const isCurrent = selectedCity === city;
+                              return (
+                                <button
+                                  key={city}
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedCity(city);
+                                    setIsDropdownOpen(false);
+                                  }}
+                                  className={`w-full text-left px-4 py-2.5 text-xs font-mono transition-all flex items-center justify-between border-b border-slate-100 last:border-b-0 cursor-pointer ${
+                                    isCurrent 
+                                      ? 'bg-[#BAE6FD] text-[#0F2942] font-bold' 
+                                      : 'text-slate-800 hover:bg-[#DCEEFE]'
+                                  }`}
+                                >
+                                  <span>{city}</span>
+                                  {isCurrent && <Check className="w-3.5 h-3.5 text-[#0284C7]" />}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        {/* Conditional Input Field for custom city names */}
+                        {selectedCity === 'Other...' && (
+                          <input
+                            type="text"
+                            placeholder="Type your city name..."
+                            value={customCity}
+                            onChange={(e) => setCustomCity(e.target.value)}
+                            className="w-full mt-2 p-2.5 rounded-xl bg-white border border-[#38BDF8] text-slate-900 text-xs font-mono font-medium focus:outline-none focus:border-[#0284C7] focus:ring-2 focus:ring-[#BAE6FD] transition-all shadow-inner"
+                          />
+                        )}
                       </div>
 
                       <div>
@@ -595,66 +613,77 @@ export default function CitizenDesk({ onNavigate, user, onOpenAuth, onLogout }) 
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-              {filteredTickets.map(t => (
-                <div
-                  key={t.id}
-                  className="p-4 rounded-xl bg-white border border-[#93C5FD] hover:border-[#0284C7] hover:shadow-lg transition-all space-y-3 font-mono flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="flex items-center justify-between text-xs mb-2">
-                      <span className="font-bold text-[#1E40AF]">{t.id}</span>
-                      <span className="text-[11px] text-slate-600 font-normal">{t.timestamp}</span>
+              {filteredTickets.map(t => {
+                const ticketId = t._id || t.id;
+                const ticketTime = t.createdAt 
+                  ? new Date(t.createdAt).toLocaleDateString() + ' ' + new Date(t.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+                  : (t.timestamp || 'Just now');
+                const reporterName = t.reporter || (t.user && t.user.name) || 'Citizen';
+                const details = getCategoryDetails(t.category);
+                const priorityLabel = t.priorityLabel || details.label;
+                const ticketLocation = t.location || t.ward || 'Unknown';
+
+                return (
+                  <div
+                    key={ticketId}
+                    className="p-4 rounded-xl bg-white border border-[#93C5FD] hover:border-[#0284C7] hover:shadow-lg transition-all space-y-3 font-mono flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between text-xs mb-2">
+                        <span className="font-bold text-[#1E40AF]">{ticketId}</span>
+                        <span className="text-[11px] text-slate-600 font-normal">{ticketTime}</span>
+                      </div>
+
+                      <h3 className="text-sm font-bold text-slate-900 font-sans leading-snug line-clamp-2 mb-3">
+                        {t.title}
+                      </h3>
+
+                      <div className="flex flex-wrap items-center gap-2 text-[10px]">
+                        <span className={`px-2 py-0.5 rounded-md font-bold ${t.priority === 3 ? 'bg-rose-100 text-rose-800 border border-rose-300' :
+                          t.priority === 2 ? 'bg-amber-100 text-amber-800 border border-amber-300' :
+                            'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                          }`}>
+                          {priorityLabel}
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md bg-[#BAE6FD] text-[#024E82] border border-[#38BDF8] font-bold">
+                          {t.category.replace(/_/g, ' ')}
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 border border-slate-300 font-medium flex items-center gap-1">
+                          <MapPin className="w-3 h-3 text-[#0284C7]" />
+                          {ticketLocation}
+                        </span>
+                      </div>
                     </div>
 
-                    <h3 className="text-sm font-bold text-slate-900 font-sans leading-snug line-clamp-2 mb-3">
-                      {t.title}
-                    </h3>
+                    <div className="pt-3 border-t border-slate-200 flex items-center justify-between text-xs">
+                      <span className="text-[11px] text-slate-600 font-medium">
+                        Reporter: <span className="text-[#0F2942] font-bold">{reporterName}</span>
+                      </span>
 
-                    <div className="flex flex-wrap items-center gap-2 text-[10px]">
-                      <span className={`px-2 py-0.5 rounded-md font-bold ${t.priority === 3 ? 'bg-rose-100 text-rose-800 border border-rose-300' :
-                        t.priority === 2 ? 'bg-amber-100 text-amber-800 border border-amber-300' :
-                          'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                        }`}>
-                        {t.priorityLabel}
-                      </span>
-                      <span className="px-2 py-0.5 rounded-md bg-[#BAE6FD] text-[#024E82] border border-[#38BDF8] font-bold">
-                        {t.category.replace(/_/g, ' ')}
-                      </span>
-                      <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 border border-slate-300 font-medium flex items-center gap-1">
-                        <MapPin className="w-3 h-3 text-[#0284C7]" />
-                        {t.ward}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        {/* ADMIN-ONLY RESOLVE ACTION */}
+                        {user && user.role === 'admin' && t.status !== 'Resolved' && (
+                          <button
+                            onClick={() => handleUpdateStatus(ticketId, 'Resolved')}
+                            className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white transition-all text-[11px] cursor-pointer flex items-center gap-1 font-mono font-bold shadow-sm"
+                          >
+                            <Check className="w-3 h-3" />
+                            <span>Resolve Issue</span>
+                          </button>
+                        )}
+
+                        <span className={`px-2.5 py-1 rounded-lg text-[11px] font-bold ${t.status === 'Urgent' ? 'bg-rose-100 text-rose-800 border border-rose-300' :
+                          t.status === 'In Progress' ? 'bg-amber-100 text-amber-800 border border-amber-300' :
+                            'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                          }`}>
+                          {t.status}
+                        </span>
+                      </div>
                     </div>
+
                   </div>
-
-                  <div className="pt-3 border-t border-slate-200 flex items-center justify-between text-xs">
-                    <span className="text-[11px] text-slate-600 font-medium">
-                      Reporter: <span className="text-[#0F2942] font-bold">{t.reporter}</span>
-                    </span>
-
-                    <div className="flex items-center gap-2">
-                      {/* ADMIN-ONLY RESOLVE ACTION */}
-                      {user && user.role === 'admin' && t.status !== 'Resolved' && (
-                        <button
-                          onClick={() => handleUpdateStatus(t.id, 'Resolved')}
-                          className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white transition-all text-[11px] cursor-pointer flex items-center gap-1 font-mono font-bold shadow-sm"
-                        >
-                          <Check className="w-3 h-3" />
-                          <span>Resolve Issue</span>
-                        </button>
-                      )}
-
-                      <span className={`px-2.5 py-1 rounded-lg text-[11px] font-bold ${t.status === 'Urgent' ? 'bg-rose-100 text-rose-800 border border-rose-300' :
-                        t.status === 'In Progress' ? 'bg-amber-100 text-amber-800 border border-amber-300' :
-                          'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                        }`}>
-                        {t.status}
-                      </span>
-                    </div>
-                  </div>
-
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
 
