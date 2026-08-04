@@ -37,7 +37,7 @@ const EnergyLogSchema = new mongoose.Schema({
     gridStatus: {
         type: String,
         required: [true, 'Grid status classification is required'],
-        enum: ['NORMAL', 'STRESSED', 'CRITICAL', 'STABLE', 'MODERATE_HIGH', 'CRITICAL_PEAK'],
+        enum: ['NORMAL', 'STRESSED', 'CRITICAL', 'STABLE', 'MODERATE_HIGH', 'CRITICAL_PEAK', 'HIGH_LOAD'],
         default: 'NORMAL'
     },
     checkedBy: {
