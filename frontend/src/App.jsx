@@ -8,22 +8,49 @@ import NetworkBackground from './components/NetworkBackground.jsx'; // બેક
 import './components/auth.css'; // ઓથેન્ટિકેશન માટેની CSS ફાઇલ
 
 export default function App() {
-  // 'activeTab' માં ટેબ્સ અથવા 'login'/'signup' સેવ થશે
   const [activeTab, setActiveTab] = useState('global-hub');
+  const [user, setUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('user');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      return null;
+    }
+  });
 
-  // ચેક કરો કે હાલનું વ્યૂ ઓથેન્ટિકેશન પેજ છે કે નહીં
   const isAuthView = activeTab === 'login' || activeTab === 'signup';
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+    setActiveTab('login');
+  };
+
+  const handleLoginSuccess = (userData) => {
+    setUser(userData);
+    setActiveTab('global-hub');
+  };
+
+  const handleSignupSuccess = (userData) => {
+    setUser(userData);
+    setActiveTab('global-hub');
+  };
 
   return (
     <div className="min-h-screen bg-white" style={{ position: 'relative', background: isAuthView ? 'var(--bg)' : '#fff' }}>
       
-      {/* જો લૉગિન કે સાઇનઅપ હોય તો જ NetworkBackground દેખાશે */}
       {isAuthView && <NetworkBackground />}
 
-      {/* Navbar માં activeTab અને onNavigate પાસ કર્યું છે, 
-          જેથી Navbar ના બટનથી લૉગિન/સાઇનઅપ કે અન્ય ટેબ ઓપન થઈ શકે */}
-{/* જો લૉગિન કે સાઇનઅપ ન હોય તો જ Navbar દેખાડો */}
-{!isAuthView && <Navbar activeTab={activeTab} onNavigate={(tab) => setActiveTab(tab)} />}
+      {!isAuthView && (
+        <Navbar 
+          activeTab={activeTab} 
+          onNavigate={(tab) => setActiveTab(tab)} 
+          currentUser={user} 
+          onLogout={handleLogout} 
+        />
+      )}
+
       {/* Dynamic Content Views */}
       <main className={isAuthView ? "" : "p-4"}>
         {activeTab === 'global-hub' && (
@@ -44,16 +71,22 @@ export default function App() {
         {/* લૉગિન પેજ */}
         {activeTab === 'login' && (
           <LoginPage 
+            onLoginSuccess={handleLoginSuccess}
             onSwitchToSignup={() => setActiveTab('signup')} 
             onBackToHome={() => setActiveTab('global-hub')}
+            currentUser={user}
+            onLogout={handleLogout}
           />
         )}
 
         {/* સાઇનઅપ પેજ */}
         {activeTab === 'signup' && (
           <SignupPage 
+            onSignupSuccess={handleSignupSuccess}
             onSwitchToLogin={() => setActiveTab('login')} 
             onBackToHome={() => setActiveTab('global-hub')}
+            currentUser={user}
+            onLogout={handleLogout}
           />
         )}
       </main>

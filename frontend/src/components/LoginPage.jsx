@@ -7,7 +7,7 @@ import './auth.css';
 //   onLoginSuccess()   -> called after a successful sign-in
 //   onSwitchToSignup() -> called when the user clicks "Create an account"
 //   onBackToHome()     -> called when the user clicks "Back to Home"
-export default function LoginPage({ onLoginSuccess, onSwitchToSignup, onBackToHome, onNavigate, activeTab }) {
+export default function LoginPage({ onLoginSuccess, onSwitchToSignup, onBackToHome, onNavigate, activeTab, currentUser, onLogout }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
@@ -32,12 +32,24 @@ export default function LoginPage({ onLoginSuccess, onSwitchToSignup, onBackToHo
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
-      const data = await res.json();
 
-      if (res.ok && data.token) {
+      let data = {};
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        // Fallback for non-JSON or empty response
+      }
+
+      if (res.status === 200 && data.token) {
         localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.data));
-        onLoginSuccess && onLoginSuccess(data.data);
+        const userObj = data.user || data.data;
+        localStorage.setItem('user', JSON.stringify(userObj));
+        onLoginSuccess && onLoginSuccess(userObj);
+        if (onNavigate) {
+          onNavigate('home');
+        } else if (onBackToHome) {
+          onBackToHome();
+        }
       } else {
         setError(data.message || 'Invalid credentials');
       }
@@ -65,7 +77,7 @@ export default function LoginPage({ onLoginSuccess, onSwitchToSignup, onBackToHo
 
   return (
     <div className="nuro-auth">
-      <Navbar activeTab={activeTab || 'login'} onNavigate={handleNav} />
+      <Navbar activeTab={activeTab || 'login'} onNavigate={handleNav} currentUser={currentUser} onLogout={onLogout} />
       <NetworkBackground />
 
       <div className="stage">
