@@ -1,101 +1,95 @@
-import React, { useState, useEffect } from 'react';
-import Navbar from './components/Navbar';
-import TrafficEye from './pages/TrafficEye';
-import CitizenDesk from './pages/CitizenDesk';
-import AuthPage from './pages/AuthPage';
+import React, { useState } from 'react';
+import Navbar from './components/Navbar.jsx';
+import TrafficEye from './pages/TrafficEye.jsx';
+import EnergySentinel from './components/EnergySentinel.jsx';
+import LoginPage from './components/LoginPage.jsx';     // તમારો લૉગિન પેજ કમ્પોનન્ટ
+import SignupPage from './components/SignupPage.jsx';   // તમારો સાઇનઅપ પેજ કમ્પોનન્ટ
+import NetworkBackground from './components/NetworkBackground.jsx'; // બેકગ્રાઉન્ડ એનિમેશન
+import './components/auth.css'; // ઓથેન્ટિકેશન માટેની CSS ફાઇલ
 
-function App() {
-  const [activeTab, setActiveTab] = useState('traffic-eye');
-  const [previousTab, setPreviousTab] = useState('traffic-eye');
-  const [user, setUser] = useState(null);
-
-  // Restore stored user session on load
-  useEffect(() => {
+export default function App() {
+  const [activeTab, setActiveTab] = useState('global-hub');
+  const [user, setUser] = useState(() => {
     try {
-      const savedUser = localStorage.getItem('neurocity_user');
-      if (savedUser) {
-        setUser(JSON.parse(savedUser));
-      }
+      const saved = localStorage.getItem('user');
+      return saved ? JSON.parse(saved) : null;
     } catch (e) {
-      console.warn('Could not parse stored session:', e);
+      return null;
     }
-  }, []);
+  });
 
-  const handleNavigate = (nextTab) => {
-    if (nextTab === 'auth') {
-      if (activeTab !== 'auth') {
-        setPreviousTab(activeTab);
-      }
-    }
-    setActiveTab(nextTab);
-  };
-
-  const handleLoginSuccess = (userData, token) => {
-    setUser(userData);
-    try {
-      localStorage.setItem('neurocity_user', JSON.stringify(userData));
-      localStorage.setItem('neurocity_token', token);
-    } catch (e) {
-      console.warn('Could not save session to localStorage:', e);
-    }
-  };
+  const isAuthView = activeTab === 'login' || activeTab === 'signup';
 
   const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setUser(null);
-    try {
-      localStorage.removeItem('neurocity_user');
-      localStorage.removeItem('neurocity_token');
-    } catch (e) {
-      console.warn('Could not remove session:', e);
-    }
+    setActiveTab('login');
+  };
+
+  const handleLoginSuccess = (userData) => {
+    setUser(userData);
+    setActiveTab('global-hub');
+  };
+
+  const handleSignupSuccess = (userData) => {
+    setUser(userData);
+    setActiveTab('global-hub');
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Dynamic Main App Tab Switcher */}
-      {activeTab === 'auth' ? (
-        <AuthPage 
-          onNavigate={handleNavigate} 
-          onLoginSuccess={handleLoginSuccess}
-          previousTab={previousTab}
-          user={user}
-          onLogout={handleLogout}
-        />
-      ) : activeTab === 'traffic-eye' ? (
-        <TrafficEye 
-          onNavigate={handleNavigate} 
-          user={user} 
-          onOpenAuth={() => handleNavigate('auth')} 
+    <div className="min-h-screen bg-white" style={{ position: 'relative', background: isAuthView ? 'var(--bg)' : '#fff' }}>
+      
+      {isAuthView && <NetworkBackground />}
+
+      {!isAuthView && (
+        <Navbar 
+          activeTab={activeTab} 
+          onNavigate={(tab) => setActiveTab(tab)} 
+          currentUser={user} 
           onLogout={handleLogout} 
         />
-      ) : activeTab === 'citizen-desk' ? (
-        <CitizenDesk 
-          onNavigate={handleNavigate} 
-          user={user} 
-          onOpenAuth={() => handleNavigate('auth')} 
-          onLogout={handleLogout} 
-        />
-      ) : (
-        <>
-          <Navbar 
-            activeTab={activeTab} 
-            onNavigate={handleNavigate} 
-            user={user} 
-            onOpenAuth={() => handleNavigate('auth')} 
-            onLogout={handleLogout} 
-          />
-          <div className="flex flex-col items-center justify-center min-h-[60vh] text-[#03045E] font-mono">
-            <span className="text-sm font-bold uppercase tracking-widest">
-              [ {activeTab.replace('-', ' ')} // SYSTEM STANDBY ]
-            </span>
-            <span className="text-xs text-slate-400 mt-2">
-              Integrating diagnostic streaming pipelines for this municipal node...
-            </span>
-          </div>
-        </>
       )}
+
+      {/* Dynamic Content Views */}
+      <main className={isAuthView ? "" : "p-4"}>
+        {activeTab === 'global-hub' && (
+          <div className="p-8 text-center text-[#03045E] font-bold text-xl">
+            Welcome to Global Hub
+          </div>
+        )}
+        
+        {activeTab === 'traffic-eye' && <TrafficEye />}
+        {activeTab === 'energy-sentinel' && <EnergySentinel />}
+        
+        {activeTab === 'citizen-desk' && (
+          <div className="p-8 text-center text-[#03045E] font-bold text-xl">
+            Citizen Desk Portal
+          </div>
+        )}
+
+        {/* લૉગિન પેજ */}
+        {activeTab === 'login' && (
+          <LoginPage 
+            onLoginSuccess={handleLoginSuccess}
+            onSwitchToSignup={() => setActiveTab('signup')} 
+            onBackToHome={() => setActiveTab('global-hub')}
+            currentUser={user}
+            onLogout={handleLogout}
+          />
+        )}
+
+        {/* સાઇનઅપ પેજ */}
+        {activeTab === 'signup' && (
+          <SignupPage 
+            onSignupSuccess={handleSignupSuccess}
+            onSwitchToLogin={() => setActiveTab('login')} 
+            onBackToHome={() => setActiveTab('global-hub')}
+            currentUser={user}
+            onLogout={handleLogout}
+          />
+        )}
+      </main>
     </div>
   );
 }
-
-export default App;
