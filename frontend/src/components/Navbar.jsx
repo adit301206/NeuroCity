@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Navbar({ onNavigate, activeTab, currentUser, onLogout }) {
+export default function Navbar({ onNavigate, activeTab, currentUser, onLogout, onOpenSettings }) {
   const links = [
     { id: 'global-hub', label: 'Global Hub' },
     { id: 'traffic-eye', label: 'Traffic Eye' },
@@ -155,6 +155,18 @@ export default function Navbar({ onNavigate, activeTab, currentUser, onLogout })
               </span>
             </div>
             
+            {/* Account Settings Button (View Details, Change Password & Delete Account) */}
+            <button
+              onClick={() => onOpenSettings && onOpenSettings('profile')}
+              title="Account Settings (View Details / Change Password / Delete Account)"
+              className="p-2 rounded-lg border border-[#48CAE4]/40 bg-[#0077B6]/30 text-[#48CAE4] hover:bg-[#0077B6]/60 hover:text-white transition-all cursor-pointer flex items-center justify-center shadow-[0_0_10px_rgba(72,202,228,0.15)]"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+
             <button
               onClick={handleLogoutClick}
               className="px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer bg-red-600 hover:bg-red-500 text-white shadow-[0_0_10px_rgba(220,38,38,0.2)]"

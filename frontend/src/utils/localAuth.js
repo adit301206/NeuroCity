@@ -93,3 +93,132 @@ export function loginLocalUser({ email, password }) {
     token: 'demo_jwt_token_' + Date.now()
   };
 }
+
+export function changePasswordLocal({ email, currentPassword, newPassword }) {
+  const users = getRegisteredUsers();
+  const normalizedEmail = (email || '').toLowerCase().trim();
+  const index = users.findIndex(u => u.email.toLowerCase() === normalizedEmail);
+
+  if (index === -1) {
+    return { success: false, message: 'User account not found' };
+  }
+
+  if (users[index].password && users[index].password !== currentPassword) {
+    return { success: false, message: 'Incorrect current password' };
+  }
+
+  users[index].password = newPassword;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+  } catch (e) {
+    console.warn('Failed to update password in localStorage:', e);
+  }
+
+  return { success: true, message: 'Password updated successfully!' };
+}
+
+export function resetPasswordLocal({ email, newPassword }) {
+  const users = getRegisteredUsers();
+  const normalizedEmail = (email || '').toLowerCase().trim();
+  const index = users.findIndex(u => u.email.toLowerCase() === normalizedEmail);
+
+  if (index === -1) {
+    return { success: false, message: 'No account found with this email address.' };
+  }
+
+  users[index].password = newPassword;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+  } catch (e) {
+    console.warn('Failed to update password in localStorage:', e);
+  }
+
+  return { success: true, message: 'Password updated successfully!' };
+}
+
+export function deleteAccountLocal({ email, password }) {
+  const users = getRegisteredUsers();
+  const normalizedEmail = (email || '').toLowerCase().trim();
+  const index = users.findIndex(u => u.email.toLowerCase() === normalizedEmail);
+
+  if (index === -1) {
+    return { success: false, message: 'User account not found' };
+  }
+
+  if (users[index].password && users[index].password !== password) {
+    return { success: false, message: 'Incorrect password. Account deletion cancelled.' };
+  }
+
+  users.splice(index, 1);
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+  } catch (e) {
+    console.warn('Failed to delete user from localStorage:', e);
+  }
+
+  return { success: true, message: 'Account deleted successfully' };
+}
+
+export function updateProfileLocal({ currentEmail, name, email }) {
+  const users = getRegisteredUsers();
+  const normalizedCurrent = (currentEmail || '').toLowerCase().trim();
+  const index = users.findIndex(u => u.email.toLowerCase() === normalizedCurrent);
+
+  if (index === -1) {
+    return { success: false, message: 'User profile record not found' };
+  }
+
+  if (name) users[index].name = name.trim();
+  if (email) users[index].email = email.toLowerCase().trim();
+
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+  } catch (e) {
+    console.warn('Failed to update user profile in localStorage:', e);
+  }
+
+  return {
+    success: true,
+    message: 'Profile details updated successfully',
+    user: {
+      id: users[index].id,
+      name: users[index].name,
+      email: users[index].email,
+      role: users[index].role
+    }
+  };
+}
+
+export function googleAuthLocal({ name, email }) {
+  const users = getRegisteredUsers();
+  const normalizedEmail = (email || '').toLowerCase().trim();
+  let found = users.find(u => u.email.toLowerCase() === normalizedEmail);
+
+  if (!found) {
+    found = {
+      id: 'usr_g' + Math.random().toString(36).substr(2, 9),
+      name: name || normalizedEmail.split('@')[0] || 'Google Citizen',
+      email: normalizedEmail,
+      password: 'goog_' + Math.random().toString(36).substr(2, 9),
+      role: 'citizen'
+    };
+    users.push(found);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+    } catch (e) {
+      console.warn('Failed to save Google user in localStorage:', e);
+    }
+  }
+
+  return {
+    success: true,
+    user: {
+      id: found.id,
+      name: found.name,
+      email: found.email,
+      role: found.role
+    },
+    token: 'google_jwt_token_' + Date.now()
+  };
+}
+

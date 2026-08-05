@@ -79,11 +79,26 @@ const runTests = async () => {
         });
         console.log('PASS: Case-insensitive login verified:', caseInsensitiveLoginRes.data.user.email);
         
+        // 8. Test Forgot / Reset Password flow
+        const resetRes = await axios.post(`${baseUrl}/reset-password`, {
+            email: uniqueEmail,
+            newPassword: 'NewOperatorPass456!'
+        });
+        console.log('PASS: Password reset successful:', resetRes.data.message);
+
+        // 9. Login with new password
+        const newLoginRes = await axios.post(`${baseUrl}/login`, {
+            email: uniqueEmail,
+            password: 'NewOperatorPass456!'
+        });
+        console.log('PASS: Successfully logged in with newly reset password:', newLoginRes.data.user.email);
+
     } catch (err) {
-        console.error('FAIL: Registration or login failed:', err.response ? err.response.data : err.message);
+        console.error('FAIL: Registration, login or reset failed:', err.response ? err.response.data : err.message);
     }
 
     console.log('--- Authentication Verification Tests Complete ---');
 };
 
 runTests();
+
