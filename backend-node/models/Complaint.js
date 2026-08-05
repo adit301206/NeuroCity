@@ -20,13 +20,17 @@ const ComplaintSchema = new mongoose.Schema({
         type: String, // E.g., "Ghod Dod Road, Surat"
         required: true
     },
+    category: {
+        type: String,
+        default: 'Unclassified'
+    },
     priority: {
         type: Number, // Computed by Django and updated automatically
         default: 1
     },
     status: {
         type: String,
-        enum: ['Pending', 'Assigned', 'In Progress', 'Resolved'],
+        enum: ['Pending', 'In Progress', 'Resolved', 'Urgent'],
         default: 'Pending'
     },
     createdAt: {

@@ -104,3 +104,35 @@ def complaints_health(request):
     
     status_code = status.HTTP_200_OK if is_healthy else status.HTTP_503_SERVICE_UNAVAILABLE
     return Response(response_data, status=status_code)
+
+from .complaint_engine import run_live_triage
+
+@api_view(['POST'])
+def predict_triage(request):
+    """
+    Exposes triage predictive engine from complaints_engine.py.
+    Accepts: { "description": "...", "is_near_critical_node": false }
+    """
+    description = request.data.get('description', '')
+    is_near_critical_node = request.data.get('is_near_critical_node', False)
+
+    if not description or not str(description).strip():
+        return Response(
+            {"error": "Please provide a valid complaint description string."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        predicted_category, predicted_priority = run_live_triage(
+            str(description).strip(), 
+            bool(is_near_critical_node)
+        )
+        return Response({
+            "predicted_category": predicted_category,
+            "predicted_priority": predicted_priority
+        }, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response(
+            {"error": f"Prediction failed: {str(e)}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
