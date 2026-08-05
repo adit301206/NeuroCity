@@ -307,7 +307,19 @@ export default function AuthPage({ onNavigate, onLoginSuccess, previousTab, user
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
+                {mode === 'login' && (
+                  <div className="flex justify-end mt-1.5">
+                    <button
+                      type="button"
+                      onClick={() => onNavigate('login')}
+                      className="text-xs font-mono text-[#0077B6] hover:underline cursor-pointer font-semibold"
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
+                )}
               </div>
+
 
               {/* Clearance Role Selector (Register Mode Only) */}
               {mode === 'register' && (
@@ -366,32 +378,23 @@ export default function AuthPage({ onNavigate, onLoginSuccess, previousTab, user
               <span>1-CLICK QUICK DEMO ACCELERATORS</span>
             </div>
             
-            <div className="grid grid-cols-3 gap-2.5">
+            <div className="grid grid-cols-2 gap-2.5">
               <button
                 type="button"
                 onClick={() => handleQuickLogin({ id: 'usr_c1', name: 'Citizen Observer', email: 'citizen@neurocity.gov', role: 'citizen' })}
-                className="py-2 px-3 rounded-xl bg-white border border-slate-200 text-xs font-mono text-slate-700 hover:border-[#0077B6] hover:text-[#0077B6] hover:shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-sm font-semibold"
+                className="py-2.5 px-3 rounded-xl bg-white border border-slate-200 text-xs font-mono text-slate-700 hover:border-[#0077B6] hover:text-[#0077B6] hover:shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-sm font-semibold"
               >
                 <UserCheck className="w-3.5 h-3.5 text-[#0077B6]" />
-                <span>Citizen</span>
-              </button>
-              
-              <button
-                type="button"
-                onClick={() => handleQuickLogin({ id: 'usr_op1', name: 'Traffic Operator', email: 'operator@neurocity.gov', role: 'operator' })}
-                className="py-2 px-3 rounded-xl bg-white border border-slate-200 text-xs font-mono text-slate-700 hover:border-[#0077B6] hover:text-[#0077B6] hover:shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-sm font-semibold"
-              >
-                <UserCheck className="w-3.5 h-3.5 text-[#0077B6]" />
-                <span>Operator</span>
+                <span>Citizen Demo</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleQuickLogin({ id: 'usr_ad1', name: 'System Root Admin', email: 'admin@neurocity.gov', role: 'admin' })}
-                className="py-2 px-3 rounded-xl bg-white border border-slate-200 text-xs font-mono text-slate-700 hover:border-[#0077B6] hover:text-[#0077B6] hover:shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-sm font-semibold"
+                className="py-2.5 px-3 rounded-xl bg-white border border-slate-200 text-xs font-mono text-slate-700 hover:border-[#0077B6] hover:text-[#0077B6] hover:shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-sm font-semibold"
               >
                 <UserCheck className="w-3.5 h-3.5 text-[#0077B6]" />
-                <span>Admin</span>
+                <span>Admin Demo</span>
               </button>
             </div>
           </div>

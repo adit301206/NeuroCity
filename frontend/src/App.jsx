@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import Navbar from './components/Navbar.jsx';
 import TrafficEye from './pages/TrafficEye.jsx';
 import EnergySentinel from './components/EnergySentinel.jsx';
+import LoginPage from './components/LoginPage.jsx';     // તમારો લૉગિન પેજ કમ્પોનન્ટ
+import SignupPage from './components/SignupPage.jsx';   // તમારો સાઇનઅપ પેજ કમ્પોનન્ટ
+import SettingsPage from './pages/SettingsPage.jsx';   // ફૂલ પેજ સેટીંગ્સ કમ્પોનન્ટ
+import NetworkBackground from './components/NetworkBackground.jsx'; // બેકગ્રાઉન્ડ એનિમેશન
+import './components/auth.css'; // ઓથેન્ટિકેશન માટેની CSS ફાઇલ
 import CitizenDesk from './pages/CitizenDesk.jsx'; // Make sure the path matches your folder structure
 import LoginPage from './components/LoginPage.jsx';     
 import SignupPage from './components/SignupPage.jsx';   
@@ -10,6 +15,7 @@ import './components/auth.css';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('global-hub');
+  const [settingsSubTab, setSettingsSubTab] = useState('profile');
   const [user, setUser] = useState(() => {
     try {
       const saved = localStorage.getItem('user');
@@ -38,6 +44,11 @@ export default function App() {
     setActiveTab('citizen-desk');
   };
 
+  const handleOpenSettings = (subTab = 'profile') => {
+    setSettingsSubTab(subTab);
+    setActiveTab('settings');
+  };
+
   return (
     <div className="min-h-screen bg-white" style={{ position: 'relative', background: isAuthView ? 'var(--bg)' : '#fff' }}>
       
@@ -49,6 +60,7 @@ export default function App() {
           onNavigate={(tab) => setActiveTab(tab)} 
           currentUser={user} 
           onLogout={handleLogout} 
+          onOpenSettings={handleOpenSettings}
         />
       )}
 
@@ -73,12 +85,26 @@ export default function App() {
           />
         )}
 
+        {/* full Standalone Settings Page */}
+        {activeTab === 'settings' && (
+          <SettingsPage 
+            currentUser={user}
+            onUpdateUser={(updated) => setUser(updated)}
+            onLogout={handleLogout}
+            onNavigate={(tab) => setActiveTab(tab)}
+            initialSubTab={settingsSubTab}
+          />
+        )}
+
+        {/* લૉગિન પેજ */}
         {/* Login Page */}
         {activeTab === 'login' && (
           <LoginPage 
             onLoginSuccess={handleLoginSuccess}
             onSwitchToSignup={() => setActiveTab('signup')} 
             onBackToHome={() => setActiveTab('global-hub')}
+            onNavigate={(tab) => setActiveTab(tab)}
+            activeTab={activeTab}
             currentUser={user}
             onLogout={handleLogout}
           />
@@ -90,6 +116,8 @@ export default function App() {
             onSignupSuccess={handleSignupSuccess}
             onSwitchToLogin={() => setActiveTab('login')} 
             onBackToHome={() => setActiveTab('global-hub')}
+            onNavigate={(tab) => setActiveTab(tab)}
+            activeTab={activeTab}
             currentUser={user}
             onLogout={handleLogout}
           />

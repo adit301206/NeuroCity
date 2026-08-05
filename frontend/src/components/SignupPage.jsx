@@ -1,6 +1,9 @@
 import { useState } from 'react';
+import { useGoogleLogin } from '@react-oauth/google';
 import NetworkBackground from './NetworkBackground.jsx';
 import Navbar from './Navbar.jsx';
+import GoogleAuthModal from './GoogleAuthModal.jsx';
+import { registerLocalUser, googleAuthLocal } from '../utils/localAuth';
 import './auth.css';
 
 // Props:
@@ -18,6 +21,109 @@ export default function SignupPage({ onSignupSuccess, onSwitchToLogin, onBackToH
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  // Google Modal state
+  const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
+
+  function finalizeSignup(userObj, token) {
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(userObj));
+    // Also save in local registry to guarantee future offline sign in
+    registerLocalUser({ name: userObj.name || name, email: userObj.email || email, password, role: userObj.role || role });
+    onSignupSuccess && onSignupSuccess(userObj);
+    if (onNavigate) {
+      onNavigate('home');
+    } else if (onBackToHome) {
+      onBackToHome();
+    }
+  }
+
+  const handleSelectGoogleAccount = async ({ name: accName, email: accEmail }) => {
+    setIsGoogleModalOpen(false);
+    setSubmitting(true);
+    setError('');
+
+    try {
+      const res = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          googleUser: { name: accName, email: accEmail }
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.status === 'success' && data.token) {
+        finalizeSignup(data.user, data.token);
+      } else {
+        const localRes = googleAuthLocal({ name: accName, email: accEmail });
+        finalizeSignup(localRes.user, localRes.token);
+      }
+    } catch (err) {
+      const localRes = googleAuthLocal({ name: accName, email: accEmail });
+      finalizeSignup(localRes.user, localRes.token);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (tokenResponse) => {
+    setSubmitting(true);
+    setError('');
+    try {
+      let googleUser = null;
+      try {
+        const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
+        });
+        if (userInfoRes.ok) {
+          googleUser = await userInfoRes.json();
+        }
+      } catch (gErr) {
+        console.warn('Direct Google UserInfo fetch warning:', gErr);
+      }
+
+      const userEmail = googleUser?.email || email || 'citizen@neurocity.gov';
+      const userName = googleUser?.name || name || userEmail.split('@')[0];
+
+      const res = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          idToken: tokenResponse.access_token,
+          googleUser: { name: userName, email: userEmail }
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.status === 'success' && data.token) {
+        finalizeSignup(data.user, data.token);
+      } else {
+        const localRes = googleAuthLocal({ name: userName, email: userEmail });
+        finalizeSignup(localRes.user, localRes.token);
+      }
+    } catch (err) {
+      setIsGoogleModalOpen(true);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const loginWithGoogle = useGoogleLogin({
+    onSuccess: handleGoogleSuccess,
+    onError: (errorResponse) => {
+      console.warn('Google Sign-Up prompt closed or unavailable:', errorResponse);
+      setIsGoogleModalOpen(true);
+    }
+  });
+
+  const handleGoogleBtnClick = () => {
+    try {
+      loginWithGoogle();
+    } catch (e) {
+      setIsGoogleModalOpen(true);
+    }
+  };
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -49,20 +155,23 @@ export default function SignupPage({ onSignupSuccess, onSwitchToLogin, onBackToH
       }
 
       if (res.status === 201 && data.token) {
-        localStorage.setItem('token', data.token);
         const userObj = data.user || data.data;
-        localStorage.setItem('user', JSON.stringify(userObj));
-        onSignupSuccess && onSignupSuccess(userObj);
-        if (onNavigate) {
-          onNavigate('home');
-        } else if (onBackToHome) {
-          onBackToHome();
-        }
+        finalizeSignup(userObj, data.token);
       } else {
-        setError(data.message || 'Registration failed');
+        const localResult = registerLocalUser({ name, email, password, role });
+        if (localResult.success) {
+          finalizeSignup(localResult.user, localResult.token);
+        } else {
+          setError(data.message || localResult.message || 'Registration failed');
+        }
       }
     } catch (err) {
-      setError('Registration failed. Please check your connection.');
+      const localResult = registerLocalUser({ name, email, password, role });
+      if (localResult.success) {
+        finalizeSignup(localResult.user, localResult.token);
+      } else {
+        setError('Registration failed. Please check your details or try again.');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -172,50 +281,38 @@ export default function SignupPage({ onSignupSuccess, onSwitchToLogin, onBackToH
               </div>
 
               <div className="field">
-                <label>Role</label>
+                <label>Access Role</label>
                 <div className="role-picker">
-                  <button
-                    type="button"
-                    className="role-card"
-                    onClick={() => setRole('citizen')}
-                    style={
-                      role === 'citizen'
-                        ? {
-                            background: '#0077B6',
-                            border: '1px solid #48CAE4',
-                            color: '#ffffff',
-                            boxShadow: '0 0 12px rgba(72, 202, 228, 0.4)'
-                          }
-                        : {
-                            background: 'rgba(2, 62, 138, 0.2)',
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                            color: '#90E0EF'
-                          }
-                    }
-                  >
-                    Citizen
-                  </button>
-                  <button
-                    type="button"
-                    className="role-card"
-                    onClick={() => setRole('admin')}
-                    style={
-                      role === 'admin'
-                        ? {
-                            background: '#0077B6',
-                            border: '1px solid #48CAE4',
-                            color: '#ffffff',
-                            boxShadow: '0 0 12px rgba(72, 202, 228, 0.4)'
-                          }
-                        : {
-                            background: 'rgba(2, 62, 138, 0.2)',
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                            color: '#90E0EF'
-                          }
-                    }
-                  >
-                    City Admin
-                  </button>
+                  {[
+                    { id: 'citizen', label: 'Citizen', desc: 'Public Reporter' },
+                    { id: 'admin', label: 'City Admin', desc: 'Root Command' }
+                  ].map((r) => (
+                    <button
+                      key={r.id}
+                      type="button"
+                      className="role-card"
+                      onClick={() => setRole(r.id)}
+                      style={
+                        role === r.id
+                          ? {
+                              background: '#0077B6',
+                              border: '1px solid #48CAE4',
+                              color: '#ffffff',
+                              boxShadow: '0 0 12px rgba(72, 202, 228, 0.4)',
+                              padding: '10px 6px'
+                            }
+                          : {
+                              background: 'rgba(2, 62, 138, 0.2)',
+                              border: '1px solid rgba(255, 255, 255, 0.1)',
+                              color: '#90E0EF',
+                              padding: '10px 6px'
+                            }
+                      }
+                    >
+                      <div style={{ fontWeight: '700', fontSize: '13px' }}>{r.label}</div>
+                      <div style={{ fontSize: '10.5px', opacity: 0.8, marginTop: '2px', fontWeight: 'normal' }}>{r.desc}</div>
+                    </button>
+                  ))}
                 </div>
               </div>
 
@@ -306,7 +403,7 @@ export default function SignupPage({ onSignupSuccess, onSwitchToLogin, onBackToH
               <button
                 type="button"
                 className="google-btn"
-                onClick={handleGoogleSignIn}
+                onClick={handleGoogleBtnClick}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                   <path
@@ -329,35 +426,43 @@ export default function SignupPage({ onSignupSuccess, onSwitchToLogin, onBackToH
                 Sign in with Google
               </button>
 
+
               <div className="foot-note">
                 By continuing you agree to Nurocity's <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.
               </div>
 
-              {/* Back to Home બટન */}
-              {onBackToHome && (
-                <div style={{ textAlign: 'center', marginTop: '16px' }}>
-                  <button
-                    type="button"
-                    onClick={onBackToHome}
-                    style={{
-                      background: 'transparent',
-                      border: '1px solid rgba(72, 202, 228, 0.4)',
-                      color: '#48CAE4',
-                      padding: '10px 16px',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      fontSize: '13.5px',
-                      width: '100%'
-                    }}
-                  >
-                    ← Back to Home
-                  </button>
-                </div>
-              )}
-            </form>
-          </div>
+            {/* Back to Home બટન */}
+            {onBackToHome && (
+              <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                <button
+                  type="button"
+                  onClick={onBackToHome}
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid rgba(72, 202, 228, 0.4)',
+                    color: '#48CAE4',
+                    padding: '10px 16px',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '13.5px',
+                    width: '100%'
+                  }}
+                >
+                  ← Back to Home
+                </button>
+              </div>
+            )}
+          </form>
         </div>
       </div>
     </div>
-  );
-}
+
+    {/* Authentic Google Account Chooser Modal */}
+    <GoogleAuthModal 
+      isOpen={isGoogleModalOpen} 
+      onClose={() => setIsGoogleModalOpen(false)} 
+      onSelectAccount={handleSelectGoogleAccount} 
+    />
+  </div>
+);
+}

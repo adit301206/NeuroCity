@@ -261,6 +261,17 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
+              {mode === 'login' && (
+                <div className="flex justify-end mt-1">
+                  <button
+                    type="button"
+                    onClick={() => setStatusMsg({ type: 'error', text: 'To reset your password, please use the main Login Page forgot password form.' })}
+                    className="text-[10px] font-mono text-[#48CAE4] hover:underline cursor-pointer"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Role Selector (Register Mode Only) */}
