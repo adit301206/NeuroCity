@@ -83,7 +83,7 @@ export default function SettingsPage({ currentUser, onUpdateUser, onLogout, onNa
     const token = localStorage.getItem('token');
 
     try {
-      const response = await fetch('/api/auth/update-profile', {
+      const response = await fetch('http://localhost:5000/api/users/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -160,7 +160,7 @@ export default function SettingsPage({ currentUser, onUpdateUser, onLogout, onNa
     const token = localStorage.getItem('token');
 
     try {
-      const response = await fetch('/api/auth/change-password', {
+      const response = await fetch('http://localhost:5000/api/users/password', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -223,7 +223,7 @@ export default function SettingsPage({ currentUser, onUpdateUser, onLogout, onNa
     const token = localStorage.getItem('token');
 
     try {
-      const response = await fetch('/api/auth/delete-account', {
+      const response = await fetch('http://localhost:5000/api/users/profile', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

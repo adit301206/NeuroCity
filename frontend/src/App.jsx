@@ -8,10 +8,6 @@ import SettingsPage from './pages/SettingsPage.jsx';   // ફૂલ પેજ �
 import NetworkBackground from './components/NetworkBackground.jsx'; // બેકગ્રાઉન્ડ એનિમેશન
 import './components/auth.css'; // ઓથેન્ટિકેશન માટેની CSS ફાઇલ
 import CitizenDesk from './pages/CitizenDesk.jsx'; // Make sure the path matches your folder structure
-import LoginPage from './components/LoginPage.jsx';     
-import SignupPage from './components/SignupPage.jsx';   
-import NetworkBackground from './components/NetworkBackground.jsx'; 
-import './components/auth.css'; 
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('global-hub');
@@ -36,12 +32,12 @@ export default function App() {
 
   const handleLoginSuccess = (userData) => {
     setUser(userData);
-    setActiveTab('citizen-desk');
+    setActiveTab('global-hub');
   };
 
   const handleSignupSuccess = (userData) => {
     setUser(userData);
-    setActiveTab('citizen-desk');
+    setActiveTab('global-hub');
   };
 
   const handleOpenSettings = (subTab = 'profile') => {

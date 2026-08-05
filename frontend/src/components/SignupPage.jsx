@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useGoogleLogin } from '@react-oauth/google';
+// import { useGoogleLogin } from '@react-oauth/google';
 import NetworkBackground from './NetworkBackground.jsx';
 import Navbar from './Navbar.jsx';
 import GoogleAuthModal from './GoogleAuthModal.jsx';
@@ -32,7 +32,7 @@ export default function SignupPage({ onSignupSuccess, onSwitchToLogin, onBackToH
     registerLocalUser({ name: userObj.name || name, email: userObj.email || email, password, role: userObj.role || role });
     onSignupSuccess && onSignupSuccess(userObj);
     if (onNavigate) {
-      onNavigate('home');
+      onNavigate('global-hub');
     } else if (onBackToHome) {
       onBackToHome();
     }
@@ -109,20 +109,8 @@ export default function SignupPage({ onSignupSuccess, onSwitchToLogin, onBackToH
     }
   };
 
-  const loginWithGoogle = useGoogleLogin({
-    onSuccess: handleGoogleSuccess,
-    onError: (errorResponse) => {
-      console.warn('Google Sign-Up prompt closed or unavailable:', errorResponse);
-      setIsGoogleModalOpen(true);
-    }
-  });
-
-  const handleGoogleBtnClick = () => {
-    try {
-      loginWithGoogle();
-    } catch (e) {
-      setIsGoogleModalOpen(true);
-    }
+  const handleGoogleClick = () => {
+    setIsGoogleModalOpen(true);
   };
 
   async function handleSubmit(e) {
@@ -403,7 +391,7 @@ export default function SignupPage({ onSignupSuccess, onSwitchToLogin, onBackToH
               <button
                 type="button"
                 className="google-btn"
-                onClick={handleGoogleBtnClick}
+                onClick={handleGoogleClick}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                   <path
