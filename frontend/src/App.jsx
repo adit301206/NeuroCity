@@ -8,6 +8,7 @@ import SettingsPage from './pages/SettingsPage.jsx';   // ફૂલ પેજ �
 import NetworkBackground from './components/NetworkBackground.jsx'; // બેકગ્રાઉન્ડ એનિમેશન
 import './components/auth.css'; // ઓથેન્ટિકેશન માટેની CSS ફાઇલ
 import CitizenDesk from './pages/CitizenDesk.jsx'; // Make sure the path matches your folder structure
+import GlobalHub from './pages/GlobalHub.jsx';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('global-hub');
@@ -61,11 +62,9 @@ export default function App() {
       )}
 
       {/* Dynamic Content Views */}
-      <main className={isAuthView ? "" : "p-4"}>
+      <main className={isAuthView ? "" : "p-0"}>
         {activeTab === 'global-hub' && (
-          <div className="p-8 text-center text-[#03045E] font-bold text-xl">
-            Welcome to Global Hub
-          </div>
+          <GlobalHub onNavigate={(tab) => setActiveTab(tab)} />
         )}
         
         {activeTab === 'traffic-eye' && <TrafficEye />}

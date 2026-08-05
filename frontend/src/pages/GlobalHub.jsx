@@ -726,7 +726,7 @@ function SmartAQISection() {
 /* ==========================================
    4. GLOBAL HUB CONSOLE
    ========================================== */
-function ConsoleSection() {
+function ConsoleSection({ telemetry }) {
   const bars = useMemo(
     () => Array.from({ length: 28 }, () => ({ height: 30 + Math.random() * 140, delay: Math.random() * 4 })),
     []
@@ -766,10 +766,10 @@ function ConsoleSection() {
 
             <div className="panel">
               <div className="panel-title"><b>Module Status</b></div>
-              <div className="metric-row"><span className="k">Traffic Eye</span><span className="v up">Optimal</span></div>
-              <div className="metric-row"><span className="k">Energy Sentinel</span><span className="v up">99.9% stable</span></div>
-              <div className="metric-row"><span className="k">Citizen Desk</span><span className="v">1,204 open</span></div>
-              <div className="metric-row"><span className="k">Network mesh</span><span className="v up">Secure</span></div>
+              <div className="metric-row"><span className="k">Traffic Eye</span><span className="v up">{telemetry?.gridMetrics?.trafficFlow || 'Optimal'}</span></div>
+              <div className="metric-row"><span className="k">Energy Sentinel</span><span className="v up">{telemetry?.gridMetrics?.gridLoad || '99.9% stable'}</span></div>
+              <div className="metric-row"><span className="k">Citizen Desk</span><span className="v">{telemetry?.totalComplaints !== undefined ? `${telemetry.totalComplaints} open (${telemetry.urgentComplaints || 0} urgent)` : '1,204 open'}</span></div>
+              <div className="metric-row"><span className="k">Network mesh</span><span className="v up">{telemetry?.gridMetrics?.networkMesh || 'Secure'}</span></div>
             </div>
 
             <div className="panel">
@@ -849,7 +849,12 @@ function ModulesSection({ onNavigate }) {
       </div>
       <div className="modules-grid">
         {MODULES_DATA.map((m, i) => (
-          <div className={`module-card reveal reveal-${i % 4}`} key={m.title}>
+          <div 
+            className={`module-card reveal reveal-${i % 4}`} 
+            key={m.title}
+            onClick={() => onNavigate && onNavigate(m.id)}
+            style={{ cursor: 'pointer' }}
+          >
             <div className="module-icon">{m.icon}</div>
             <h3>{m.title}</h3>
             <p>{m.desc}</p>
@@ -1154,6 +1159,33 @@ function RobotMascot() {
 export default function GlobalHub({ onNavigate }) {
   useScrollReveal();
 
+  const [telemetry, setTelemetry] = useState({
+    systemHealth: 'Optimal',
+    totalComplaints: 0,
+    urgentComplaints: 0,
+    gridMetrics: {
+      trafficFlow: 'Optimal',
+      gridLoad: '99.9% stable',
+      networkMesh: 'Secure'
+    }
+  });
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('http://localhost:5000/api/hub/telemetry')
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled && data.status === 'success' && data.telemetry) {
+          setTelemetry(data.telemetry);
+        }
+      })
+      .catch((err) => console.error('Error fetching telemetry:', err));
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <div className="nc-root min-h-screen text-slate-900 font-sans relative selection:bg-cyan-500 selection:text-white">
       <GlobalNetworkCanvas />
@@ -1167,7 +1199,7 @@ export default function GlobalHub({ onNavigate }) {
       <CitizenHeatmapSection onNavigate={onNavigate} />
       <SmartTransitSection />
       <SmartAQISection />
-      <ConsoleSection />
+      <ConsoleSection telemetry={telemetry} />
       <ModulesSection onNavigate={onNavigate} />
       <TestimonialsSection />
       <FAQSection />

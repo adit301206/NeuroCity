@@ -19,6 +19,7 @@ app.use(express.json());
 // Mount Routing Paths
 app.use('/api/auth', authRoutes);
 app.use('/api/users', require('./routes/user'));
+app.use('/api/hub', require('./routes/globalHub'));
 app.use('/api/complaints', complaintRoutes); // Register complaints path here!
 app.use('/api/health', healthRoutes); // Register master health check route
 app.use('/api/traffic', trafficRoutes); // Register traffic pipeline route
