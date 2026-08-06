@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Edges } from '@react-three/drei';
 import Navbar from './Navbar';
+import JunctionIngestionDeck from './JunctionIngestionDeck';
 import {
   Activity,
   ShieldAlert,
@@ -537,25 +538,12 @@ function Vehicle3DModel({ car, sirenActiveRef }) {
 }
 
 // 3D Vehicles Manager & Physics Updates Loop
-function Vehicles({ phaseState, emergencyOverride, onEmergencyPassed }) {
-  const carsRef = useRef([
-    // Pre-spaced vehicles on all approaches with intents
-    createVehicle('n1', 'NORTH', 'LEFT_TURN', 0),
-    createVehicle('n2', 'NORTH', 'STRAIGHT', 6),
-    createVehicle('n3', 'NORTH', 'RIGHT_TURN', 12),
+function Vehicles({ phaseState, emergencyOverride, onEmergencyPassed, vehicleList }) {
+  const carsRef = useRef(vehicleList);
 
-    createVehicle('s1', 'SOUTH', 'LEFT_TURN', 3),
-    createVehicle('s2', 'SOUTH', 'STRAIGHT', 9),
-    createVehicle('s3', 'SOUTH', 'RIGHT_TURN', 15),
-
-    createVehicle('e1', 'EAST', 'LEFT_TURN', 1),
-    createVehicle('e2', 'EAST', 'STRAIGHT', 7),
-    createVehicle('e3', 'EAST', 'RIGHT_TURN', 13),
-
-    createVehicle('w1', 'WEST', 'LEFT_TURN', 4),
-    createVehicle('w2', 'WEST', 'STRAIGHT', 10),
-    createVehicle('w3', 'WEST', 'RIGHT_TURN', 16),
-  ]);
+  useEffect(() => {
+    carsRef.current = vehicleList;
+  }, [vehicleList]);
 
   const sirenActiveRef = useRef(false);
 
@@ -772,31 +760,125 @@ export default function TrafficSimulation({ onBackToAnalyzer, onNavigate }) {
   // Sequential 4-Phase Cycle states: NORTH -> WEST -> SOUTH -> EAST
   const [phaseState, setPhaseState] = useState('NORTH_GREEN');
   const [emergencyOverride, setEmergencyOverride] = useState(null);
-  const [countdown, setCountdown] = useState(15);
+  
+  // Custom approach durations calculated by YOLOv8 ingestion
+  const [directionalTimers, setDirectionalTimers] = useState({
+    NORTH: 15,
+    WEST: 15,
+    SOUTH: 15,
+    EAST: 15
+  });
+
+  const [vehicleCounts, setVehicleCounts] = useState({
+    NORTH: 0,
+    WEST: 0,
+    SOUTH: 0,
+    EAST: 0
+  });
+
+  const [countdown, setCountdown] = useState(directionalTimers.NORTH);
+
+  // Dynamic vehicle queue list state
+  const [vehicleList, setVehicleList] = useState([
+    createVehicle('n1', 'NORTH', 'LEFT_TURN', 0),
+    createVehicle('n2', 'NORTH', 'STRAIGHT', 6),
+    createVehicle('n3', 'NORTH', 'RIGHT_TURN', 12),
+
+    createVehicle('s1', 'SOUTH', 'LEFT_TURN', 3),
+    createVehicle('s2', 'SOUTH', 'STRAIGHT', 9),
+    createVehicle('s3', 'SOUTH', 'RIGHT_TURN', 15),
+
+    createVehicle('e1', 'EAST', 'LEFT_TURN', 1),
+    createVehicle('e2', 'EAST', 'STRAIGHT', 7),
+    createVehicle('e3', 'EAST', 'RIGHT_TURN', 13),
+
+    createVehicle('w1', 'WEST', 'LEFT_TURN', 4),
+    createVehicle('w2', 'WEST', 'STRAIGHT', 10),
+    createVehicle('w3', 'WEST', 'RIGHT_TURN', 16),
+  ]);
+
+  // Rebuild 3D vehicles list when vehicleCounts or emergencyOverride changes
+  useEffect(() => {
+    if (vehicleCounts.NORTH === 0 && vehicleCounts.SOUTH === 0 && vehicleCounts.EAST === 0 && vehicleCounts.WEST === 0) {
+      return;
+    }
+
+    const newCars = [];
+    const directions = ['NORTH', 'SOUTH', 'EAST', 'WEST'];
+    
+    directions.forEach(dir => {
+      const count = vehicleCounts[dir] || 0;
+      const isEmergencyDir = emergencyOverride === dir;
+      
+      const laneCounters = [0, 0, 0];
+
+      for (let i = 0; i < count; i++) {
+        let laneIndex = i % 3;
+        
+        const isAmbulance = isEmergencyDir && i === 0;
+        if (isAmbulance) {
+          laneIndex = 1;
+        }
+
+        const laneCount = laneCounters[laneIndex];
+        laneCounters[laneIndex]++;
+
+        const initialProgress = Math.max(0, 16.5 - laneCount * 2.8);
+
+        let intent = 'STRAIGHT';
+        if (laneIndex === 0) {
+          intent = 'LEFT_TURN';
+        } else if (laneIndex === 2) {
+          intent = 'RIGHT_TURN';
+        }
+
+        const id = `${dir.toLowerCase()}-${laneIndex}-${laneCount}-${i}`;
+        const car = createVehicle(id, dir, intent, initialProgress);
+        
+        if (isAmbulance) {
+          car.type = 'AMBULANCE';
+          car.color = '#FFFFFF';
+          car.speed = 6.0;
+        }
+
+        newCars.push(car);
+      }
+    });
+
+    setVehicleList(newCars);
+  }, [vehicleCounts, emergencyOverride]);
 
   // Unified timer sequence running every second
   useEffect(() => {
     const timer = setInterval(() => {
-      // If in active emergency green lock, countdown is locked (displays 0)
-      if (emergencyOverride) {
-        setCountdown(0);
+      // If in active emergency green lock without countdown (e.g. manual override), countdown remains 0
+      if (emergencyOverride && countdown === 0) {
         return;
       }
 
       setCountdown((prev) => {
         if (prev <= 1) {
+          // If emergency override is active, clear it when countdown completes
+          if (emergencyOverride) {
+            setEmergencyOverride(null);
+          }
+
           // Normal sequential rotation: NORTH -> WEST -> SOUTH -> EAST
           const sequence = ['NORTH_GREEN', 'WEST_GREEN', 'SOUTH_GREEN', 'EAST_GREEN'];
-          const idx = sequence.indexOf(phaseState);
-          const nextIdx = (idx + 1) % sequence.length;
-          setPhaseState(sequence[nextIdx]);
-          return 15;
+          const activeApproach = phaseState.split('_')[0];
+          const idx = sequence.findIndex(p => p.startsWith(activeApproach));
+          const nextIdx = (idx === -1 ? 0 : idx + 1) % sequence.length;
+          const nextPhase = sequence[nextIdx];
+          setPhaseState(nextPhase);
+          
+          const nextDirection = nextPhase.split('_')[0];
+          return directionalTimers[nextPhase] || directionalTimers[nextDirection] || 15;
         }
         return prev - 1;
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [phaseState, emergencyOverride]);
+  }, [phaseState, emergencyOverride, directionalTimers, countdown]);
 
   const handleToggleEmergency = (direction) => {
     if (emergencyOverride === direction) {
@@ -808,9 +890,10 @@ export default function TrafficSimulation({ onBackToAnalyzer, onNavigate }) {
         'EAST': 'NORTH_GREEN'
       };
       const nextPhase = nextPhases[direction] || 'NORTH_GREEN';
+      const nextDirection = nextPhase.split('_')[0];
       setEmergencyOverride(null);
       setPhaseState(nextPhase);
-      setCountdown(15);
+      setCountdown(directionalTimers[nextPhase] || directionalTimers[nextDirection] || 15);
     } else {
       setEmergencyOverride(direction);
       setPhaseState(direction + '_GREEN');
@@ -827,9 +910,31 @@ export default function TrafficSimulation({ onBackToAnalyzer, onNavigate }) {
       'EAST': 'NORTH_GREEN'
     };
     const nextPhase = nextPhases[emergencyOverride] || 'NORTH_GREEN';
+    const nextDirection = nextPhase.split('_')[0];
     setEmergencyOverride(null);
     setPhaseState(nextPhase);
-    setCountdown(15);
+    setCountdown(directionalTimers[nextPhase] || directionalTimers[nextDirection] || 15);
+  };
+
+  const handleAnalysisComplete = (result) => {
+    if (result.status === 'success') {
+      const timers = result.directionalTimers || { NORTH: 15, WEST: 15, SOUTH: 15, EAST: 15 };
+      const counts = result.vehicleCounts || { NORTH: 0, WEST: 0, SOUTH: 0, EAST: 0 };
+      
+      setDirectionalTimers(timers);
+      setVehicleCounts(counts);
+
+      if (result.emergencyOverrideTriggered) {
+        setEmergencyOverride(result.emergencyApproach);
+        setPhaseState(result.emergencyApproach);
+        setCountdown(45);
+      } else {
+        setEmergencyOverride(null);
+        const activeApproach = phaseState.split('_')[0];
+        const nextCountdown = timers[phaseState] || timers[activeApproach] || 15;
+        setCountdown(nextCountdown);
+      }
+    }
   };
 
   // Signal pole display calculations
@@ -921,8 +1026,16 @@ export default function TrafficSimulation({ onBackToAnalyzer, onNavigate }) {
                     <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-ping" />
                     SYS STATE: {emergencyOverride ? 'OVERRIDE' : 'AUTO_SYNC'}
                   </div>
-                  <div>PHASE: <span className="text-[#10B981] font-bold">{emergencyOverride ? `EMERGENCY_${emergencyOverride}` : phaseState}</span></div>
-                  <div>TIMER: {countdown === 0 ? 'LOCKED' : `${countdown}s`}</div>
+                  <div>
+                    SIGNAL: <span className="text-[#10B981] font-bold">
+                      {phaseState.split('_')[0]}: GREEN [{countdown === 0 ? 'LOCKED' : `${countdown}s`}]
+                    </span>
+                  </div>
+                  <div className="text-[10px] text-slate-350">
+                    QUEUES: <span className="text-cyan-300 font-bold">
+                      N: {vehicleCounts.NORTH} | S: {vehicleCounts.SOUTH} | E: {vehicleCounts.EAST} | W: {vehicleCounts.WEST}
+                    </span>
+                  </div>
                   <div className="text-[10px] text-slate-400 flex items-center gap-1">
                     <Activity className="h-3 w-3 text-green-400 animate-pulse" />
                     WEBGL STATUS: <span className="text-green-400">60 FPS / ACTIVE</span>
@@ -1190,6 +1303,7 @@ export default function TrafficSimulation({ onBackToAnalyzer, onNavigate }) {
                     phaseState={phaseState}
                     emergencyOverride={emergencyOverride}
                     onEmergencyPassed={handleEmergencyPassed}
+                    vehicleList={vehicleList}
                   />
 
                   <OrbitControls
@@ -1221,6 +1335,54 @@ export default function TrafficSimulation({ onBackToAnalyzer, onNavigate }) {
                   <div>[INFO] Detailed urban props and sidewalks pushed outward (X/Z &gt;= 6.0). Overlap resolved.</div>
                 </div>
               </div>
+
+              {/* DIRECTIONAL STATUS HUD CARDS */}
+              <div className="grid grid-cols-4 gap-3 font-mono">
+                {['NORTH', 'SOUTH', 'EAST', 'WEST'].map((dir) => {
+                  const isActive = phaseState.split('_')[0] === dir;
+                  const isEmergency = emergencyOverride === dir;
+                  const cars = vehicleCounts[dir] || 0;
+                  const timer = directionalTimers[dir] || 15;
+
+                  return (
+                    <div 
+                      key={dir} 
+                      className={`p-3 rounded-xl border transition-all duration-300 ${
+                        isEmergency
+                          ? 'bg-red-955/45 border-red-500/50 shadow-[0_0_10px_rgba(239,68,68,0.2)] animate-pulse'
+                          : isActive
+                            ? 'bg-[#0077B6]/20 border-[#00B4D8]/60 shadow-[0_0_10px_rgba(0,180,216,0.15)]'
+                            : 'bg-[#020C24]/40 border-[#00B4D8]/10 text-slate-400'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className={`text-[9px] font-bold ${isActive ? 'text-cyan-300' : isEmergency ? 'text-red-400 font-bold' : 'text-slate-400'}`}>
+                          {dir}
+                        </span>
+                        {isEmergency && (
+                          <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-ping" />
+                        )}
+                        {!isEmergency && isActive && (
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        )}
+                      </div>
+                      <div className="space-y-0.5">
+                        <div className="text-[10px] text-slate-350 flex justify-between">
+                          <span>VEHICLES:</span>
+                          <span className="font-extrabold text-cyan-400">{cars}</span>
+                        </div>
+                        <div className="text-[10px] text-slate-350 flex justify-between">
+                          <span>GREEN SEC:</span>
+                          <span className="font-extrabold text-cyan-400">{timer}s</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* JUNCTION INGESTION DECK */}
+              <JunctionIngestionDeck onAnalysisComplete={handleAnalysisComplete} />
             </div>
 
             {/* Side Telemetry Controls & HUD */}
