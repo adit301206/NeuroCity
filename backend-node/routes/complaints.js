@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 const Complaint = require('../models/Complaint');
+const Notification = require('../models/Notification');
 const { protect } = require('../middleware/authMiddleware');
 
 // @route   POST /api/complaints/submit
@@ -88,6 +89,94 @@ router.get('/my-tickets', protect, async (req, res) => {
         res.json({ status: "success", count: complaints.length, data: complaints });
     } catch (error) {
         res.status(500).json({ status: "error", error: error.message });
+    }
+});
+
+// @route   GET /api/complaints/notifications/my-alerts
+// @desc    Fetch notifications for req.user.id sorted by createdAt: -1 (Protected)
+router.get('/notifications/my-alerts', protect, async (req, res) => {
+    try {
+        const notifications = await Notification.find({ user: req.user.id })
+            .populate('complaint', 'title status description location')
+            .sort({ createdAt: -1 });
+
+        res.json({
+            status: "success",
+            count: notifications.length,
+            data: notifications
+        });
+    } catch (error) {
+        res.status(500).json({ status: "error", message: "Failed to fetch notifications", error: error.message });
+    }
+});
+
+// @route   PUT /api/complaints/notifications/:id/read
+// @desc    Mark a notification as read (Protected)
+router.put('/notifications/:id/read', protect, async (req, res) => {
+    try {
+        const notification = await Notification.findById(req.params.id);
+        if (!notification) {
+            return res.status(404).json({ status: "fail", message: "Notification not found" });
+        }
+
+        // Verify ownership
+        if (notification.user.toString() !== req.user.id) {
+            return res.status(403).json({ status: "fail", message: "Access denied: Not your notification" });
+        }
+
+        notification.isRead = true;
+        await notification.save();
+
+        const populatedNotif = await Notification.findById(notification._id)
+            .populate('complaint', 'title status description location');
+
+        res.json({
+            status: "success",
+            message: "Notification marked as read",
+            data: populatedNotif
+        });
+    } catch (error) {
+        res.status(500).json({ status: "error", message: "Failed to mark notification as read", error: error.message });
+    }
+});
+
+// @route   PUT /api/complaints/:id/status
+// @desc    Update Complaint document status and create a Notification document for the user (Admin Protected)
+router.put('/:id/status', protect, async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ status: "fail", message: "Access denied: Admin role required" });
+        }
+
+        const { status } = req.body;
+        if (!['In Progress', 'Resolved'].includes(status)) {
+            return res.status(400).json({ status: "fail", message: "Invalid status value. Must be 'In Progress' or 'Resolved'." });
+        }
+
+        const complaint = await Complaint.findById(req.params.id);
+        if (!complaint) {
+            return res.status(404).json({ status: "fail", message: "Complaint not found" });
+        }
+
+        complaint.status = status;
+        await complaint.save();
+
+        // Automatically create a Notification document for the user who created the complaint
+        const notification = new Notification({
+            user: complaint.user,
+            complaint: complaint._id,
+            title: `Complaint Status: ${status}`,
+            message: `Your complaint titled "${complaint.title}" has been updated to "${status}".`
+        });
+        await notification.save();
+
+        res.json({
+            status: "success",
+            message: `Complaint status updated to ${status} and user notified.`,
+            data: complaint
+        });
+    } catch (error) {
+        res.status(500).json({ status: "error", message: "Failed to update status", error: error.message });
     }
 });
 

@@ -190,10 +190,31 @@ export default function CitizenDesk({ onNavigate, user, onOpenAuth, onLogout }) 
     return 'Public_Safety';
   };
 
-  const handleUpdateStatus = (ticketId, newStatus) => {
+  const handleUpdateStatus = async (ticketId, newStatus) => {
     // Admin only security check
     if (!user || user.role !== 'admin') return;
-    setTickets(tickets.map(t => (t._id === ticketId || t.id === ticketId) ? { ...t, status: newStatus } : t));
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      const res = await fetch(`/api/complaints/${ticketId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+      const result = await res.json();
+      if (res.ok && result.status === 'success') {
+        setTickets(tickets.map(t => (t._id === ticketId || t.id === ticketId) ? { ...t, status: newStatus } : t));
+      } else {
+        alert(result.message || 'Failed to update status');
+      }
+    } catch (err) {
+      console.error('Error updating ticket status:', err);
+      alert('Error updating ticket status');
+    }
   };
 
   // User-Specific or Admin Global Filtering Rule:
@@ -660,9 +681,18 @@ export default function CitizenDesk({ onNavigate, user, onOpenAuth, onLogout }) 
                         Reporter: <span className="text-[#0F2942] font-bold">{reporterName}</span>
                       </span>
 
-                      <div className="flex items-center gap-2">
-                        {/* ADMIN-ONLY RESOLVE ACTION */}
-                        {user && user.role === 'admin' && t.status !== 'Resolved' && (
+                      <div className="flex items-center gap-3">
+                        {/* ADMIN-ONLY STATUS CONTROLS */}
+                        {user && user.role === 'admin' && (t.status === 'Pending' || t.status === 'Urgent') && (
+                          <button
+                            onClick={() => handleUpdateStatus(ticketId, 'In Progress')}
+                            className="px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-700 text-white transition-all text-[11px] cursor-pointer flex items-center gap-1 font-mono font-bold shadow-sm"
+                          >
+                            <span>▶ Start Working</span>
+                          </button>
+                        )}
+
+                        {user && user.role === 'admin' && t.status === 'In Progress' && (
                           <button
                             onClick={() => handleUpdateStatus(ticketId, 'Resolved')}
                             className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white transition-all text-[11px] cursor-pointer flex items-center gap-1 font-mono font-bold shadow-sm"

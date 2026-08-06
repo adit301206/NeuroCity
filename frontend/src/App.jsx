@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar.jsx';
 import TrafficEye from './pages/TrafficEye.jsx';
 import EnergySentinel from './components/EnergySentinel.jsx';
@@ -21,6 +21,39 @@ export default function App() {
       return null;
     }
   });
+
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const fetchUnreadCount = async () => {
+    if (!user) {
+      setUnreadCount(0);
+      return;
+    }
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      const res = await fetch('http://localhost:5000/api/complaints/notifications/my-alerts', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const result = await res.json();
+      if (res.ok && result.status === 'success') {
+        const alerts = result.data || [];
+        const unread = alerts.filter(notif => notif.isRead === false).length;
+        setUnreadCount(unread);
+      }
+    } catch (err) {
+      console.error('Error fetching unread notifications count:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchUnreadCount();
+    const interval = setInterval(fetchUnreadCount, 15000);
+    return () => clearInterval(interval);
+  }, [user]);
 
   const isAuthView = activeTab === 'login' || activeTab === 'signup';
 
@@ -58,6 +91,7 @@ export default function App() {
           currentUser={user} 
           onLogout={handleLogout} 
           onOpenSettings={handleOpenSettings}
+          unreadNotificationsCount={unreadCount}
         />
       )}
 
@@ -88,6 +122,7 @@ export default function App() {
             onLogout={handleLogout}
             onNavigate={(tab) => setActiveTab(tab)}
             initialSubTab={settingsSubTab}
+            onRefreshNotifications={fetchUnreadCount}
           />
         )}
 

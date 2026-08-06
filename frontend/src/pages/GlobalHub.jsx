@@ -183,10 +183,9 @@ function Hero({ onNavigate }) {
         </p>
         <div className="hero-cta">
           
-            href="#"
+          <a href="#"
             className="btn btn-solid btn-lg"
-            onClick={(e) => { e.preventDefault(); onNavigate && onNavigate('traffic-eye'); }}
-          <a>
+            onClick={(e) => { e.preventDefault(); onNavigate && onNavigate('traffic-eye'); }}>
             Launch Traffic Eye →
           </a>
           <a href="#console" className="btn btn-ghost btn-lg">Watch the grid live</a>
@@ -976,10 +975,9 @@ function CTASection({ onNavigate }) {
         <h2>Give your city a nervous system.</h2>
         <p>Start with Traffic Eye — clear an emergency corridor in under a minute.</p>
         
-          href="#"
+        <a href="#"
           className="btn btn-solid btn-lg"
-          onClick={(e) => { e.preventDefault(); onNavigate && onNavigate('traffic-eye'); }}
-        <a>
+          onClick={(e) => { e.preventDefault(); onNavigate && onNavigate('traffic-eye'); }}>
           Launch Traffic Eye →
         </a>
       </div>

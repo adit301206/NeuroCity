@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  User, KeyRound, Trash2, Shield, Lock, CheckCircle2, AlertCircle, Eye, EyeOff, UserCheck, Mail, BadgeCheck, Sparkles, AlertTriangle, Check, Info, ArrowLeft
+  User, KeyRound, Trash2, Shield, Lock, CheckCircle2, AlertCircle, Eye, EyeOff, UserCheck, Mail, BadgeCheck, Sparkles, AlertTriangle, Check, Info, ArrowLeft, Bell
 } from 'lucide-react';
 import { changePasswordLocal, deleteAccountLocal, updateProfileLocal } from '../utils/localAuth';
 
-export default function SettingsPage({ currentUser, onUpdateUser, onLogout, onNavigate, initialSubTab = 'profile' }) {
+export default function SettingsPage({ currentUser, onUpdateUser, onLogout, onNavigate, initialSubTab = 'profile', onRefreshNotifications }) {
   const [activeSubTab, setActiveSubTab] = useState(initialSubTab);
 
   // Profile Details State
@@ -12,6 +12,43 @@ export default function SettingsPage({ currentUser, onUpdateUser, onLogout, onNa
     name: '',
     email: ''
   });
+
+  // Notifications State
+  const [notifications, setNotifications] = useState([]);
+  const [loadingNotifications, setLoadingNotifications] = useState(false);
+  const [selectedNotif, setSelectedNotif] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleNotificationClick = async (notif) => {
+    setSelectedNotif(notif);
+    setIsModalOpen(true);
+
+    if (!notif.isRead) {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      try {
+        const res = await fetch(`http://localhost:5000/api/complaints/notifications/${notif._id || notif.id}/read`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        const result = await res.json();
+        if (res.ok && result.status === 'success') {
+          // Update local state
+          setNotifications(prev => prev.map(n => (n._id === notif._id || n.id === notif.id) ? { ...n, isRead: true } : n));
+          // Refresh navbar count
+          if (onRefreshNotifications) {
+            onRefreshNotifications();
+          }
+        }
+      } catch (err) {
+        console.error('Error marking notification as read:', err);
+      }
+    }
+  };
 
   // Password Change State
   const [passData, setPassData] = useState({
@@ -38,6 +75,32 @@ export default function SettingsPage({ currentUser, onUpdateUser, onLogout, onNa
       });
     }
   }, [currentUser]);
+
+  useEffect(() => {
+    if (activeSubTab === 'notifications' && currentUser) {
+      const fetchNotifications = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        setLoadingNotifications(true);
+        try {
+          const res = await fetch('http://localhost:5000/api/complaints/notifications/my-alerts', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          const result = await res.json();
+          if (res.ok && result.status === 'success') {
+            setNotifications(result.data || []);
+          }
+        } catch (err) {
+          console.error('Error fetching notifications:', err);
+        } finally {
+          setLoadingNotifications(false);
+        }
+      };
+      fetchNotifications();
+    }
+  }, [activeSubTab, currentUser]);
 
   useEffect(() => {
     if (initialSubTab) {
@@ -361,7 +424,24 @@ export default function SettingsPage({ currentUser, onUpdateUser, onLogout, onNa
               {activeSubTab === 'password' && <Check className="w-4 h-4 text-[#48CAE4]" />}
             </button>
 
-            {/* Option 3: Delete Account */}
+            {/* Option 3: Notifications */}
+            <button
+              type="button"
+              onClick={() => { setActiveSubTab('notifications'); setStatusMsg(null); }}
+              className={`w-full p-3.5 rounded-2xl text-xs font-mono font-bold tracking-wider transition-all cursor-pointer flex items-center justify-between ${
+                activeSubTab === 'notifications'
+                  ? 'bg-gradient-to-r from-[#03045E] via-[#023E8A] to-[#0077B6] text-white shadow-md border border-[#0077B6]/50'
+                  : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/80'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Bell className={`w-4 h-4 ${activeSubTab === 'notifications' ? 'text-white' : 'text-[#0077B6]'}`} />
+                <span>NOTIFICATIONS</span>
+              </div>
+              {activeSubTab === 'notifications' && <Check className="w-4 h-4 text-[#48CAE4]" />}
+            </button>
+
+            {/* Option 4: Delete Account */}
             <button
               type="button"
               onClick={() => { setActiveSubTab('delete'); setStatusMsg(null); }}
@@ -626,7 +706,90 @@ export default function SettingsPage({ currentUser, onUpdateUser, onLogout, onNa
               </div>
             )}
 
-            {/* SUB-PAGE 3: DELETE ACCOUNT */}
+            {/* SUB-PAGE 3: NOTIFICATIONS */}
+            {activeSubTab === 'notifications' && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-lg font-bold text-slate-900 font-sans flex items-center gap-2">
+                    <Bell className="w-5 h-5 text-[#0077B6]" />
+                    <span>Citizen Notifications & Alerts</span>
+                  </h2>
+                  <p className="text-xs text-slate-500 font-mono mt-0.5">
+                    Real-time status updates and triage alerts for your submitted municipal tickets
+                  </p>
+                </div>
+
+                {loadingNotifications ? (
+                  <div className="flex flex-col items-center justify-center py-12 space-y-3">
+                    <span className="w-8 h-8 border-4 border-[#0077B6] border-t-transparent rounded-full animate-spin"></span>
+                    <p className="text-xs font-mono text-slate-500">Retrieving system alerts...</p>
+                  </div>
+                ) : notifications.length === 0 ? (
+                  <div className="p-8 rounded-2xl border border-dashed border-[#0077B6]/30 text-center bg-slate-50 space-y-2">
+                    <CheckCircle2 className="w-8 h-8 text-emerald-600 mx-auto opacity-80" />
+                    <h3 className="text-xs font-mono font-bold text-slate-700">ALL CLEAR</h3>
+                    <p className="text-xs text-slate-500 max-w-sm mx-auto font-sans">
+                      You have no active status notifications. Updates will appear here when an operator or administrator initiates action on your complaints.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {notifications.map((notif) => {
+                      const notifId = notif._id || notif.id;
+                      const notifTime = notif.createdAt 
+                        ? new Date(notif.createdAt).toLocaleDateString() + ' ' + new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+                        : 'Just now';
+
+                      return (
+                        <div
+                          key={notifId}
+                          onClick={() => handleNotificationClick(notif)}
+                          className={`p-5 rounded-2xl border hover:border-[#0077B6] hover:shadow-md transition-all space-y-2 animate-[fadeIn_0.2s_ease-out] cursor-pointer relative overflow-hidden ${
+                            notif.isRead 
+                              ? 'bg-slate-50 border-slate-200/80 text-slate-800' 
+                              : 'bg-blue-50/40 border-blue-200 text-blue-900 shadow-sm'
+                          }`}
+                        >
+                          {/* Unread Indicator Dot */}
+                          {!notif.isRead && (
+                            <span className="absolute top-3 right-3 w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
+                          )}
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-mono font-bold text-[#023E8A]">
+                              {notif.title}
+                            </span>
+                            <span className="text-[10px] font-mono text-slate-500">
+                              {notifTime}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-700 font-sans leading-relaxed font-medium">
+                            {notif.message}
+                          </p>
+                          {notif.complaint && (
+                            <div className="mt-2 pt-2 border-t border-slate-200/60 flex items-center justify-between text-[10px] font-mono text-slate-500">
+                              <span>Complaint Ref: {typeof notif.complaint === 'object' ? notif.complaint._id : notif.complaint}</span>
+                              {notif.complaint.status && (
+                                <span className={`px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+                                  notif.complaint.status === 'Resolved' 
+                                    ? 'bg-emerald-100 text-emerald-800' 
+                                    : notif.complaint.status === 'In Progress'
+                                      ? 'bg-amber-100 text-amber-800'
+                                      : 'bg-rose-100 text-rose-800'
+                                }`}>
+                                  {notif.complaint.status}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* SUB-PAGE 4: DELETE ACCOUNT */}
             {activeSubTab === 'delete' && (
               <div className="space-y-6">
                 <div>
@@ -700,6 +863,99 @@ export default function SettingsPage({ currentUser, onUpdateUser, onLogout, onNa
         </div>
 
       </div>
+
+      {/* Complaint Detail Modal */}
+      {isModalOpen && selectedNotif && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]">
+          <div 
+            className="w-full max-w-lg rounded-3xl bg-white border border-slate-200 shadow-2xl p-6 relative overflow-hidden font-sans animate-[scaleIn_0.2s_ease-out]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Top Glowing Deco Line */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#03045E] via-[#023E8A] to-[#0077B6]"></div>
+
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+              <div className="flex items-center gap-2">
+                <Bell className="w-5 h-5 text-[#0077B6]" />
+                <h3 className="text-base font-bold text-slate-900 font-mono tracking-wider uppercase">
+                  Alert Details
+                </h3>
+              </div>
+              <button 
+                onClick={() => { setIsModalOpen(false); setSelectedNotif(null); }}
+                className="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-all cursor-pointer font-bold text-sm"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="space-y-4 font-mono text-xs text-slate-800">
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-150 space-y-1">
+                <div className="text-[10px] text-slate-400 font-bold uppercase">Update Title</div>
+                <div className="font-bold text-sm text-[#023E8A]">{selectedNotif.title}</div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-150 space-y-1">
+                <div className="text-[10px] text-slate-400 font-bold uppercase">Message Detail</div>
+                <p className="text-xs font-sans text-slate-700 leading-relaxed font-medium">
+                  {selectedNotif.message}
+                </p>
+              </div>
+
+              {selectedNotif.complaint && (
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-150 space-y-0.5">
+                    <div className="text-[10px] text-slate-400 font-bold uppercase">Ticket ID</div>
+                    <div className="font-bold truncate text-slate-900">{selectedNotif.complaint._id || selectedNotif.complaint.id}</div>
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-150 space-y-0.5">
+                    <div className="text-[10px] text-slate-400 font-bold uppercase">City Location</div>
+                    <div className="font-bold truncate text-slate-900">{selectedNotif.complaint.location || 'Surat'}</div>
+                  </div>
+                </div>
+              )}
+
+              {selectedNotif.complaint && selectedNotif.complaint.status && (
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-150 flex items-center justify-between">
+                  <span className="text-[10px] text-slate-400 font-bold uppercase">Resolution Status:</span>
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                    selectedNotif.complaint.status === 'Resolved' 
+                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' 
+                      : selectedNotif.complaint.status === 'In Progress'
+                        ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                        : 'bg-rose-100 text-rose-800 border border-rose-300'
+                  }`}>
+                    {selectedNotif.complaint.status}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="mt-6 pt-4 border-t border-slate-100 flex justify-end">
+              <button
+                onClick={() => { setIsModalOpen(false); setSelectedNotif(null); }}
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#03045E] via-[#023E8A] to-[#0077B6] text-white font-mono text-xs font-bold tracking-wider hover:from-[#023E8A] hover:to-[#0077B6] transition-all shadow-md cursor-pointer"
+              >
+                CLOSE DETAIL
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes scaleIn {
+          from { transform: scale(0.95); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 }
