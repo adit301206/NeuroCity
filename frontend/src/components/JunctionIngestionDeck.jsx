@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { UploadCloud, Camera, AlertCircle, RefreshCw, Cpu } from 'lucide-react';
 
-export default function JunctionIngestionDeck({ onAnalysisComplete }) {
+export default function JunctionIngestionDeck({ onAnalysisComplete, onReset }) {
   const directions = ['north', 'south', 'east', 'west'];
   
   const [files, setFiles] = useState({
@@ -20,6 +20,35 @@ export default function JunctionIngestionDeck({ onAnalysisComplete }) {
 
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+
+  const handleRemoveImages = () => {
+    // Revoke object URLs
+    Object.values(previews).forEach(url => {
+      if (url) {
+        URL.revokeObjectURL(url);
+      }
+    });
+
+    setFiles({
+      north: null,
+      south: null,
+      east: null,
+      west: null
+    });
+
+    setPreviews({
+      north: null,
+      south: null,
+      east: null,
+      west: null
+    });
+
+    setErrorMsg(null);
+
+    if (onReset) {
+      onReset();
+    }
+  };
 
   const handleFileChange = (dir, file) => {
     if (!file) return;
@@ -169,28 +198,40 @@ export default function JunctionIngestionDeck({ onAnalysisComplete }) {
         </div>
       )}
 
-      {/* Action Button */}
-      <button
-        onClick={handleAnalyze}
-        disabled={isAnalyzing}
-        className={`w-full py-3 px-4 rounded-xl font-bold text-center tracking-wider text-[10px] uppercase flex items-center justify-center gap-2 transition-all cursor-pointer ${
-          isAnalyzing
-            ? 'bg-[#0077B6]/30 border border-[#00B4D8]/20 text-[#00B4D8] cursor-not-allowed'
-            : 'bg-gradient-to-r from-[#0077B6] to-[#00B4D8] border border-[#00B4D8]/50 text-[#CAF0F8] hover:shadow-[0_0_15px_rgba(0,180,216,0.35)] shadow-md'
-        }`}
-      >
-        {isAnalyzing ? (
-          <>
-            <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-            <span>ANALYZING CAMERA FEEDS & CALCULATING TIMERS...</span>
-          </>
-        ) : (
-          <>
-            <UploadCloud className="h-3.5 w-3.5" />
-            <span>ANALYZE JUNCTION & ADJUST 3D TIMERS</span>
-          </>
+      {/* Action Buttons */}
+      <div className="flex gap-4 w-full">
+        <button
+          onClick={handleAnalyze}
+          disabled={isAnalyzing}
+          className={`flex-1 py-3 px-4 rounded-xl font-bold text-center tracking-wider text-[10px] uppercase flex items-center justify-center gap-2 transition-all cursor-pointer ${
+            isAnalyzing
+              ? 'bg-[#0077B6]/30 border border-[#00B4D8]/20 text-[#00B4D8] cursor-not-allowed'
+              : 'bg-gradient-to-r from-[#0077B6] to-[#00B4D8] border border-[#00B4D8]/50 text-[#CAF0F8] hover:shadow-[0_0_15px_rgba(0,180,216,0.35)] shadow-md'
+          }`}
+        >
+          {isAnalyzing ? (
+            <>
+              <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+              <span>ANALYZING CAMERA FEEDS...</span>
+            </>
+          ) : (
+            <>
+              <UploadCloud className="h-3.5 w-3.5" />
+              <span>ANALYZE JUNCTION & ADJUST 3D TIMERS</span>
+            </>
+          )}
+        </button>
+
+        {Object.values(files).some(f => f !== null) && (
+          <button
+            onClick={handleRemoveImages}
+            disabled={isAnalyzing}
+            className="py-3 px-6 rounded-xl font-bold text-center tracking-wider text-[10px] uppercase flex items-center justify-center gap-2 border border-red-500/40 bg-red-950/20 text-red-400 hover:bg-red-950/40 hover:text-red-300 transition-all cursor-pointer shadow-md disabled:opacity-50"
+          >
+            REMOVE IMAGES
+          </button>
         )}
-      </button>
+      </div>
     </section>
   );
 }

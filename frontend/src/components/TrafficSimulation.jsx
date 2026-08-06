@@ -59,6 +59,53 @@ function createVehicle(id, approach, intent, initialOffset = 0) {
   };
 }
 
+// Helper to generate dynamic vehicle queues for approaches
+function generateDynamicVehicles(counts, emergencyApproach = null) {
+  const newCars = [];
+  const directions = ['NORTH', 'SOUTH', 'EAST', 'WEST'];
+  
+  directions.forEach(dir => {
+    const count = counts[dir] || 0;
+    const isEmergencyDir = emergencyApproach === dir;
+    
+    const laneCounters = [0, 0, 0];
+
+    for (let i = 0; i < count; i++) {
+      let laneIndex = i % 3;
+      
+      const isAmbulance = isEmergencyDir && i === 0;
+      if (isAmbulance) {
+        laneIndex = 1;
+      }
+
+      const laneCount = laneCounters[laneIndex];
+      laneCounters[laneIndex]++;
+
+      const initialProgress = Math.max(0, 16.5 - laneCount * 2.8);
+
+      let intent = 'STRAIGHT';
+      if (laneIndex === 0) {
+        intent = 'LEFT_TURN';
+      } else if (laneIndex === 2) {
+        intent = 'RIGHT_TURN';
+      }
+
+      const id = `${dir.toLowerCase()}-${laneIndex}-${laneCount}-${i}`;
+      const car = createVehicle(id, dir, intent, initialProgress);
+      
+      if (isAmbulance) {
+        car.type = 'AMBULANCE';
+        car.color = '#FFFFFF';
+        car.speed = 6.0;
+      }
+
+      newCars.push(car);
+    }
+  });
+
+  return newCars;
+}
+
 // Get coordinates for APPROACHING phase under Indian Left-Hand Drive (LHD)
 function getApproachCoords(approach, laneIndex, progress) {
   let x = 0, z = 0, angle = 0;
@@ -803,48 +850,7 @@ export default function TrafficSimulation({ onBackToAnalyzer, onNavigate }) {
       return;
     }
 
-    const newCars = [];
-    const directions = ['NORTH', 'SOUTH', 'EAST', 'WEST'];
-    
-    directions.forEach(dir => {
-      const count = vehicleCounts[dir] || 0;
-      const isEmergencyDir = emergencyOverride === dir;
-      
-      const laneCounters = [0, 0, 0];
-
-      for (let i = 0; i < count; i++) {
-        let laneIndex = i % 3;
-        
-        const isAmbulance = isEmergencyDir && i === 0;
-        if (isAmbulance) {
-          laneIndex = 1;
-        }
-
-        const laneCount = laneCounters[laneIndex];
-        laneCounters[laneIndex]++;
-
-        const initialProgress = Math.max(0, 16.5 - laneCount * 2.8);
-
-        let intent = 'STRAIGHT';
-        if (laneIndex === 0) {
-          intent = 'LEFT_TURN';
-        } else if (laneIndex === 2) {
-          intent = 'RIGHT_TURN';
-        }
-
-        const id = `${dir.toLowerCase()}-${laneIndex}-${laneCount}-${i}`;
-        const car = createVehicle(id, dir, intent, initialProgress);
-        
-        if (isAmbulance) {
-          car.type = 'AMBULANCE';
-          car.color = '#FFFFFF';
-          car.speed = 6.0;
-        }
-
-        newCars.push(car);
-      }
-    });
-
+    const newCars = generateDynamicVehicles(vehicleCounts, emergencyOverride);
     setVehicleList(newCars);
   }, [vehicleCounts, emergencyOverride]);
 
@@ -935,6 +941,16 @@ export default function TrafficSimulation({ onBackToAnalyzer, onNavigate }) {
         setCountdown(nextCountdown);
       }
     }
+  };
+
+  const handleResetSimulation = () => {
+    setEmergencyOverride(null);
+    setDirectionalTimers({ NORTH: 15, WEST: 15, SOUTH: 15, EAST: 15 });
+    setVehicleCounts({ NORTH: 0, WEST: 0, SOUTH: 0, EAST: 0 });
+    const baselineCounts = { NORTH: 5, SOUTH: 5, EAST: 5, WEST: 5 };
+    const newCars = generateDynamicVehicles(baselineCounts);
+    setVehicleList(newCars);
+    setCountdown(15);
   };
 
   // Signal pole display calculations
@@ -1382,7 +1398,10 @@ export default function TrafficSimulation({ onBackToAnalyzer, onNavigate }) {
               </div>
 
               {/* JUNCTION INGESTION DECK */}
-              <JunctionIngestionDeck onAnalysisComplete={handleAnalysisComplete} />
+              <JunctionIngestionDeck 
+                onAnalysisComplete={handleAnalysisComplete} 
+                onReset={handleResetSimulation}
+              />
             </div>
 
             {/* Side Telemetry Controls & HUD */}
