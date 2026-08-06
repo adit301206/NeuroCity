@@ -8,6 +8,7 @@ const complaintRoutes = require('./routes/complaints'); // Import new route modu
 const healthRoutes = require('./routes/health'); // Import health route module
 const trafficRoutes = require('./routes/traffic'); // Import traffic route module
 const energyRoutes = require('./routes/energy'); // Import energy sentinel route module
+const weatherRoutes = require('./routes/weather'); // Import weather routes module
 
 connectDB();
 
@@ -24,6 +25,7 @@ app.use('/api/complaints', complaintRoutes); // Register complaints path here!
 app.use('/api/health', healthRoutes); // Register master health check route
 app.use('/api/traffic', trafficRoutes); // Register traffic pipeline route
 app.use('/api/energy', energyRoutes); // Register energy sentinel pipeline route
+app.use('/api/weather', weatherRoutes); // Register weather telemetry route
 
 app.get('/', (req, res) => {
     res.json({ status: "online", service: "NeuroCity Core Gateway Router" });

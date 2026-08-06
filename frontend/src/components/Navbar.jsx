@@ -6,6 +6,7 @@ export default function Navbar({ onNavigate, activeTab, currentUser, onLogout, o
     { id: 'traffic-eye', label: 'Traffic Eye' },
     { id: 'energy-sentinel', label: 'Energy Sentinel' },
     { id: 'citizen-desk', label: 'Citizen Desk' },
+    { id: 'climate-eye', label: 'Climate Eye' },
   ];
 
   const user = currentUser || (() => {

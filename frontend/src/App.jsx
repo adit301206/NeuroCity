@@ -9,6 +9,7 @@ import NetworkBackground from './components/NetworkBackground.jsx'; // બેક
 import './components/auth.css'; // ઓથેન્ટિકેશન માટેની CSS ફાઇલ
 import CitizenDesk from './pages/CitizenDesk.jsx'; // Make sure the path matches your folder structure
 import GlobalHub from './pages/GlobalHub.jsx';
+import WeatherPage from './pages/WeatherPage.jsx';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('global-hub');
@@ -112,6 +113,11 @@ export default function App() {
             onOpenAuth={() => setActiveTab('login')}
             onLogout={handleLogout}
           />
+        )}
+
+        {/* Render WeatherPage Component */}
+        {activeTab === 'climate-eye' && (
+          <WeatherPage />
         )}
 
         {/* full Standalone Settings Page */}
