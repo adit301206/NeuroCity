@@ -24,7 +24,7 @@ export default function TrafficEye({ onNavigate, user, onOpenAuth, onLogout }) {
                 }
               }}
               onViewLogs={() => {
-                const logsSection = document.getElementById('traffic-logs-deck');
+                const logsSection = document.getElementById('traffic-logs-section');
                 if (logsSection) {
                   logsSection.scrollIntoView({ behavior: 'smooth' });
                 }

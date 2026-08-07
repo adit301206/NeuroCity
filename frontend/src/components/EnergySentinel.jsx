@@ -388,50 +388,6 @@ export default function EnergySentinel() {
             <p className="text-slate-200 text-sm font-light leading-relaxed max-w-2xl">
               Autonomous load-balancing and predictive power distribution across Smart City sectors. Real-time telemetry monitoring carbon offset and automated micro-grid overrides.
             </p>
-
-            <div className="flex flex-wrap items-center gap-4 pt-2">
-              <button
-                onClick={() => setAutoOptimize(!autoOptimize)}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-mono font-bold transition-all shadow-lg ${autoOptimize
-                  ? 'bg-[#0077B6] hover:bg-[#0096C7] text-white shadow-cyan-950/50'
-                  : 'bg-[#131971] text-slate-300 border border-[#0077B6]/40'
-                  }`}
-              >
-                <Power className="w-4 h-4" />
-                Auto-Optimize: {autoOptimize ? 'ACTIVE' : 'OFF'}
-              </button>
-
-              <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#131971] hover:bg-[#181F87] text-[#CAF0F8] border border-[#0077B6]/50 text-xs font-mono font-bold transition-all">
-                <RefreshCw className="w-4 h-4 text-[#48CAE4]" />
-                Sync Telemetry
-              </button>
-            </div>
-          </div>
-
-          <div className="lg:col-span-5">
-            <div className="bg-[#131971] rounded-2xl p-5 border border-[#0077B6]/50 shadow-2xl relative overflow-hidden">
-              <div className="flex items-center justify-between text-[11px] font-mono text-[#CAF0F8] border-b border-[#0077B6]/40 pb-3 mb-4">
-                <div className="flex items-center gap-2 font-bold text-[#48CAE4]">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                  GRID_STABILITY: 99.98%
-                </div>
-                <div className="text-slate-300">
-                  SURGE_PROTECTION: <span className="text-emerald-400 font-bold">ON</span>
-                </div>
-              </div>
-
-              <div className="bg-[#0B0E4E] rounded-xl p-6 border border-[#0077B6]/30 text-center flex flex-col items-center justify-center relative">
-                <div className="relative w-20 h-20 rounded-full border-2 border-dashed border-[#0077B6] flex items-center justify-center mb-3 shadow-[0_0_25px_rgba(0,119,182,0.4)]">
-                  <div className="w-14 h-14 rounded-full bg-[#0077B6]/30 flex items-center justify-center">
-                    <Zap className="w-7 h-7 text-[#48CAE4] animate-pulse" />
-                  </div>
-                </div>
-
-                <p className="font-mono text-xs text-[#CAF0F8] tracking-widest font-semibold">
-                  [ DYNAMIC LOAD DISTRIBUTION HIGHWAY ]
-                </p>
-              </div>
-            </div>
           </div>
         </div>
       </div>

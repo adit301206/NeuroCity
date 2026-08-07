@@ -607,70 +607,9 @@ function CitizenHeatmapSection({ onNavigate }) {
 }
 
 /* ==========================================
-   FEATURE 4: SMART TRANSIT / METRO & BUS FEED
+   FEATURE 4: AIR QUALITY (AQI) LIVE MONITOR
    ========================================== */
-function SmartTransitSection() {
-  const [transitList] = useState([
-    { id: 1, routeNo: 'AMTS Route 13/1', name: 'Kalupur to Vastrapur', eta: '3 mins', status: 'OnTime' },
-    { id: 2, routeNo: 'Metro East-West Corridor', name: 'Apparel Park to Vastral Gam', eta: 'Arriving', status: 'OnTime' },
-    { id: 3, routeNo: 'BRTS Corridor 1', name: 'RTO Circle to Maninagar', eta: '12 mins', status: 'Delayed' }
-  ]);
-  const [filterType, setFilterType] = useState('All');
-
-  const filteredTransit = transitList.filter((item) => {
-    if (filterType === 'All') return true;
-    if (filterType === 'Bus') return item.routeNo.includes('AMTS');
-    if (filterType === 'Metro') return item.routeNo.includes('Metro');
-    if (filterType === 'BRTS') return item.routeNo.includes('BRTS');
-    return false;
-  });
-
-  return (
-    <FeaturePanel
-      id="transit-eye"
-      index="04"
-      reverse
-      title="Smart Transit & Fleet Tracking Feed"
-      description="Monitor real-time GPS coordinates and schedules for municipal buses, BRTS corridors, and Metro lines across the entire transit network."
-      controls={
-        <div className="feature-form">
-          <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--navy)' }}>Filter transit mode</label>
-          <select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
-            <option value="All">All networks (Bus, BRTS, Metro)</option>
-            <option value="Bus">AMTS city buses</option>
-            <option value="BRTS">BRTS express corridors</option>
-            <option value="Metro">Metro rail lines</option>
-          </select>
-          <div className="hint">Synced directly with the GTFS real-time municipal telemetry gateway.</div>
-        </div>
-      }
-    >
-      <div className="console-bar">
-        <span className="tag mono">
-          <span className="pip-dot" /> TRANSIT_EYE // GTFS_FEED
-        </span>
-        <span className="console-meta">Active units: {filteredTransit.length}</span>
-      </div>
-
-      <div className="data-feed">
-        {filteredTransit.map((item) => (
-          <div key={item.id} className="data-row">
-            <div>
-              <div className="row-title">{item.routeNo} — {item.name}</div>
-              <span className="row-sub">Next arrival/ETA: <strong>{item.eta}</strong></span>
-            </div>
-            <span className={`status-badge ${toneFor(item.status)}`}>{item.status}</span>
-          </div>
-        ))}
-      </div>
-    </FeaturePanel>
-  );
-}
-
-/* ==========================================
-   FEATURE 5: AIR QUALITY (AQI) LIVE MONITOR
-   ========================================== */
-function SmartAQISection() {
+function SmartAQISection({ onNavigate }) {
   const [aqiList] = useState([
     { id: 1, zone: 'SG Highway Zone', aqi: 68, pm25: '22 µg/m³', status: 'Good' },
     { id: 2, zone: 'Maninagar Industrial Pocket', aqi: 154, pm25: '64 µg/m³', status: 'Poor' },
@@ -684,7 +623,8 @@ function SmartAQISection() {
   return (
     <FeaturePanel
       id="eco-sentinel"
-      index="05"
+      index="04"
+      reverse
       title="Air Quality & Pollution Index (AQI) Live Monitor"
       description="Track real-time PM2.5, PM10, and gaseous pollutant metrics collected from municipal sensor arrays deployed across different urban zones."
       controls={
@@ -697,6 +637,14 @@ function SmartAQISection() {
             <option value="Poor">Poor AQI (100+)</option>
           </select>
           <div className="hint">Connected via IoT wireless sensor nodes and real-time environmental APIs.</div>
+          <button
+            type="button"
+            className="feature-more-link"
+            onClick={() => onNavigate && onNavigate('climate-eye')}
+            style={{ marginTop: '12px', display: 'block' }}
+          >
+            View Live Weather & AQI Map →
+          </button>
         </div>
       }
     >
@@ -722,82 +670,6 @@ function SmartAQISection() {
   );
 }
 
-/* ==========================================
-   4. GLOBAL HUB CONSOLE
-   ========================================== */
-function ConsoleSection({ telemetry }) {
-  const bars = useMemo(
-    () => Array.from({ length: 28 }, () => ({ height: 30 + Math.random() * 140, delay: Math.random() * 4 })),
-    []
-  );
-
-  return (
-    <section className="section" id="console">
-      <div className="section-head reveal">
-        <span className="kicker">One Grid, Every System</span>
-        <h2>Every borough, on a single screen.</h2>
-        <p>
-          Global Hub pulls live telemetry from every module into one command view —
-          traffic flow, grid load, and citizen requests, all reconciled against the
-          same city clock.
-        </p>
-      </div>
-
-      <div className="console-wrap reveal">
-        <div className="console data-console">
-          <div className="console-bar">
-            <span className="tag mono">
-              <span className="pip-dot" />
-              GLOBAL_HUB // SESSION_ACTIVE
-            </span>
-            <div className="dots"><span /><span /><span /></div>
-          </div>
-
-          <div className="console-grid">
-            <div className="panel">
-              <div className="panel-title"><b>Digital Twin — Skyline Load</b><span className="badge ok">STABLE</span></div>
-              <div className="skyline">
-                {bars.map((bar, i) => (
-                  <i key={i} style={{ height: `${bar.height}px`, animationDelay: `${bar.delay}s` }} />
-                ))}
-              </div>
-            </div>
-
-            <div className="panel">
-              <div className="panel-title"><b>Module Status</b></div>
-              <div className="metric-row"><span className="k">Traffic Eye</span><span className="v up">{telemetry?.gridMetrics?.trafficFlow || 'Optimal'}</span></div>
-              <div className="metric-row"><span className="k">Energy Sentinel</span><span className="v up">{telemetry?.gridMetrics?.gridLoad || '99.9% stable'}</span></div>
-              <div className="metric-row"><span className="k">Citizen Desk</span><span className="v">{telemetry?.totalComplaints !== undefined ? `${telemetry.totalComplaints} open (${telemetry.urgentComplaints || 0} urgent)` : '1,204 open'}</span></div>
-              <div className="metric-row"><span className="k">Network mesh</span><span className="v up">{telemetry?.gridMetrics?.networkMesh || 'Secure'}</span></div>
-            </div>
-
-            <div className="panel">
-              <div className="panel-title"><b>Renewable Share</b></div>
-              <div className="ring-wrap">
-                <div className="ring">
-                  <svg width="120" height="120">
-                    <circle cx="60" cy="60" r="52" stroke="rgba(255,255,255,0.12)" strokeWidth="10" fill="none" />
-                    <circle
-                      cx="60" cy="60" r="52" stroke="url(#g1)" strokeWidth="10" fill="none"
-                      strokeLinecap="round" strokeDasharray="326.7" strokeDashoffset="103"
-                    />
-                    <defs>
-                      <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0%" stopColor="#00B4D8" />
-                        <stop offset="100%" stopColor="#22D3EE" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                  <div className="ring-label"><span className="n">68.4%</span><span className="l">SOLAR + WIND</span></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
 
 /* ==========================================
    5. MODULES
@@ -833,6 +705,17 @@ const MODULES_DATA = [
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00B4D8" strokeWidth="1.8">
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+      </svg>
+    )
+  },
+  {
+    title: 'Weather & Air Quality Intelligence',
+    id: 'climate-eye',
+    desc: 'Real-time atmospheric telemetry, CPCB pollution indexing, 5-day predictive forecast curves, and solar energy yield calculations.',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00B4D8" strokeWidth="1.8">
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+        <path d="M17.5 19H9a5 5 0 0 1-1-9.9 7.5 7.5 0 0 1 13.9-1.6 3.5 3.5 0 0 1-4.4 12.5z" />
       </svg>
     )
   }
@@ -1195,9 +1078,7 @@ export default function GlobalHub({ onNavigate }) {
       <EmergencyCorridorSection onNavigate={onNavigate} />
       <ClimateKnobsSection onNavigate={onNavigate} />
       <CitizenHeatmapSection onNavigate={onNavigate} />
-      <SmartTransitSection />
-      <SmartAQISection />
-      <ConsoleSection telemetry={telemetry} />
+      <SmartAQISection onNavigate={onNavigate} />
       <ModulesSection onNavigate={onNavigate} />
       <TestimonialsSection />
       <FAQSection />

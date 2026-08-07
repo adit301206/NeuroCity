@@ -630,6 +630,57 @@ export default function WeatherPage() {
                   </div>
                 )}
 
+                {/* 4 Weather Metric Boxes in a single horizontal row */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono">
+                  {/* Temperature Box */}
+                  <div className="bg-[#E6F7FF] border border-[#CAF0F8] p-3.5 rounded-2xl shadow-sm space-y-1.5 flex flex-col justify-between text-slate-800">
+                    <div className="flex items-center gap-1 text-[#023E8A] text-[9px] uppercase font-bold tracking-wider">
+                      <Thermometer className="w-3.5 h-3.5 text-[#0077B6]" />
+                      Temp
+                    </div>
+                    <div>
+                      <div className="text-lg font-extrabold text-[#03045E]">{telemetry.weather.temperature.toFixed(1)}°C</div>
+                      <span className="text-[8px] text-slate-500">Feels Like {telemetry.weather.feelsLike.toFixed(1)}°C</span>
+                    </div>
+                  </div>
+
+                  {/* Wind Velocity Box */}
+                  <div className="bg-[#E6F7FF] border border-[#CAF0F8] p-3.5 rounded-2xl shadow-sm space-y-1.5 flex flex-col justify-between text-slate-800">
+                    <div className="flex items-center gap-1 text-[#023E8A] text-[9px] uppercase font-bold tracking-wider">
+                      <Wind className="w-3.5 h-3.5 text-[#0077B6]" />
+                      Wind
+                    </div>
+                    <div>
+                      <div className="text-lg font-extrabold text-[#03045E]">{telemetry.weather.windSpeed.toFixed(1)} m/s</div>
+                      <span className="text-[8px] text-slate-500">Velocity vector</span>
+                    </div>
+                  </div>
+
+                  {/* Humidity Box */}
+                  <div className="bg-[#E6F7FF] border border-[#CAF0F8] p-3.5 rounded-2xl shadow-sm space-y-1.5 flex flex-col justify-between text-slate-800">
+                    <div className="flex items-center gap-1 text-[#023E8A] text-[9px] uppercase font-bold tracking-wider">
+                      <Droplets className="w-3.5 h-3.5 text-[#0077B6]" />
+                      Humidity
+                    </div>
+                    <div>
+                      <div className="text-lg font-extrabold text-[#03045E]">{telemetry.weather.humidity}%</div>
+                      <span className="text-[8px] text-slate-500">Water content</span>
+                    </div>
+                  </div>
+
+                  {/* Pressure Box */}
+                  <div className="bg-[#E6F7FF] border border-[#CAF0F8] p-3.5 rounded-2xl shadow-sm space-y-1.5 flex flex-col justify-between text-slate-800">
+                    <div className="flex items-center gap-1 text-[#023E8A] text-[9px] uppercase font-bold tracking-wider">
+                      <Info className="w-3.5 h-3.5 text-[#0077B6]" />
+                      Pressure
+                    </div>
+                    <div>
+                      <div className="text-lg font-extrabold text-[#03045E]">{telemetry.weather.pressure} hPa</div>
+                      <span className="text-[8px] text-slate-500">Atm density</span>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Pollutant Gas Breakdown grid (Moved from Right Column to Left Column) */}
                 <div className="bg-[#023E8A] border border-[#0096C7]/50 rounded-3xl p-5 shadow-[0_0_20px_rgba(0,150,199,0.15)] space-y-4 font-mono text-[#CAF0F8]">
                   <div className="flex items-center justify-between border-b border-[#0077B6]/50 pb-3">
@@ -769,56 +820,7 @@ export default function WeatherPage() {
                   </div>
                 </div>
 
-                {/* Item 3: 4 Weather Metric Boxes */}
-                <div className="grid grid-cols-2 gap-3 font-mono">
-                  {/* Temperature Box */}
-                  <div className="bg-[#E6F7FF] border border-[#CAF0F8] p-3.5 rounded-2xl shadow-sm space-y-1.5 flex flex-col justify-between text-slate-800">
-                    <div className="flex items-center gap-1 text-[#023E8A] text-[9px] uppercase font-bold tracking-wider">
-                      <Thermometer className="w-3.5 h-3.5 text-[#0077B6]" />
-                      Temp
-                    </div>
-                    <div>
-                      <div className="text-lg font-extrabold text-[#03045E]">{telemetry.weather.temperature.toFixed(1)}°C</div>
-                      <span className="text-[8px] text-slate-500">Feels Like {telemetry.weather.feelsLike.toFixed(1)}°C</span>
-                    </div>
-                  </div>
 
-                  {/* Wind Velocity Box */}
-                  <div className="bg-[#E6F7FF] border border-[#CAF0F8] p-3.5 rounded-2xl shadow-sm space-y-1.5 flex flex-col justify-between text-slate-800">
-                    <div className="flex items-center gap-1 text-[#023E8A] text-[9px] uppercase font-bold tracking-wider">
-                      <Wind className="w-3.5 h-3.5 text-[#0077B6]" />
-                      Wind
-                    </div>
-                    <div>
-                      <div className="text-lg font-extrabold text-[#03045E]">{telemetry.weather.windSpeed.toFixed(1)} m/s</div>
-                      <span className="text-[8px] text-slate-500">Velocity vector</span>
-                    </div>
-                  </div>
-
-                  {/* Humidity Box */}
-                  <div className="bg-[#E6F7FF] border border-[#CAF0F8] p-3.5 rounded-2xl shadow-sm space-y-1.5 flex flex-col justify-between text-slate-800">
-                    <div className="flex items-center gap-1 text-[#023E8A] text-[9px] uppercase font-bold tracking-wider">
-                      <Droplets className="w-3.5 h-3.5 text-[#0077B6]" />
-                      Humidity
-                    </div>
-                    <div>
-                      <div className="text-lg font-extrabold text-[#03045E]">{telemetry.weather.humidity}%</div>
-                      <span className="text-[8px] text-slate-500">Water content</span>
-                    </div>
-                  </div>
-
-                  {/* Pressure Box */}
-                  <div className="bg-[#E6F7FF] border border-[#CAF0F8] p-3.5 rounded-2xl shadow-sm space-y-1.5 flex flex-col justify-between text-slate-800">
-                    <div className="flex items-center gap-1 text-[#023E8A] text-[9px] uppercase font-bold tracking-wider">
-                      <Info className="w-3.5 h-3.5 text-[#0077B6]" />
-                      Pressure
-                    </div>
-                    <div>
-                      <div className="text-lg font-extrabold text-[#03045E]">{telemetry.weather.pressure} hPa</div>
-                      <span className="text-[8px] text-slate-500">Atm density</span>
-                    </div>
-                  </div>
-                </div>
 
                 {/* Item 4: Municipal Health Advisory Banner */}
                 <section className="bg-[#023E8A] border border-[#0096C7]/50 p-5 rounded-3xl shadow-sm space-y-4 font-mono text-[#CAF0F8]">

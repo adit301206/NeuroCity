@@ -899,7 +899,7 @@ export default function TrafficWorkspace() {
       </div>
 
       {/* BOTTOM SPAN: THE ARCHIVED DATA HISTORY LOGS */}
-      <section className="mx-6 mt-12 lg:mt-16 mb-12">
+      <section id="traffic-logs-section" className="mx-6 mt-12 lg:mt-16 mb-12">
         <div className="bg-[#ADE8F4]/20 backdrop-blur-md border border-[#023E8A] shadow-lg rounded-2xl p-6">
 
           {/* Section Header */}
