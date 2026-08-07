@@ -3,6 +3,8 @@ const router = express.Router();
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const { protect } = require('../middleware/authMiddleware');
+const bcrypt = require('bcryptjs');
+const { sendOtpEmail, sendWelcomeEmail } = require('../utils/nodemailerEmail');
 
 const { OAuth2Client } = require('google-auth-library');
 
@@ -61,7 +63,8 @@ router.post('/google', async (req, res) => {
                 name: name || normalizedEmail.split('@')[0],
                 email: normalizedEmail,
                 password: randomPassword,
-                role: 'citizen'
+                role: 'citizen',
+                isVerified: true
             });
         }
 
@@ -149,6 +152,10 @@ router.post('/login', async (req, res) => {
         
         if (!user || !(await user.matchPassword(password))) {
             return res.status(400).json({ status: "fail", message: 'Invalid credentials' });
+        }
+
+        if (!user.isVerified) {
+            return res.status(401).json({ status: "fail", message: 'Please verify your email address before logging in' });
         }
         
         const userData = { 
@@ -332,6 +339,221 @@ router.delete('/delete-account', protect, async (req, res) => {
         res.json({
             status: "success",
             message: 'Account deleted successfully'
+        });
+    } catch (error) {
+        res.status(500).json({ status: "error", message: error.message });
+    }
+});
+
+
+// @route   POST /api/auth/signup/request-otp
+// @desc    Register user details, hash password and OTP, save pending user, send verification OTP
+router.post('/signup/request-otp', async (req, res) => {
+    try {
+        const { name, email, password, role } = req.body;
+
+        if (!name || !email || !password) {
+            return res.status(400).json({ status: "fail", message: 'Please provide name, email, and password' });
+        }
+
+        if (password.length < 6) {
+            return res.status(400).json({ status: "fail", message: 'Password must be at least 6 characters long' });
+        }
+
+        if (role && !['citizen', 'operator', 'admin'].includes(role)) {
+            return res.status(400).json({ status: "fail", message: "Invalid role value" });
+        }
+
+        const normalizedEmail = email.toLowerCase().trim();
+        let user = await User.findOne({ email: normalizedEmail });
+
+        if (user) {
+            if (user.isVerified) {
+                return res.status(400).json({ status: "fail", message: 'Email already registered and verified' });
+            }
+            // User exists but is unverified - update their details and set new OTP
+            user.name = name;
+            user.password = password; // pre-save hook will hash this automatically
+            user.role = role || 'citizen';
+        } else {
+            // Create a new unverified user
+            user = new User({
+                name,
+                email: normalizedEmail,
+                password,
+                role: role || 'citizen',
+                isVerified: false
+            });
+        }
+
+        // Generate 6-digit OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        
+        // Hash OTP and save with 10 minutes expiry
+        const otpSalt = await bcrypt.genSalt(10);
+        user.otpCode = await bcrypt.hash(otp, otpSalt);
+        user.otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
+
+        await user.save();
+
+        // Send OTP email
+        await sendOtpEmail(normalizedEmail, otp, 'signup');
+
+        res.json({
+            status: "success",
+            message: 'Verification OTP has been sent to your email address. It is valid for 10 minutes.'
+        });
+    } catch (error) {
+        res.status(500).json({ status: "error", message: error.message });
+    }
+});
+
+// @route   POST /api/auth/signup/verify-otp
+// @desc    Validate signup OTP, set isVerified: true, send welcome email, and log in user (return JWT)
+router.post('/signup/verify-otp', async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+
+        if (!email || !otp) {
+            return res.status(400).json({ status: "fail", message: 'Please provide email and verification OTP' });
+        }
+
+        const normalizedEmail = email.toLowerCase().trim();
+        const user = await User.findOne({ email: normalizedEmail });
+
+        if (!user) {
+            return res.status(404).json({ status: "fail", message: 'User not found' });
+        }
+
+        if (user.isVerified) {
+            return res.status(400).json({ status: "fail", message: 'User is already verified' });
+        }
+
+        if (!user.otpCode || !user.otpExpiresAt) {
+            return res.status(400).json({ status: "fail", message: 'No OTP requested for this user' });
+        }
+
+        if (new Date() > user.otpExpiresAt) {
+            return res.status(400).json({ status: "fail", message: 'Verification OTP code has expired' });
+        }
+
+        const isMatch = await bcrypt.compare(otp, user.otpCode);
+        if (!isMatch) {
+            return res.status(400).json({ status: "fail", message: 'Incorrect verification OTP code' });
+        }
+
+        // Set verified, clear OTP fields
+        user.isVerified = true;
+        user.otpCode = undefined;
+        user.otpExpiresAt = undefined;
+
+        await user.save();
+
+        // Send welcome email
+        await sendWelcomeEmail(normalizedEmail, user.name);
+
+        const userData = {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role
+        };
+
+        res.json({
+            status: "success",
+            message: 'Email verification successful. Account activated.',
+            token: generateToken(user._id),
+            user: userData,
+            data: userData
+        });
+    } catch (error) {
+        res.status(500).json({ status: "error", message: error.message });
+    }
+});
+
+// @route   POST /api/auth/forgot-password/request-otp
+// @desc    Generate password reset OTP, save expiry, send reset OTP email
+router.post('/forgot-password/request-otp', async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ status: "fail", message: 'Please provide your registered email address' });
+        }
+
+        const normalizedEmail = email.toLowerCase().trim();
+        const user = await User.findOne({ email: normalizedEmail });
+
+        if (!user) {
+            return res.status(404).json({ status: "fail", message: 'No account found with this email address' });
+        }
+
+        // Generate 6-digit OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+        // Hash OTP and save with 10 minutes expiry
+        const otpSalt = await bcrypt.genSalt(10);
+        user.otpCode = await bcrypt.hash(otp, otpSalt);
+        user.otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
+
+        await user.save();
+
+        // Send password reset OTP email
+        await sendOtpEmail(normalizedEmail, otp, 'reset');
+
+        res.json({
+            status: "success",
+            message: 'Password reset OTP has been sent to your email address. It is valid for 10 minutes.'
+        });
+    } catch (error) {
+        res.status(500).json({ status: "error", message: error.message });
+    }
+});
+
+// @route   POST /api/auth/forgot-password/reset-password
+// @desc    Validate reset OTP, update user password, clear OTP
+router.post('/forgot-password/reset-password', async (req, res) => {
+    try {
+        const { email, otp, newPassword } = req.body;
+
+        if (!email || !otp || !newPassword) {
+            return res.status(400).json({ status: "fail", message: 'Please provide email, reset OTP, and new password' });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({ status: "fail", message: 'New password must be at least 6 characters long' });
+        }
+
+        const normalizedEmail = email.toLowerCase().trim();
+        const user = await User.findOne({ email: normalizedEmail });
+
+        if (!user) {
+            return res.status(404).json({ status: "fail", message: 'User not found' });
+        }
+
+        if (!user.otpCode || !user.otpExpiresAt) {
+            return res.status(400).json({ status: "fail", message: 'No password reset requested for this account' });
+        }
+
+        if (new Date() > user.otpExpiresAt) {
+            return res.status(400).json({ status: "fail", message: 'Password reset OTP code has expired' });
+        }
+
+        const isMatch = await bcrypt.compare(otp, user.otpCode);
+        if (!isMatch) {
+            return res.status(400).json({ status: "fail", message: 'Incorrect reset OTP code' });
+        }
+
+        // Update password and clear OTP fields
+        user.password = newPassword; // pre-save hook will hash this automatically
+        user.otpCode = undefined;
+        user.otpExpiresAt = undefined;
+
+        await user.save();
+
+        res.json({
+            status: "success",
+            message: 'Password has been reset successfully. You can now log in with your new credentials.'
         });
     } catch (error) {
         res.status(500).json({ status: "error", message: error.message });
