@@ -3,8 +3,13 @@ import { MapContainer, TileLayer, Circle, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
   CloudSun, Thermometer, Droplets, Wind, ShieldAlert,
-  Search, RefreshCw, AlertTriangle, Compass, Activity, Info, Radar, Zap
+  Search, RefreshCw, AlertTriangle, Compass, Activity, Info, Radar, Zap,
+  Sun, Flame, Bell, Sparkles, CheckCircle2, CloudRain, ShieldCheck, ShieldAlert as WarningIcon
 } from 'lucide-react';
+import {
+  AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer, Legend
+} from 'recharts';
 
 // Leaflet center updating and resize invalidation helper
 function ChangeView({ center }) {
@@ -33,6 +38,12 @@ export default function WeatherPage() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
   const [telemetry, setTelemetry] = useState(null);
+
+  // Emergency hazard action states & chart tab selection
+  const [dispatching, setDispatching] = useState(false);
+  const [advisoryIssued, setAdvisoryIssued] = useState(false);
+  const [notification, setNotification] = useState(null);
+  const [activeTab, setActiveTab] = useState('temp');
 
   const indianStates = [
     'Gujarat', 'Maharashtra', 'Delhi', 'Karnataka', 'Tamil Nadu', 'West Bengal',
@@ -170,7 +181,34 @@ export default function WeatherPage() {
     }
   };
 
+  const handleDispatchMistSprayers = () => {
+    setDispatching(true);
+    setNotification(null);
+    setTimeout(() => {
+      setDispatching(false);
+      setNotification({
+        type: 'success',
+        text: `MIST SPRAYERS DISPATCHED: Automated cooling sprayers successfully activated at coordinate vector [${telemetry.coordinates.lat.toFixed(4)}, ${telemetry.coordinates.lon.toFixed(4)}].`
+      });
+    }, 1500);
+  };
+
+  const handleIssueAdvisory = () => {
+    setAdvisoryIssued(true);
+    setNotification({
+      type: 'warning',
+      text: `EMERGENCY ADVISORY TRANSMITTED: Broad-band hazard broadcast successfully pushed to all municipal nodes and citizen devices in ${telemetry.city}.`
+    });
+  };
+
   const aqiDetails = telemetry ? getAqiInfo(telemetry.pollution.aqi) : null;
+
+  // Filter and sanitize forecast temperatures to be between -50°C and 70°C
+  const sanitizedForecast = (telemetry && telemetry.forecast)
+    ? telemetry.forecast.filter(f => typeof f.temp === 'number' && f.temp >= -50 && f.temp <= 70)
+    : [];
+  const maxForecastTemp = sanitizedForecast.length > 0 ? Math.max(...sanitizedForecast.map(f => f.temp)) : 0;
+  const minForecastTemp = sanitizedForecast.length > 0 ? Math.min(...sanitizedForecast.map(f => f.temp)) : 0;
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-12 font-sans select-none text-slate-800 pt-16">
@@ -320,11 +358,95 @@ export default function WeatherPage() {
         {telemetry && (
           <div className="space-y-6">
 
-            {/* Top Row: Info cards & Map */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Municipal Emergency Hazard Banner */}
+            {telemetry.alert && telemetry.alert.triggered && (
+              <div className="bg-gradient-to-r from-red-950 via-amber-950 to-red-950 border-2 border-red-500 rounded-3xl p-6 shadow-[0_0_30px_rgba(239,68,68,0.25)] text-white relative overflow-hidden animate-pulse">
+                <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
+                  <WarningIcon className="w-40 h-40 text-red-500" />
+                </div>
+                <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-red-600 rounded-2xl animate-bounce flex-shrink-0">
+                      <WarningIcon className="w-7 h-7 text-white" />
+                    </div>
+                    <div className="space-y-1">
+                      <h3 className="text-base font-black tracking-wider uppercase font-mono text-red-400">
+                        CRITICAL ENVIRONMENTAL HAZARD DETECTED
+                      </h3>
+                      <p className="text-xs font-sans text-slate-200 max-w-2xl leading-relaxed">
+                        {telemetry.alert.message}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+                    <button
+                      type="button"
+                      disabled={dispatching}
+                      onClick={handleDispatchMistSprayers}
+                      className="px-5 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-600 disabled:opacity-50 text-white font-mono text-[10px] font-bold tracking-wider transition-all shadow-[0_0_15px_rgba(6,182,212,0.25)] border border-cyan-500 cursor-pointer flex items-center justify-center gap-2"
+                    >
+                      {dispatching ? (
+                        <>
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                          DISPATCHING...
+                        </>
+                      ) : (
+                        <>
+                          <Flame className="w-3.5 h-3.5" />
+                          DISPATCH MIST SPRAYERS
+                        </>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={advisoryIssued}
+                      onClick={handleIssueAdvisory}
+                      className="px-5 py-2.5 rounded-xl bg-amber-700 hover:bg-amber-600 disabled:bg-slate-800 disabled:text-slate-500 disabled:border-slate-700 text-white font-mono text-[10px] font-bold tracking-wider transition-all shadow-[0_0_15px_rgba(245,158,11,0.25)] border border-amber-500 cursor-pointer flex items-center justify-center gap-2"
+                    >
+                      <Bell className="w-3.5 h-3.5" />
+                      {advisoryIssued ? 'ADVISORY BROADCASTED' : 'ISSUE ADVISORY'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
-              {/* Map Canvas (Left 2 Columns) */}
-              <div className="lg:col-span-2 space-y-4">
+            {/* Interactive Action Notifications */}
+            {notification && (
+              <div className={`p-4 rounded-2xl border flex items-start justify-between gap-4 font-mono text-xs transition-all shadow-md ${
+                notification.type === 'success'
+                  ? 'bg-emerald-950/90 border-emerald-500/50 text-emerald-200'
+                  : 'bg-amber-950/90 border-amber-500/50 text-amber-200'
+              }`}>
+                <div className="flex items-start gap-3">
+                  {notification.type === 'success' ? (
+                    <ShieldCheck className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+                  ) : (
+                    <WarningIcon className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+                  )}
+                  <div>
+                    <span className="font-extrabold uppercase block mb-1">
+                      {notification.type === 'success' ? 'SYSTEM CONFIRMATION' : 'BROADCAST VERIFICATION'}
+                    </span>
+                    <span className="font-sans leading-relaxed">{notification.text}</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setNotification(null)}
+                  className="p-1 rounded hover:bg-white/10 text-slate-300 hover:text-white cursor-pointer font-sans"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
+            {/* Top Row: Info cards & Map */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+              {/* Map, Forecast & Gas Breakdown (Left Column) */}
+              <div className="lg:col-span-7 space-y-4">
+                {/* Map Card */}
                 <div className="bg-[#023E8A] border border-[#0096C7]/50 rounded-3xl p-5 shadow-[0_0_20px_rgba(0,150,199,0.15)] space-y-3 text-[#CAF0F8]">
                   <div className="flex items-center justify-between border-b border-[#0077B6]/50 pb-3">
                     <h2 className="text-sm font-extrabold text-white tracking-wider flex items-center gap-1.5 uppercase font-mono">
@@ -368,21 +490,157 @@ export default function WeatherPage() {
                     </MapContainer>
                   </div>
                 </div>
-              </div>
-              {/* AQI Breakdown & Advisory (Right Column) */}
-              <div className="space-y-6">
-                <section className="bg-[#023E8A] border border-[#0096C7]/50 p-5 rounded-3xl shadow-[0_0_20px_rgba(0,150,199,0.15)] space-y-4 font-mono text-[#CAF0F8]">
+
+                {/* 5-Day / 3-Hour Forecast Analysis (frosted card wrapper) */}
+                {telemetry.forecast && (
+                  <div className="bg-white/70 rounded-xl p-2 border border-[#0077B6]/20 text-[#023E8A] space-y-3 shadow-sm">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#0077B6]/15 pb-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="text-xs font-extrabold text-[#023E8A] tracking-wider flex items-center gap-1.5 uppercase font-mono">
+                          <CloudSun className="w-3.5 h-3.5 text-[#0077B6]" />
+                          Forecast Analysis
+                        </h2>
+                        <div className="bg-[#0077B6]/10 text-[#023E8A] px-2 py-0.5 rounded-full font-mono text-[9px] font-bold flex items-center gap-1 shadow-sm border border-[#0077B6]/10">
+                          <span>Peak: {maxForecastTemp.toFixed(1)}°</span>
+                          <span className="opacity-40">/</span>
+                          <span>Min: {minForecastTemp.toFixed(1)}°</span>
+                        </div>
+                      </div>
+
+                      {/* Tab select buttons */}
+                      <div className="flex rounded-lg bg-[#0077B6]/10 border border-[#0077B6]/25 p-0.5 font-mono text-[8px] font-bold">
+                        <button
+                          type="button"
+                          onClick={() => setActiveTab('temp')}
+                          className={`px-2.5 py-1 rounded transition-all uppercase cursor-pointer ${
+                            activeTab === 'temp'
+                              ? 'bg-[#0077B6] text-white shadow-sm'
+                              : 'text-[#023E8A]/80 hover:text-[#0077B6]'
+                          }`}
+                        >
+                          Temp
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setActiveTab('precip')}
+                          className={`px-2.5 py-1 rounded transition-all uppercase cursor-pointer ${
+                            activeTab === 'precip'
+                              ? 'bg-[#0077B6] text-white shadow-sm'
+                              : 'text-[#023E8A]/80 hover:text-[#0077B6]'
+                          }`}
+                        >
+                          Precip
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Chart Canvas (Compact h-44) */}
+                    <div className="w-full h-44 relative">
+                      {sanitizedForecast.length > 0 ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                          {activeTab === 'temp' ? (
+                            <AreaChart data={sanitizedForecast} margin={{ top: 15, right: 15, left: 10, bottom: 5 }}>
+                              <defs>
+                                <linearGradient id="colorTempIce" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="5%" stopColor="#0077B6" stopOpacity={0.35}/>
+                                  <stop offset="95%" stopColor="#0077B6" stopOpacity={0}/>
+                                </linearGradient>
+                              </defs>
+                              <CartesianGrid strokeDasharray="3 3" stroke="#0077B6" opacity={0.12} />
+                              <XAxis
+                                dataKey="shortTime"
+                                tick={{ fill: '#023E8A', fontSize: 11, fontWeight: 'bold', fontFamily: 'monospace' }}
+                                tickLine={{ stroke: '#023E8A', opacity: 0.5 }}
+                                stroke="#023E8A"
+                                interval={6}
+                              />
+                              <YAxis
+                                width={35}
+                                tick={{ fill: '#023E8A', fontSize: 11, fontWeight: 'bold', fontFamily: 'monospace' }}
+                                tickLine={{ stroke: '#03045E', opacity: 0.5 }}
+                                stroke="#03045E"
+                                tickFormatter={(val) => `${val}°`}
+                                domain={['dataMin - 2', 'dataMax + 2']}
+                              />
+                              <Tooltip
+                                contentStyle={{
+                                  backgroundColor: '#E6F7FF',
+                                  borderColor: '#00B4D8',
+                                  borderRadius: '8px',
+                                  color: '#023E8A',
+                                  fontSize: '9px',
+                                  fontFamily: 'monospace'
+                                }}
+                              />
+                              <Area
+                                type="monotone"
+                                dataKey="temp"
+                                stroke="#0077B6"
+                                strokeWidth={2}
+                                fillOpacity={1}
+                                fill="url(#colorTempIce)"
+                                name="Temp"
+                                dot={{ r: 3, fill: '#0077B6', stroke: '#fff', strokeWidth: 1.5 }}
+                                activeDot={{ r: 6, fill: '#48CAE4' }}
+                              />
+                            </AreaChart>
+                          ) : (
+                            <BarChart data={sanitizedForecast} margin={{ top: 15, right: 10, left: 10, bottom: 5 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="#0077B6" opacity={0.12} />
+                              <XAxis
+                                dataKey="shortTime"
+                                tick={{ fill: '#023E8A', fontSize: 11, fontWeight: 'bold', fontFamily: 'monospace' }}
+                                tickLine={{ stroke: '#023E8A', opacity: 0.5 }}
+                                stroke="#023E8A"
+                                interval={6}
+                              />
+                              <YAxis
+                                width={38}
+                                tick={{ fill: '#023E8A', fontSize: 11, fontWeight: 'bold', fontFamily: 'monospace' }}
+                                tickLine={{ stroke: '#03045E', opacity: 0.5 }}
+                                stroke="#03045E"
+                                tickFormatter={(val) => `${val}%`}
+                                domain={[0, 100]}
+                              />
+                              <Tooltip
+                                contentStyle={{
+                                  backgroundColor: '#E6F7FF',
+                                  borderColor: '#00B4D8',
+                                  borderRadius: '8px',
+                                  color: '#023E8A',
+                                  fontSize: '9px',
+                                  fontFamily: 'monospace'
+                                }}
+                              />
+                              <Bar
+                                dataKey="pop"
+                                fill="#0096C7"
+                                radius={[3, 3, 0, 0]}
+                                name="Rain"
+                              />
+                            </BarChart>
+                          )}
+                        </ResponsiveContainer>
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-[10px] font-mono text-[#023E8A] uppercase">
+                          Forecast telemetry unavailable
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Pollutant Gas Breakdown grid (Moved from Right Column to Left Column) */}
+                <div className="bg-[#023E8A] border border-[#0096C7]/50 rounded-3xl p-5 shadow-[0_0_20px_rgba(0,150,199,0.15)] space-y-4 font-mono text-[#CAF0F8]">
                   <div className="flex items-center justify-between border-b border-[#0077B6]/50 pb-3">
                     <span className="text-white font-bold flex items-center gap-1.5 uppercase text-sm">
                       <Activity className="h-4 w-4 text-[#48CAE4]" />
-                      AQI telemetry
+                      Pollutant Gas Breakdown
                     </span>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase tracking-wider ${aqiDetails?.bg}`}>
-                      AQI {telemetry.pollution.aqi}
-                    </span>
+                    <span className="text-[10px] text-[#48CAE4] font-mono">PARTICULATE MATTER VECTORS</span>
                   </div>
 
-                  <div className="space-y-3.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     {/* PM2.5 Card */}
                     <div className="bg-[#E6F7FF] border border-[#CAF0F8] p-3 rounded-2xl text-slate-800 space-y-1.5 shadow-sm">
                       <div className="flex justify-between text-xs text-[#023E8A] font-bold">
@@ -451,6 +709,128 @@ export default function WeatherPage() {
                       </div>
                     </div>
                   </div>
+                </div>
+
+              </div>
+
+              {/* Right Column Layout */}
+              <div className="lg:col-span-5 space-y-4">
+                {/* Item 1: Primary City Temperature Card */}
+                <div className="bg-[#03045E] border border-[#0077B6]/50 p-5 rounded-3xl shadow-sm space-y-2 flex flex-col justify-between text-[#CAF0F8]">
+                  <div className="flex items-center gap-1.5 text-[#48CAE4] text-[10px] uppercase font-bold tracking-wider font-mono">
+                    <Thermometer className="w-4 h-4 text-[#48CAE4]" />
+                    Primary City Temperature
+                  </div>
+                  <div className="space-y-0.5">
+                    <div className="text-3xl font-extrabold text-white font-mono">{telemetry.weather.temperature.toFixed(1)}°C</div>
+                    <div className="text-[10px] text-[#48CAE4]/85 font-mono">Feels Like {telemetry.weather.feelsLike.toFixed(1)}°C</div>
+                  </div>
+                </div>
+
+                {/* Item 2: Solar Energy Yield & UV Forecast Widget */}
+                <div className="bg-gradient-to-br from-[#023E8A] to-[#0077B6] border border-[#0096C7]/50 rounded-3xl p-5 shadow-sm space-y-3.5 text-[#CAF0F8]">
+                  <div className="flex items-center justify-between border-b border-[#0077B6]/30 pb-2">
+                    <h2 className="text-xs font-extrabold text-white tracking-wider flex items-center gap-1.5 uppercase font-mono">
+                      <Sun className="w-3.5 h-3.5 text-[#48CAE4] animate-spin" style={{ animationDuration: '8s' }} />
+                      Solar & UV Intelligence
+                    </h2>
+                    <span className="text-[8px] text-[#48CAE4] font-mono uppercase tracking-widest font-bold">[ Heliostat ]</span>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 gap-2.5">
+                    {/* UV index */}
+                    <div className="bg-[#03045E]/40 border border-[#00B4D8]/20 rounded-xl p-3 flex items-center justify-between font-mono">
+                      <div className="space-y-0.5 flex flex-col">
+                        <span className="text-[8px] font-mono uppercase text-[#90E0EF]">UV radiation index</span>
+                        <span className="text-lg font-black text-white">{telemetry.solar.uvIndex.toFixed(1)}</span>
+                      </div>
+                      <span className="text-[8px] font-mono text-[#48CAE4] font-bold uppercase tracking-wider">
+                        {telemetry.solar.uvIndex <= 2 ? 'Low Risk' : telemetry.solar.uvIndex <= 5 ? 'Moderate' : telemetry.solar.uvIndex <= 7 ? 'High Risk' : telemetry.solar.uvIndex <= 10 ? 'Very High' : 'Extreme'}
+                      </span>
+                    </div>
+
+                    {/* Irradiance */}
+                    <div className="bg-[#03045E]/40 border border-[#00B4D8]/20 rounded-xl p-3 flex items-center justify-between font-mono">
+                      <div className="space-y-0.5">
+                        <span className="text-[8px] font-mono uppercase text-[#90E0EF]">Solar Irradiance</span>
+                        <div className="text-lg font-black text-white">{telemetry.solar.solarIrradianceWM2} <span className="text-xs font-semibold text-[#90E0EF]">W/m²</span></div>
+                      </div>
+                      <span className="text-[8px] font-mono text-[#48CAE4] font-bold">FLUX VECTOR</span>
+                    </div>
+
+                    {/* Estimated rooftop yield */}
+                    <div className="bg-[#03045E]/40 border border-[#00B4D8]/20 rounded-xl p-3 flex items-center justify-between font-mono">
+                      <div className="space-y-0.5">
+                        <span className="text-[8px] font-mono uppercase text-[#90E0EF]">Rooftop Potential</span>
+                        <div className="text-lg font-black text-white">{telemetry.solar.estimatedCityYieldGW.toFixed(3)} <span className="text-xs font-semibold text-[#90E0EF]">GW</span></div>
+                      </div>
+                      <span className="text-[8px] font-mono text-[#48CAE4] font-bold">CITY YIELD</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Item 3: 4 Weather Metric Boxes */}
+                <div className="grid grid-cols-2 gap-3 font-mono">
+                  {/* Temperature Box */}
+                  <div className="bg-[#E6F7FF] border border-[#CAF0F8] p-3.5 rounded-2xl shadow-sm space-y-1.5 flex flex-col justify-between text-slate-800">
+                    <div className="flex items-center gap-1 text-[#023E8A] text-[9px] uppercase font-bold tracking-wider">
+                      <Thermometer className="w-3.5 h-3.5 text-[#0077B6]" />
+                      Temp
+                    </div>
+                    <div>
+                      <div className="text-lg font-extrabold text-[#03045E]">{telemetry.weather.temperature.toFixed(1)}°C</div>
+                      <span className="text-[8px] text-slate-500">Feels Like {telemetry.weather.feelsLike.toFixed(1)}°C</span>
+                    </div>
+                  </div>
+
+                  {/* Wind Velocity Box */}
+                  <div className="bg-[#E6F7FF] border border-[#CAF0F8] p-3.5 rounded-2xl shadow-sm space-y-1.5 flex flex-col justify-between text-slate-800">
+                    <div className="flex items-center gap-1 text-[#023E8A] text-[9px] uppercase font-bold tracking-wider">
+                      <Wind className="w-3.5 h-3.5 text-[#0077B6]" />
+                      Wind
+                    </div>
+                    <div>
+                      <div className="text-lg font-extrabold text-[#03045E]">{telemetry.weather.windSpeed.toFixed(1)} m/s</div>
+                      <span className="text-[8px] text-slate-500">Velocity vector</span>
+                    </div>
+                  </div>
+
+                  {/* Humidity Box */}
+                  <div className="bg-[#E6F7FF] border border-[#CAF0F8] p-3.5 rounded-2xl shadow-sm space-y-1.5 flex flex-col justify-between text-slate-800">
+                    <div className="flex items-center gap-1 text-[#023E8A] text-[9px] uppercase font-bold tracking-wider">
+                      <Droplets className="w-3.5 h-3.5 text-[#0077B6]" />
+                      Humidity
+                    </div>
+                    <div>
+                      <div className="text-lg font-extrabold text-[#03045E]">{telemetry.weather.humidity}%</div>
+                      <span className="text-[8px] text-slate-500">Water content</span>
+                    </div>
+                  </div>
+
+                  {/* Pressure Box */}
+                  <div className="bg-[#E6F7FF] border border-[#CAF0F8] p-3.5 rounded-2xl shadow-sm space-y-1.5 flex flex-col justify-between text-slate-800">
+                    <div className="flex items-center gap-1 text-[#023E8A] text-[9px] uppercase font-bold tracking-wider">
+                      <Info className="w-3.5 h-3.5 text-[#0077B6]" />
+                      Pressure
+                    </div>
+                    <div>
+                      <div className="text-lg font-extrabold text-[#03045E]">{telemetry.weather.pressure} hPa</div>
+                      <span className="text-[8px] text-slate-500">Atm density</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Item 4: Municipal Health Advisory Banner */}
+                <section className="bg-[#023E8A] border border-[#0096C7]/50 p-5 rounded-3xl shadow-sm space-y-4 font-mono text-[#CAF0F8]">
+                  <div className="flex items-center justify-between border-b border-[#0077B6]/50 pb-3">
+                    <span className="text-white font-bold flex items-center gap-1.5 uppercase text-sm">
+                      <Activity className="h-4 w-4 text-[#48CAE4]" />
+                      AQI telemetry
+                    </span>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase tracking-wider ${aqiDetails?.bg}`}>
+                      AQI {telemetry.pollution.aqi}
+                    </span>
+                  </div>
 
                   {/* Municipal Advisory banner */}
                   <div className="p-4 rounded-2xl border border-[#CAF0F8] bg-[#E6F7FF] text-xs leading-relaxed space-y-1.5 text-slate-800 shadow-sm">
@@ -463,73 +843,6 @@ export default function WeatherPage() {
                     </p>
                   </div>
                 </section>
-              </div>
-
-            </div>
-
-            {/* Bottom Row: Telemetry Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-5 font-mono">
-
-              {/* Temperature */}
-              <div className="bg-[#03045E] border border-[#0077B6]/50 p-5 rounded-2xl shadow-[0_0_15px_rgba(0,119,182,0.1)] space-y-2 flex flex-col justify-between text-[#CAF0F8]">
-                <div className="flex items-center gap-1.5 text-[#48CAE4] text-[10px] uppercase font-bold tracking-wider">
-                  <Thermometer className="w-4 h-4 text-[#48CAE4]" />
-                  Temperature
-                </div>
-                <div className="space-y-0.5">
-                  <div className="text-2xl font-extrabold text-white">{telemetry.weather.temperature.toFixed(1)}°C</div>
-                  <div className="text-[10px] text-[#48CAE4]/85">Feels Like {telemetry.weather.feelsLike.toFixed(1)}°C</div>
-                </div>
-              </div>
-
-              {/* Humidity */}
-              <div className="bg-[#E6F7FF] border border-[#CAF0F8] p-5 rounded-2xl shadow-sm space-y-2 flex flex-col justify-between text-slate-800">
-                <div className="flex items-center gap-1.5 text-[#023E8A] text-[10px] uppercase font-bold tracking-wider">
-                  <Droplets className="w-4 h-4 text-[#0077B6]" />
-                  Humidity
-                </div>
-                <div className="space-y-0.5">
-                  <div className="text-2xl font-extrabold text-[#03045E]">{telemetry.weather.humidity}%</div>
-                  <div className="text-[10px] text-slate-550">Atmospheric water</div>
-                </div>
-              </div>
-
-              {/* Wind Speed */}
-              <div className="bg-[#E6F7FF] border border-[#CAF0F8] p-5 rounded-2xl shadow-sm space-y-2 flex flex-col justify-between text-slate-800">
-                <div className="flex items-center gap-1.5 text-[#023E8A] text-[10px] uppercase font-bold tracking-wider">
-                  <Wind className="w-4 h-4 text-[#0077B6]" />
-                  Wind Velocity
-                </div>
-                <div className="space-y-0.5">
-                  <div className="text-2xl font-extrabold text-[#03045E]">{telemetry.weather.windSpeed.toFixed(1)} m/s</div>
-                  <div className="text-[10px] text-slate-555">Speed and direction</div>
-                </div>
-              </div>
-
-              {/* UV Index (Calculated) */}
-              <div className="bg-[#E6F7FF] border border-[#CAF0F8] p-5 rounded-2xl shadow-sm space-y-2 flex flex-col justify-between text-slate-800">
-                <div className="flex items-center gap-1.5 text-[#023E8A] text-[10px] uppercase font-bold tracking-wider">
-                  <Info className="w-4 h-4 text-[#0077B6]" />
-                  UV Radiation
-                </div>
-                <div className="space-y-0.5">
-                  <div className="text-2xl font-extrabold text-[#03045E]">
-                    {telemetry.weather.weatherCondition === 'Clear' ? '4.8 (MOD)' : '1.2 (LOW)'}
-                  </div>
-                  <div className="text-[10px] text-slate-555">Calculated radiation index</div>
-                </div>
-              </div>
-
-              {/* Atmospheric Pressure */}
-              <div className="bg-[#E6F7FF] border border-[#CAF0F8] p-5 rounded-2xl shadow-sm space-y-2 flex flex-col justify-between text-slate-800">
-                <div className="flex items-center gap-1.5 text-[#023E8A] text-[10px] uppercase font-bold tracking-wider">
-                  <Info className="w-4 h-4 text-[#0077B6]" />
-                  Pressure
-                </div>
-                <div className="space-y-0.5">
-                  <div className="text-2xl font-extrabold text-[#03045E]">{telemetry.weather.pressure} hPa</div>
-                  <div className="text-[10px] text-slate-555">Sea level density</div>
-                </div>
               </div>
 
             </div>
