@@ -26,6 +26,7 @@ export default function LoginPage({ onLoginSuccess, onSwitchToSignup, onBackToHo
   const [isForgotMode, setIsForgotMode] = useState(false);
   const [forgotStep, setForgotStep] = useState(1);
   const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotOtp, setForgotOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -178,7 +179,7 @@ export default function LoginPage({ onLoginSuccess, onSwitchToSignup, onBackToHo
     setSubmitting(true);
 
     try {
-      const res = await fetch('/api/auth/forgot-password', {
+      const res = await fetch('/api/auth/forgot-password/request-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: forgotEmail })
@@ -186,15 +187,15 @@ export default function LoginPage({ onLoginSuccess, onSwitchToSignup, onBackToHo
 
       const data = await res.json();
 
-      if (res.ok && data.status === 'success') {
+      if (res.status === 200 || res.status === 201) {
         setForgotStep(2);
-        setSuccessMsg(data.message || 'Account verified! Enter your new password below.');
+        setSuccessMsg(data.message || 'Verification OTP code sent! Check your email.');
       } else {
         const localUsers = getRegisteredUsers();
         const localUser = localUsers.find((user) => user.email.toLowerCase() === forgotEmail.toLowerCase().trim());
         if (localUser) {
           setForgotStep(2);
-          setSuccessMsg('Account verified! Enter your new password below.');
+          setSuccessMsg('Account verified (offline mode)! Enter your new password below.');
         } else {
           setError(data.message || 'No account found with this email address.');
         }
@@ -204,7 +205,7 @@ export default function LoginPage({ onLoginSuccess, onSwitchToSignup, onBackToHo
       const localUser = localUsers.find((user) => user.email.toLowerCase() === forgotEmail.toLowerCase().trim());
       if (localUser) {
         setForgotStep(2);
-        setSuccessMsg('Account verified! Enter your new password below.');
+        setSuccessMsg('Account verified (offline mode)! Enter your new password below.');
       } else {
         setError('Failed to verify email. Please check your connection.');
       }
@@ -217,6 +218,11 @@ export default function LoginPage({ onLoginSuccess, onSwitchToSignup, onBackToHo
     e.preventDefault();
     setError('');
     setSuccessMsg('');
+
+    if (!forgotOtp || forgotOtp.length < 6) {
+      setError('Please enter the 6-digit reset OTP code.');
+      return;
+    }
 
     if (newPassword.length < 6) {
       setError('Password must be at least 6 characters long.');
@@ -231,21 +237,22 @@ export default function LoginPage({ onLoginSuccess, onSwitchToSignup, onBackToHo
     setSubmitting(true);
 
     try {
-      const res = await fetch('/api/auth/reset-password', {
+      const res = await fetch('/api/auth/forgot-password/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: forgotEmail, newPassword })
+        body: JSON.stringify({ email: forgotEmail, otp: forgotOtp, newPassword })
       });
 
       const data = await res.json();
 
-      if (res.ok && data.status === 'success') {
+      if (res.status === 200 || res.status === 201) {
         setSuccessMsg('Password updated successfully! Switching to sign in...');
         setEmail(forgotEmail);
         setTimeout(() => {
           setIsForgotMode(false);
           setForgotStep(1);
           setForgotEmail('');
+          setForgotOtp('');
           setNewPassword('');
           setConfirmPassword('');
           setSuccessMsg('');
@@ -254,12 +261,13 @@ export default function LoginPage({ onLoginSuccess, onSwitchToSignup, onBackToHo
       } else {
         const localResult = resetPasswordLocal({ email: forgotEmail, newPassword });
         if (localResult.success) {
-          setSuccessMsg('Password updated successfully! Switching to sign in...');
+          setSuccessMsg('Password updated successfully (offline mode)!');
           setEmail(forgotEmail);
           setTimeout(() => {
             setIsForgotMode(false);
             setForgotStep(1);
             setForgotEmail('');
+            setForgotOtp('');
             setNewPassword('');
             setConfirmPassword('');
             setSuccessMsg('');
@@ -272,12 +280,13 @@ export default function LoginPage({ onLoginSuccess, onSwitchToSignup, onBackToHo
     } catch (err) {
       const localResult = resetPasswordLocal({ email: forgotEmail, newPassword });
       if (localResult.success) {
-        setSuccessMsg('Password updated successfully! Switching to sign in...');
+        setSuccessMsg('Password updated successfully (offline mode)!');
         setEmail(forgotEmail);
         setTimeout(() => {
           setIsForgotMode(false);
           setForgotStep(1);
           setForgotEmail('');
+          setForgotOtp('');
           setNewPassword('');
           setConfirmPassword('');
           setSuccessMsg('');
@@ -515,6 +524,25 @@ export default function LoginPage({ onLoginSuccess, onSwitchToSignup, onBackToHo
                   </form>
                 ) : (
                   <form onSubmit={handleResetPassword} noValidate>
+                    <div className="field">
+                      <label htmlFor="forgotOtp">Verification Code (OTP)</label>
+                      <div className="input-row">
+                        <input
+                          type="text"
+                          id="forgotOtp"
+                          placeholder="6-digit reset code"
+                          maxLength={6}
+                          value={forgotOtp}
+                          onChange={(e) => setForgotOtp(e.target.value.replace(/\D/g, ''))}
+                          required
+                        />
+                        <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
+                      </div>
+                    </div>
+
                     <div className="field">
                       <label htmlFor="newPassword">New Password</label>
                       <div className="input-row">

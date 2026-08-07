@@ -213,23 +213,24 @@
 
 .nuro-auth .field input{
   width: 100%;
-  background: var(--panel-2);
-  border: 1px solid var(--line);
+  background: #FFFFFF !important;
+  border: 1.5px solid rgba(0, 119, 182, 0.3) !important;
   border-radius: 8px;
   padding: 12px 40px 12px 13px;
-  color: var(--ink);
+  color: #03045E !important;
   font-size: 14.5px;
   font-family: 'Inter', sans-serif;
   outline: none;
   transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
 }
 
-.nuro-auth .field input::placeholder{ color: var(--ink-faint); }
+.nuro-auth .field input::placeholder{ color: #0077B6 !important; opacity: 0.65; }
 
 .nuro-auth .field input:focus{
-  border-color: var(--signal);
-  box-shadow: 0 0 0 3px rgba(110,91,255,0.16);
-  background: #021a38;
+  border-color: #00B4D8 !important;
+  box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.25) !important;
+  background: #FFFFFF !important;
+  color: #03045E !important;
 }
 
 .nuro-auth .field .icon{
