@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
+const errorHandler = require('./middleware/errorHandler')
 
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
@@ -30,6 +31,16 @@ app.use('/api/weather', weatherRoutes); // Register weather telemetry route
 app.get('/', (req, res) => {
     res.json({ status: "online", service: "NeuroCity Core Gateway Router" });
 });
+
+
+app.use('/{*any}', (req, res, next) => {
+    const error = new Error(`Route not found - ${req.originalUrl}`);
+    res.status(404);
+    next(error);
+});
+
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`[System Online] NeuroCity Gateway running on port ${PORT}`));
