@@ -113,7 +113,7 @@ router.post('/register', async (req, res) => {
             name, 
             email: normalizedEmail, 
             password, 
-            role: role || 'citizen' 
+            role: role || "citizen"
         });
         
         await user.save();
