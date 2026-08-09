@@ -1,15 +1,18 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const errorHandler = require('./middleware/errorHandler')
+const errorHandler = require('./middleware/errorHandler');
 
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
-const complaintRoutes = require('./routes/complaints'); // Import new route module
-const healthRoutes = require('./routes/health'); // Import health route module
-const trafficRoutes = require('./routes/traffic'); // Import traffic route module
-const energyRoutes = require('./routes/energy'); // Import energy sentinel route module
-const weatherRoutes = require('./routes/weather'); // Import weather routes module
+const userRoutes = require('./routes/user');
+const globalHubRoutes = require('./routes/globalHub');
+const complaintRoutes = require('./routes/complaints');
+const healthRoutes = require('./routes/health');
+const trafficRoutes = require('./routes/traffic');
+const energyRoutes = require('./routes/energy');
+const weatherRoutes = require('./routes/weather');
+const statsRoutes = require('./routes/stats');
 
 connectDB();
 
@@ -20,27 +23,26 @@ app.use(express.json());
 
 // Mount Routing Paths
 app.use('/api/auth', authRoutes);
-app.use('/api/users', require('./routes/user'));
-app.use('/api/hub', require('./routes/globalHub'));
-app.use('/api/complaints', complaintRoutes); // Register complaints path here!
-app.use('/api/health', healthRoutes); // Register master health check route
-app.use('/api/traffic', trafficRoutes); // Register traffic pipeline route
-app.use('/api/energy', energyRoutes); // Register energy sentinel pipeline route
-app.use('/api/weather', weatherRoutes); // Register weather telemetry route
+app.use('/api/users', userRoutes);
+app.use('/api/hub', globalHubRoutes);
+app.use('/api/complaints', complaintRoutes);
+app.use('/api/health', healthRoutes);
+app.use('/api/traffic', trafficRoutes);
+app.use('/api/energy', energyRoutes);
+app.use('/api/weather', weatherRoutes);
+app.use('/api/stats', statsRoutes);
 
 app.get('/', (req, res) => {
     res.json({ status: "online", service: "NeuroCity Core Gateway Router" });
 });
 
-
-app.use('/{*any}', (req, res, next) => {
+app.use('*', (req, res, next) => {
     const error = new Error(`Route not found - ${req.originalUrl}`);
-    res.status(404);
+    error.statusCode = 404;
     next(error);
 });
-
 
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`[System Online] NeuroCity Gateway running on port ${PORT}`));
+app.listen(PORT, () => console.log(`[System Online] NeuroCity Gateway running on port ${PORT}`));
