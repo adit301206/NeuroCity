@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  User, KeyRound, Trash2, Shield, Lock, CheckCircle2, AlertCircle, Eye, EyeOff, UserCheck, Mail, BadgeCheck, Sparkles, AlertTriangle, Check, Info, ArrowLeft, Bell
+  User, KeyRound, Trash2, Shield, Lock, CheckCircle2, AlertCircle, Eye, EyeOff, UserCheck, Mail, BadgeCheck, Sparkles, AlertTriangle, Check, Info, ArrowLeft, Bell, Database, RefreshCw, Server
 } from 'lucide-react';
+import axios from 'axios';
 import { changePasswordLocal, deleteAccountLocal, updateProfileLocal } from '../utils/localAuth';
 
 export default function SettingsPage({ currentUser, onUpdateUser, onLogout, onNavigate, initialSubTab = 'profile', onRefreshNotifications }) {
@@ -457,6 +458,25 @@ export default function SettingsPage({ currentUser, onUpdateUser, onLogout, onNa
               </div>
               {activeSubTab === 'delete' && <Check className="w-4 h-4 text-white" />}
             </button>
+
+            {/* Option 5: Admin MongoDB Database Inspector */}
+            {currentUser.role === 'admin' && (
+              <button
+                type="button"
+                onClick={() => { setActiveSubTab('database'); setStatusMsg(null); }}
+                className={`w-full p-3.5 rounded-2xl text-xs font-mono font-bold tracking-wider transition-all cursor-pointer flex items-center justify-between ${
+                  activeSubTab === 'database'
+                    ? 'bg-gradient-to-r from-indigo-700 via-purple-700 to-indigo-800 text-white shadow-md border border-indigo-500'
+                    : 'bg-indigo-50/50 hover:bg-indigo-100/50 text-indigo-700 border border-indigo-200/80'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <Database className={`w-4 h-4 ${activeSubTab === 'database' ? 'text-white' : 'text-indigo-600'}`} />
+                  <span>🗄️ DATABASE INSPECTOR</span>
+                </div>
+                {activeSubTab === 'database' && <Check className="w-4 h-4 text-indigo-200" />}
+              </button>
+            )}
           </div>
 
           {/* Quick User Summary Info Box */}
@@ -859,6 +879,11 @@ export default function SettingsPage({ currentUser, onUpdateUser, onLogout, onNa
               </div>
             )}
 
+            {/* SUB-PAGE 5: MONGO DB DATABASE INSPECTOR */}
+            {activeSubTab === 'database' && currentUser.role === 'admin' && (
+              <DatabaseInspector />
+            )}
+
           </div>
         </div>
 
@@ -956,6 +981,363 @@ export default function SettingsPage({ currentUser, onUpdateUser, onLogout, onNa
           to { transform: scale(1); opacity: 1; }
         }
       `}</style>
+    </div>
+  );
+}
+
+function DatabaseInspector() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [dbData, setDbData] = useState(null);
+  const [activeCollection, setActiveCollection] = useState('users'); // 'users' or 'complaints'
+  const [expandedDocId, setExpandedDocId] = useState(null);
+
+  const fetchDbData = async () => {
+    setLoading(true);
+    setError(null);
+    const token = localStorage.getItem('token');
+    try {
+      const res = await axios.get('http://localhost:5000/api/admin/database', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      if (res.data && res.data.status === 'success') {
+        setDbData(res.data.data);
+      } else {
+        setError(res.data.message || 'Failed to fetch database information');
+      }
+    } catch (err) {
+      console.error('Database fetch error:', err);
+      setError(err.response?.data?.message || 'Server error occurred while fetching database metrics');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDbData();
+  }, []);
+
+  const toggleExpandDoc = (id) => {
+    if (expandedDocId === id) {
+      setExpandedDocId(null);
+    } else {
+      setExpandedDocId(id);
+    }
+  };
+
+  if (loading && !dbData) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 space-y-4">
+        <Server className="w-12 h-12 text-indigo-600 animate-pulse" />
+        <span className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></span>
+        <p className="text-xs font-mono text-slate-500">Connecting to MongoDB Atlas gateway...</p>
+      </div>
+    );
+  }
+
+  if (error && !dbData) {
+    return (
+      <div className="p-6 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 space-y-4">
+        <div className="flex items-center gap-3">
+          <AlertCircle className="w-6 h-6 text-rose-600" />
+          <span className="font-mono text-xs font-bold uppercase tracking-wider">Database Connection Error</span>
+        </div>
+        <p className="text-xs">{error}</p>
+        <button
+          onClick={fetchDbData}
+          className="px-4 py-2 bg-rose-600 text-white rounded-xl text-xs font-mono font-bold hover:bg-rose-700 transition-all flex items-center gap-2 cursor-pointer"
+        >
+          <RefreshCw className="w-3.5 h-3.5" />
+          <span>RETRY CONNECTION</span>
+        </button>
+      </div>
+    );
+  }
+
+  const stats = dbData?.stats || {
+    users: { total: 0, citizen: 0, operator: 0, admin: 0 },
+    complaints: { total: 0, pending: 0, inProgress: 0, resolved: 0, urgent: 0 }
+  };
+
+  const usersList = dbData?.collections?.users || [];
+  const complaintsList = dbData?.collections?.complaints || [];
+
+  return (
+    <div className="space-y-6">
+      {/* Title block */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-bold text-slate-900 font-sans flex items-center gap-2">
+            <Database className="w-5 h-5 text-indigo-600" />
+            <span>🗄️ MongoDB Database Inspector</span>
+          </h2>
+          <p className="text-xs text-slate-500 font-mono mt-0.5">
+            Operator-level collection metrics and live Atlas database viewer
+          </p>
+        </div>
+        <button
+          onClick={fetchDbData}
+          disabled={loading}
+          className="self-start md:self-center px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-mono text-xs font-bold transition-all shadow-md hover:shadow-lg disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+          <span>REFRESH DATA</span>
+        </button>
+      </div>
+
+      {/* Stats Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Users Card */}
+        <div className="p-5 rounded-3xl bg-gradient-to-br from-indigo-50 to-purple-50/30 border border-indigo-100 shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-indigo-900 font-bold text-xs font-mono uppercase tracking-wider">
+              <User className="w-4 h-4 text-indigo-600" />
+              <span>Users Registry</span>
+            </div>
+            <span className="text-xs px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-800 font-bold font-mono">
+              Total: {stats.users.total}
+            </span>
+          </div>
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <div className="p-2 rounded-xl bg-white border border-indigo-100/50">
+              <div className="text-[10px] text-slate-400 font-mono font-bold uppercase">Citizens</div>
+              <div className="text-base font-bold text-slate-800 mt-0.5">{stats.users.citizen}</div>
+            </div>
+            <div className="p-2 rounded-xl bg-white border border-indigo-100/50">
+              <div className="text-[10px] text-slate-400 font-mono font-bold uppercase">Operators</div>
+              <div className="text-base font-bold text-slate-800 mt-0.5">{stats.users.operator}</div>
+            </div>
+            <div className="p-2 rounded-xl bg-white border border-indigo-100/50">
+              <div className="text-[10px] text-slate-400 font-mono font-bold uppercase">Admins</div>
+              <div className="text-base font-bold text-indigo-700 mt-0.5">{stats.users.admin}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Complaints Card */}
+        <div className="p-5 rounded-3xl bg-gradient-to-br from-purple-50 to-pink-50/30 border border-purple-100 shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-purple-900 font-bold text-xs font-mono uppercase tracking-wider">
+              <Server className="w-4 h-4 text-purple-600" />
+              <span>Complaints Database</span>
+            </div>
+            <span className="text-xs px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 font-bold font-mono">
+              Total: {stats.complaints.total}
+            </span>
+          </div>
+          <div className="grid grid-cols-4 gap-1.5 text-center">
+            <div className="p-1.5 rounded-xl bg-white border border-purple-100/50">
+              <div className="text-[9px] text-slate-400 font-mono font-bold uppercase">Pending</div>
+              <div className="text-sm font-bold text-slate-800 mt-0.5">{stats.complaints.pending}</div>
+            </div>
+            <div className="p-1.5 rounded-xl bg-white border border-purple-100/50">
+              <div className="text-[9px] text-slate-400 font-mono font-bold uppercase">Active</div>
+              <div className="text-sm font-bold text-amber-600 mt-0.5">{stats.complaints.inProgress}</div>
+            </div>
+            <div className="p-1.5 rounded-xl bg-white border border-purple-100/50">
+              <div className="text-[9px] text-slate-400 font-mono font-bold uppercase">Resolved</div>
+              <div className="text-sm font-bold text-emerald-600 mt-0.5">{stats.complaints.resolved}</div>
+            </div>
+            <div className="p-1.5 rounded-xl bg-white border border-purple-100/50">
+              <div className="text-[9px] text-slate-400 font-mono font-bold uppercase">Urgent</div>
+              <div className="text-sm font-bold text-rose-600 mt-0.5">{stats.complaints.urgent}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Selector Tabs and Status Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 pb-3 gap-3">
+        <div className="flex gap-2">
+          <button
+            onClick={() => { setActiveCollection('users'); setExpandedDocId(null); }}
+            className={`px-4 py-2 rounded-xl text-xs font-mono font-bold tracking-wider transition-all cursor-pointer ${
+              activeCollection === 'users'
+                ? 'bg-slate-900 text-white shadow-md'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            USERS ({usersList.length})
+          </button>
+          <button
+            onClick={() => { setActiveCollection('complaints'); setExpandedDocId(null); }}
+            className={`px-4 py-2 rounded-xl text-xs font-mono font-bold tracking-wider transition-all cursor-pointer ${
+              activeCollection === 'complaints'
+                ? 'bg-slate-900 text-white shadow-md'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            COMPLAINTS ({complaintsList.length})
+          </button>
+        </div>
+        <div className="text-[10px] text-slate-400 font-mono">
+          Last sync: {new Date().toLocaleTimeString()}
+        </div>
+      </div>
+
+      {/* Main Table or List */}
+      <div className="overflow-x-auto border border-slate-200 rounded-2xl bg-slate-50/50">
+        {activeCollection === 'users' ? (
+          usersList.length === 0 ? (
+            <p className="p-8 text-center text-xs font-mono text-slate-500">No users found in database</p>
+          ) : (
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="bg-slate-100 border-b border-slate-200 text-slate-500 font-mono uppercase tracking-wider font-bold">
+                  <th className="p-3.5">User ID</th>
+                  <th className="p-3.5">Name</th>
+                  <th className="p-3.5">Email</th>
+                  <th className="p-3.5">Role</th>
+                  <th className="p-3.5">Verified</th>
+                  <th className="p-3.5 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200/60 bg-white">
+                {usersList.map((user) => {
+                  const isExpanded = expandedDocId === user._id;
+                  return (
+                    <React.Fragment key={user._id}>
+                      <tr className="hover:bg-slate-50/60 transition-colors">
+                        <td className="p-3.5 font-mono text-slate-400 select-all font-semibold">{user._id}</td>
+                        <td className="p-3.5 font-semibold text-slate-900">{user.name}</td>
+                        <td className="p-3.5 font-mono text-slate-600">{user.email}</td>
+                        <td className="p-3.5">
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase tracking-wider border ${
+                            user.role === 'admin'
+                              ? 'bg-rose-50 text-rose-700 border-rose-200'
+                              : user.role === 'operator'
+                                ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                : 'bg-blue-50 text-blue-700 border-blue-200'
+                          }`}>
+                            {user.role}
+                          </span>
+                        </td>
+                        <td className="p-3.5 font-mono text-slate-500">
+                          {user.isVerified ? (
+                            <span className="text-emerald-600 font-bold">● YES</span>
+                          ) : (
+                            <span className="text-slate-400">NO</span>
+                          )}
+                        </td>
+                        <td className="p-3.5 text-right">
+                          <button
+                            onClick={() => toggleExpandDoc(user._id)}
+                            className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg font-mono text-[10px] font-bold cursor-pointer transition-colors"
+                          >
+                            {isExpanded ? 'Hide Raw' : 'View JSON'}
+                          </button>
+                        </td>
+                      </tr>
+                      {isExpanded && (
+                        <tr>
+                          <td colSpan="6" className="p-4 bg-slate-900 border-t border-b border-slate-950">
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="text-[10px] font-mono text-indigo-400 font-bold">RAW DOCUMENT: User ({user._id})</span>
+                              <span className="text-[9px] font-mono text-slate-500">Created: {user.createdAt ? new Date(user.createdAt).toLocaleString() : 'N/A'}</span>
+                            </div>
+                            <pre className="text-[10px] font-mono text-emerald-400 overflow-x-auto leading-relaxed select-all">
+                              {JSON.stringify(user, null, 2)}
+                            </pre>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+          )
+        ) : (
+          complaintsList.length === 0 ? (
+            <p className="p-8 text-center text-xs font-mono text-slate-500">No complaints found in database</p>
+          ) : (
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="bg-slate-100 border-b border-slate-200 text-slate-500 font-mono uppercase tracking-wider font-bold">
+                  <th className="p-3.5">Ticket ID</th>
+                  <th className="p-3.5">Title</th>
+                  <th className="p-3.5">Location</th>
+                  <th className="p-3.5">Submitter</th>
+                  <th className="p-3.5">Status</th>
+                  <th className="p-3.5">Priority</th>
+                  <th className="p-3.5 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200/60 bg-white">
+                {complaintsList.map((comp) => {
+                  const isExpanded = expandedDocId === comp._id;
+                  return (
+                    <React.Fragment key={comp._id}>
+                      <tr className="hover:bg-slate-50/60 transition-colors">
+                        <td className="p-3.5 font-mono text-slate-400 select-all font-semibold">{comp._id}</td>
+                        <td className="p-3.5 font-semibold text-slate-900 max-w-[150px] truncate">{comp.title}</td>
+                        <td className="p-3.5 text-slate-600 truncate max-w-[120px]">{comp.location}</td>
+                        <td className="p-3.5 font-mono">
+                          {comp.user ? (
+                            <div className="flex flex-col">
+                              <span className="text-slate-800 font-sans font-semibold">{comp.user.name}</span>
+                              <span className="text-[10px] text-slate-400">{comp.user.email}</span>
+                            </div>
+                          ) : (
+                            <span className="text-slate-400 italic">Anonymous / Purged</span>
+                          )}
+                        </td>
+                        <td className="p-3.5">
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase tracking-wider border ${
+                            comp.status === 'Resolved'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                              : comp.status === 'In Progress'
+                                ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                : comp.status === 'Urgent'
+                                  ? 'bg-rose-50 text-rose-700 border-rose-200'
+                                  : 'bg-blue-50 text-blue-700 border-blue-200'
+                          }`}>
+                            {comp.status}
+                          </span>
+                        </td>
+                        <td className="p-3.5 font-mono font-bold text-center">
+                          <span className={`px-2 py-0.5 rounded font-mono ${
+                            comp.priority >= 4
+                              ? 'bg-rose-100 text-rose-800 font-bold'
+                              : comp.priority >= 2
+                                ? 'bg-amber-100 text-amber-800'
+                                : 'bg-slate-100 text-slate-700'
+                          }`}>
+                            P{comp.priority}
+                          </span>
+                        </td>
+                        <td className="p-3.5 text-right">
+                          <button
+                            onClick={() => toggleExpandDoc(comp._id)}
+                            className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg font-mono text-[10px] font-bold cursor-pointer transition-colors"
+                          >
+                            {isExpanded ? 'Hide Raw' : 'View JSON'}
+                          </button>
+                        </td>
+                      </tr>
+                      {isExpanded && (
+                        <tr>
+                          <td colSpan="7" className="p-4 bg-slate-900 border-t border-b border-slate-950">
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="text-[10px] font-mono text-indigo-400 font-bold">RAW DOCUMENT: Complaint ({comp._id})</span>
+                              <span className="text-[9px] font-mono text-slate-500">Created: {comp.createdAt ? new Date(comp.createdAt).toLocaleString() : 'N/A'}</span>
+                            </div>
+                            <pre className="text-[10px] font-mono text-emerald-400 overflow-x-auto leading-relaxed select-all">
+                              {JSON.stringify(comp, null, 2)}
+                            </pre>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+          )
+        )}
+      </div>
     </div>
   );
 }

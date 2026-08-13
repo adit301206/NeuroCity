@@ -18,6 +18,7 @@ const seedAdmin = async () => {
             admin.name = 'System Administrator';
             admin.password = 'AdminPassword123!';
             admin.role = 'admin';
+            admin.isVerified = true;
             // Save triggers the bcrypt pre-save password-hashing hook
             await admin.save();
             console.log('[Seeder] Admin user updated successfully.');
@@ -27,7 +28,8 @@ const seedAdmin = async () => {
                 name: 'System Administrator',
                 email: adminEmail,
                 password: 'AdminPassword123!',
-                role: 'admin'
+                role: 'admin',
+                isVerified: true
             });
             await admin.save();
             console.log('[Seeder] Admin user seeded successfully.');
