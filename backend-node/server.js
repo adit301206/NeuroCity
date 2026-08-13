@@ -13,6 +13,7 @@ const trafficRoutes = require('./routes/traffic');
 const energyRoutes = require('./routes/energy');
 const weatherRoutes = require('./routes/weather');
 const statsRoutes = require('./routes/stats');
+const adminRoutes = require('./routes/admin');
 
 connectDB();
 
@@ -31,6 +32,7 @@ app.use('/api/traffic', trafficRoutes);
 app.use('/api/energy', energyRoutes);
 app.use('/api/weather', weatherRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/', (req, res) => {
     res.json({ status: "online", service: "NeuroCity Core Gateway Router" });
